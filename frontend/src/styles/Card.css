@@ -1,0 +1,58 @@
+@import './variables.css';
+
+.card {
+  background-color: var(--color-background-alt);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-lg);
+  overflow: hidden;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.card-body {
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+.card-body.no-padding {
+  padding: 0;
+}
+
+.card-footer {
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-top: 1px solid var(--color-border);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.card-full-width {
+  width: 100%;
+}
+
+/* Animation on hover */
+.card.animate-hover:hover {
+  transform: translateY(-5px);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-md);
+  }
+}

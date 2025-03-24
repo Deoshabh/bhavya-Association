@@ -1,0 +1,13 @@
+/* Global styles for bottom navigation spacing */
+
+@media (max-width: 768px) {
+  /* Add bottom padding to all main content to avoid content being hidden behind bottom nav */
+  #root {
+    padding-bottom: 70px; /* Match the height of bottom navigation */
+  }
+  
+  /* Adjust footer to not overlap with bottom navigation */
+  footer {
+    margin-bottom: 60px;
+  }
+}

@@ -1,0 +1,258 @@
+@import './variables.css';
+
+.user-profile-card {
+  margin-bottom: var(--spacing-lg);
+  overflow: hidden;
+}
+
+.profile-header {
+  text-align: center;
+  padding: var(--spacing-md); /* Reduced padding for mobile */
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-image-container {
+  width: 120px; /* Slightly smaller default for mobile */
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto var(--spacing-sm); /* Reduced margin */
+  border: 2px solid white; /* Thinner border for mobile */
+  box-shadow: var(--shadow-md);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-header h2 {
+  margin: 0 0 var(--spacing-xs);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg); /* Ensure readable size */
+}
+
+.profile-occupation {
+  color: var(--color-primary);
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm); /* Slightly smaller for mobile */
+}
+
+.profile-sections {
+  padding: var(--spacing-md); /* Reduced padding for mobile */
+  display: flex;
+  flex-direction: column; /* Stack sections vertically by default */
+  gap: var(--spacing-md); /* Reduced gap for tighter layout */
+}
+
+@media (min-width: 768px) {
+  .profile-sections {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+  }
+}
+
+.info-section {
+  margin-bottom: var(--spacing-md); /* Reduced margin */
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--spacing-sm);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-title svg {
+  color: var(--color-primary);
+  width: 18px; /* Fixed size for consistency */
+  height: 18px;
+}
+
+.bio {
+  color: var(--color-text);
+  line-height: 1.5; /* Slightly tighter line height for mobile */
+  font-size: var(--font-size-sm); /* Ensure readability */
+}
+
+.interests-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.interest-tag {
+  background-color: var(--color-background);
+  padding: 4px 10px; /* Slightly smaller padding */
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs); /* Smaller text for mobile */
+  color: var(--color-text);
+}
+
+/* Contact section */
+.contact-section {
+  background-color: #f8f9fa;
+  padding: var(--spacing-md); /* Reduced padding */
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text);
+  font-size: var(--font-size-sm); /* Ensure readability */
+}
+
+.contact-item svg {
+  color: var(--color-primary);
+  width: 18px; /* Fixed size for consistency */
+  height: 18px;
+}
+
+.contact-actions {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically by default */
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+@media (min-width: 576px) {
+  .contact-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.call-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  background-color: #4caf50;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm); /* Readable size */
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  touch-action: manipulation; /* Improve touch responsiveness */
+}
+
+.call-button:hover,
+.call-button:focus {
+  background-color: #43a047;
+  text-decoration: none;
+  transform: translateY(-2px);
+  outline: none; /* Remove default focus outline */
+}
+
+/* Premium upgrade section */
+.premium-upgrade-section {
+  background-color: #fff8e1;
+  padding: var(--spacing-md); /* Reduced padding */
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 1px solid #ffecb3;
+}
+
+.premium-badge {
+  width: 40px; /* Slightly smaller for mobile */
+  height: 40px;
+  margin: 0 auto var(--spacing-sm);
+  background-color: #ffc107;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.premium-upgrade-section h3 {
+  margin: 0 0 var(--spacing-sm);
+  color: #856404;
+  font-size: var(--font-size-md);
+}
+
+.premium-upgrade-section p {
+  margin: 0 0 var(--spacing-md);
+  color: #856404;
+  font-size: var(--font-size-xs); /* Smaller text for mobile */
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 576px) {
+  .profile-header {
+    padding: var(--spacing-sm); /* Further reduced padding */
+  }
+
+  .profile-image-container {
+    width: 100px; /* Smaller image */
+    height: 100px;
+  }
+
+  .profile-header h2 {
+    font-size: var(--font-size-md); /* Adjust title size */
+  }
+
+  .profile-occupation {
+    font-size: var(--font-size-xs); /* Smaller occupation text */
+  }
+
+  .profile-sections {
+    padding: var(--spacing-sm); /* Further reduced padding */
+    gap: var(--spacing-sm); /* Tighter gap */
+  }
+
+  .bio {
+    font-size: var(--font-size-xs); /* Smaller bio text */
+  }
+
+  .interest-tag {
+    padding: 3px 8px; /* Smaller tags */
+    font-size: var(--font-size-xs);
+  }
+
+  .contact-section {
+    padding: var(--spacing-sm); /* Further reduced padding */
+  }
+
+  .contact-item {
+    font-size: var(--font-size-xs); /* Smaller text */
+  }
+
+  .call-button {
+    padding: var(--spacing-xs) var(--spacing-sm); /* Smaller button */
+  }
+
+  .premium-upgrade-section {
+    padding: var(--spacing-sm); /* Further reduced padding */
+  }
+
+  .premium-badge {
+    width: 32px; /* Smaller badge */
+    height: 32px;
+  }
+
+  .premium-upgrade-section h3 {
+    font-size: var(--font-size-sm); /* Smaller heading */
+  }
+
+  .premium-upgrade-section p {
+    font-size: var(--font-size-xs); /* Smaller text */
+  }
+}

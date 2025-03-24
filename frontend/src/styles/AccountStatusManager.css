@@ -1,0 +1,74 @@
+@import './variables.css';
+
+.account-status-warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-index-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  animation: fadeIn 0.3s ease-out forwards;
+  padding: var(--spacing-lg);
+}
+
+.account-status-content {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.status-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+}
+
+.status-message p {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+}
+
+.status-message p:last-child {
+  margin-bottom: 0;
+}
+
+/* Styling for suspended accounts */
+.account-status-warning.suspended .status-icon {
+  color: var(--color-warning);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .account-status-content {
+    padding: var(--spacing-lg);
+  }
+
+  .status-icon {
+    font-size: 36px;
+  }
+  
+  .status-message p {
+    font-size: var(--font-size-base);
+  }
+}

@@ -1,0 +1,88 @@
+@import './variables.css';
+
+.sidebar-layout {
+  display: flex;
+  min-height: calc(100vh - 70px); /* Adjust for navbar height */
+  margin-top: 70px; /* Match navbar height */
+  position: relative;
+  transition: all var(--transition-normal);
+}
+
+.sidebar-container {
+  position: relative;
+  transition: all var(--transition-normal);
+  z-index: 10;
+  display: none; /* Hide sidebar by default for all devices */
+}
+
+.sidebar-layout-main {
+  flex: 1;
+  padding: var(--spacing-lg);
+  margin-left: 0; /* No margin needed as sidebar is hidden */
+  transition: margin-left var(--transition-normal);
+  min-height: 100%;
+  background-color: #fafafa;
+  width: 100%; /* Make sure main content uses full width */
+}
+
+/* Collapsed state styling - not needed since sidebar is hidden */
+.sidebar-layout.sidebar-collapsed .sidebar-layout-main {
+  margin-left: 0;
+}
+
+/* Sidebar toggle button - hide it since sidebar is hidden */
+.sidebar-toggle {
+  display: none;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 992px) {
+  .sidebar-container {
+    width: 100%;
+    position: static;
+  }
+  
+  .sidebar-layout-main {
+    margin-left: 0;
+    width: 100%;
+    padding: var(--spacing-md);
+  }
+  
+  .sidebar-layout.sidebar-collapsed .sidebar-layout-main {
+    margin-left: 0;
+  }
+  
+  .sidebar-toggle {
+    display: none; /* Hide toggle on mobile */
+  }
+}
+
+/* Additional mobile-specific adjustments */
+@media (max-width: 768px) {
+  /* Add bottom padding to prevent content from being hidden behind the bottom nav */
+  .sidebar-layout-main {
+    padding-bottom: calc(var(--spacing-md) + 70px); /* Extra padding for bottom nav */
+  }
+  
+  /* Hide sidebar container entirely on mobile */
+  .sidebar-container {
+    display: none;
+  }
+  
+  /* Make sure the content extends full width */
+  .sidebar-layout-main {
+    width: 100%;
+  }
+  
+  /* Make sure the layout is properly adjusted */
+  .sidebar-layout {
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar-layout-main {
+    padding: var(--spacing-sm);
+    padding-bottom: calc(var(--spacing-sm) + 70px); /* Maintain extra padding for bottom nav */
+  }
+}

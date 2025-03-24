@@ -1,0 +1,57 @@
+@import './variables.css';
+
+.login-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.login-container {
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: var(--color-background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2rem;
+}
+
+.login-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.login-header h1 {
+  flex-grow: 1;
+  text-align: center;
+  color: var(--color-text);
+  font-size: var(--font-size-2xl);
+  margin: 0;
+}
+
+.server-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  color: #856404;
+  font-size: var(--font-size-sm);
+}
+
+/* Media queries for responsive design */
+@media (max-width: 480px) {
+  .login-container {
+    padding: var(--spacing-lg);
+  }
+  
+  .login-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .back-button {
+    align-self: flex-start;
+  }
+}

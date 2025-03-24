@@ -1,0 +1,270 @@
+/* Profile Card */
+.profile-card {
+  width: 90%;
+  max-width: 600px;
+  border: 2px solid #6c757d;
+  border-radius: 10px;
+  background: white;
+  font-family: Arial, sans-serif;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px; /* Ensure space for the footer */
+}
+
+/* Profile Card Header */
+.profile-card-header {
+  background: #f5abf4;
+  color: black;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.profile-card-header img.profile-card-logo {
+  max-width: 80px;
+  margin-right: 10px;
+}
+
+.profile-card-header .text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-card-header span.ex {
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.profile-card-header span.extra {
+  font-size: 12px;
+  font-weight: normal;
+  text-align: right;
+}
+
+/* Profile Card Body */
+.profile-card-body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+}
+
+.profile-card-img {
+  flex: 0 0 35%;
+  min-width: 100px; /* Prevents excessive shrinking */
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.profile-card-img img {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  border-radius: 10px;
+  border: 3px solid #6c0077;
+  object-fit: cover;
+}
+
+.profile-card-content {
+  flex: 1;
+  text-align: left;
+  padding: 10px;
+}
+
+.profile-card-content h3 {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333;
+}
+
+.profile-card-content .occupation {
+  font-size: 14px;
+}
+
+.profile-card-content p {
+  font-size: 13px;
+}
+
+/* Buttons Container */
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* Reg Number Button (example usage) */
+.reg-number {
+  display: flex;
+  color: black;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Share Button */
+.share-button {
+  display: inline-block;
+  background-color: #F0FFFF;
+  color: white;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  text-decoration: none;
+  text-align: center;
+  min-width: 140px;
+  transition: background 0.3s;
+  border: none; /* If it's used for <button> as well */
+  cursor: pointer;
+}
+
+.share-button:hover {
+  background-color: #F0FFFF;
+}
+
+/* Additional Button Styles (Edit, Deactivate, Delete) */
+.edit-button {
+  background-color: #007bff;
+}
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.deactivate-button {
+  background-color: #ffc107;
+  color: #000;
+}
+.deactivate-button:hover {
+  background-color: #e0a800;
+  color: #000;
+}
+
+.delete-button {
+  background-color: #dc3545;
+}
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+/* Profile Card Footer */
+.profile-card-footer {
+  font-size: 10px;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.footer-left {
+  margin-left: 10px;
+}
+
+.footer-right {
+  margin-right: 10px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .site-title {
+      font-size: 18px !important;
+  }
+
+  .profile-card-header {
+      flex-direction: row;
+      text-align: left;
+  }
+
+  .profile-card-body {
+      flex-direction: row;
+      align-items: center;
+  }
+
+  .profile-card-img {
+      flex: 0 0 40%;
+  }
+
+  .profile-card-img img {
+      max-width: 140px;
+  }
+
+  .profile-card-content {
+      padding: 10px;
+  }
+
+  .profile-card-content h3 {
+      font-size: 12px;
+  }
+
+  .profile-card-content .occupation {
+      font-size: 12px;
+  }
+
+  .profile-card-content p {
+      font-size: 12px;
+  }
+
+  .reg-number,
+  .share-button {
+      font-size: 12px;
+      padding: 8px 12px;
+      min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-branding {
+      flex-direction: row;
+      text-align: left;
+      justify-content: flex-start;
+  }
+
+  .site-branding img {
+      max-height: 35px;
+      margin-bottom: 0px;
+      margin-right: 10px;
+  }
+
+  .profile-card {
+      width: 95%;
+  }
+
+  .profile-card-body {
+      flex-direction: row;
+      align-items: center;
+  }
+
+  .profile-card-img {
+      flex: 0 0 30%;
+  }
+
+  .profile-card-img img {
+      max-width: 100px;
+  }
+
+  .profile-card-content h3 {
+      font-size: 12px;
+  }
+
+  .profile-card-content .occupation {
+      font-size: 12px;
+  }
+
+  .profile-card-content p {
+      font-size: 11px;
+  }
+
+  .reg-number,
+  .share-button {
+      font-size: 11px;
+      padding: 7px 10px;
+      min-width: 110px;
+  }
+}

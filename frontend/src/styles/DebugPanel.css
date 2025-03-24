@@ -1,0 +1,127 @@
+.debug-panel {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.debug-panel h2 {
+  margin-top: 0;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.error-box {
+  background-color: #fadbd8;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+.success-box {
+  background-color: #d4edda;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+pre {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.troubleshooting {
+  margin-top: 15px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.troubleshooting h4 {
+  margin-top: 0;
+}
+
+.manual-test {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.manual-test a {
+  display: inline-block;
+  background-color: #25D366;
+  color: white;
+  padding: 8px 15px;
+  margin: 5px 0;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.manual-test a:hover {
+  background-color: #1ebe52;
+}
+
+.endpoint-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.endpoint-buttons button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: auto;
+}
+
+.endpoint-buttons button:hover {
+  background-color: #5a6268;
+}
+
+.endpoint-buttons button.active {
+  background-color: #25D366;
+}
+
+code {
+  background-color: #f8f9fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.optimization-info {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.optimization-info ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.optimization-info li {
+  margin-bottom: 5px;
+}
+
+.token-expired {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.token-valid {
+  color: #28a745;
+  font-weight: bold;
+}
