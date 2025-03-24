@@ -113,7 +113,9 @@ async function startServer() {
     
     // Start the server only after database is connected
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   } catch (err) {
     console.error(`Failed to start server: ${err.message}`);
     console.error('Application cannot start without database connection');
