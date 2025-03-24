@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodejs"]
+
+[build]
+command = "npm install && npm run build"
+
+[run]
+command = "npx serve -s build"
