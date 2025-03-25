@@ -48,7 +48,7 @@ const Home = () => {
     } else if (user) {
       navigate('/directory');
     } else {
-      navigate('/login');
+      navigate('/register');
     }
   };
 

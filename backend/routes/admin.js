@@ -380,4 +380,50 @@ router.put('/listings/:listingId', auth, adminAuth, async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/admin/directory-diagnostic
+ * @desc    Get directory visibility diagnostic information
+ * @access  Admin
+ */
+router.get('/directory-diagnostic', auth, adminAuth, async (req, res) => {
+  try {
+    // Get total users
+    const totalUsers = await User.countDocuments({});
+    
+    // Get users visible in directory
+    const visibleUsers = await User.find({
+      isPublic: true,
+      accountStatus: 'active'
+    }).countDocuments();
+    
+    // Get users with isPublic: false
+    const privateUsers = await User.countDocuments({ isPublic: false });
+    
+    // Get users with non-active status
+    const inactiveUsers = await User.countDocuments({ accountStatus: { $ne: 'active' } });
+
+    // Get sample data - first 5 visible users
+    const sampleUsers = await User.find({
+      isPublic: true,
+      accountStatus: 'active'
+    })
+    .select('name phoneNumber isPublic accountStatus planType')
+    .limit(5);
+    
+    res.json({
+      stats: {
+        totalUsers,
+        visibleUsers,
+        privateUsers,
+        inactiveUsers,
+        visibilityRate: Math.round(visibleUsers/totalUsers*100)
+      },
+      sampleUsers
+    });
+  } catch (err) {
+    console.error('Directory diagnostic error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
 module.exports = router;
