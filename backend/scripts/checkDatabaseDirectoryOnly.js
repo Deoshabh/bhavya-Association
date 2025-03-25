@@ -1,10 +1,68 @@
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-mongoose.connect(process.env.MONGO_URI)
+// Function to determine MongoDB URI from various sources
+function getMongoURI() {
+  // Priority 1: Command line argument (--uri=mongodb://...)
+  const uriArg = process.argv.find(arg => arg.startsWith('--uri='));
+  if (uriArg) {
+    return uriArg.split('=')[1];
+  }
+  
+  // Priority 2: Environment variable
+  if (process.env.MONGO_URI) {
+    return process.env.MONGO_URI;
+  }
+  
+  // Priority 3: Check for local config.json file
+  try {
+    const configPath = path.join(__dirname, '..', 'config.json');
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (config.mongoURI) {
+        return config.mongoURI;
+      }
+    }
+  } catch (err) {
+    console.error('Error reading config file:', err.message);
+  }
+  
+  // Priority 4: Check for other possible environment variable names
+  if (process.env.MONGODB_URI) return process.env.MONGODB_URI;
+  if (process.env.DB_URI) return process.env.DB_URI;
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  
+  // No valid URI found
+  return null;
+}
+
+// Get MongoDB URI
+const mongoURI = getMongoURI();
+
+if (!mongoURI) {
+  console.error('\n❌ ERROR: MongoDB URI not found!');
+  console.error('Please provide a MongoDB URI using one of these methods:');
+  console.error('1. Set MONGO_URI in your .env file');
+  console.error('2. Provide it as a command line argument: --uri=mongodb://...');
+  console.error('3. Create a config.json file in the backend directory with a mongoURI property');
+  console.error('\nExample command:');
+  console.error('node scripts/checkDatabaseDirectoryOnly.js --uri=mongodb://localhost:27017/bhavya-association\n');
+  process.exit(1);
+}
+
+// Connect to MongoDB with a longer timeout for Docker environments
+mongoose.connect(mongoURI, {
+  serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+  connectTimeoutMS: 30000
+})
   .then(() => console.log('MongoDB Connected for directory check...'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
+  .catch(err => {
+    console.error('MongoDB Connection Error:', err);
+    process.exit(1);
+  });
 
 async function checkDirectoryOnly() {
   try {
