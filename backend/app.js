@@ -38,6 +38,21 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add a middleware to normalize duplicate /api prefixes in URL paths
+app.use((req, res, next) => {
+  // Check for duplicate /api prefixes in URL path
+  if (req.path.includes('/api/api/')) {
+    console.warn(`⚠️ Request with duplicate API prefix detected: ${req.path}`);
+    // Normalize the path by replacing '/api/api/' with '/api/'
+    const normalizedPath = req.path.replace('/api/api/', '/api/');
+    console.warn(`Redirecting to normalized path: ${normalizedPath}`);
+    
+    // Redirect to the normalized path
+    return res.redirect(307, normalizedPath);
+  }
+  next();
+});
+
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));

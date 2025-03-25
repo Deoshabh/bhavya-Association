@@ -233,7 +233,7 @@ export const AuthProvider = ({ children }) => {
     fetchUserProfile();
   }, [token, fetchUserProfile]);
 
-  // Fix login method to use the correct path
+  // Fix login method to eliminate URL path issues
   const login = async (phoneNumber, password) => {
     setLoading(true);
     setError(null);
@@ -241,9 +241,12 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Attempting login with phone:', phoneNumber);
       
-      // Use raw path without /api prefix - our interceptor will add it correctly
-      // Note: Don't use /auth/login which gets transformed to /api/auth/login
-      // Use auth/login (no leading slash) to avoid confusion with the base URL
+      // VERY IMPORTANT: Don't use any leading slash or any 'api/' in the path
+      // Our interceptor will handle adding these correctly
+      console.log('Making login request to endpoint: "auth/login"');
+      
+      // Use 'auth/login' as a direct string, not from AUTH.LOGIN or any other source
+      // This bypasses any potential issues with imported constants
       const response = await api.post('auth/login', { phoneNumber, password });
       
       if (response.data && response.data.token) {
@@ -425,7 +428,8 @@ export const AuthProvider = ({ children }) => {
     // Verify token validity on mount
     const validateTokenOnMount = async () => {
       try {
-        // Use path without leading slash
+        // Use 'auth/token-status' directly
+        console.log('Making token status request to endpoint: "auth/token-status"');
         await api.get('auth/token-status'); 
         console.log('Token validated successfully on mount');
       } catch (error) {
