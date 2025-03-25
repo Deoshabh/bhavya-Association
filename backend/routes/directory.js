@@ -168,4 +168,51 @@ router.post('/toggle-visibility', auth, async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/directory/debug
+ * @desc    Get directory debug information
+ * @access  Public
+ */
+router.get('/debug', async (req, res) => {
+  try {
+    console.log('Directory debug endpoint accessed');
+    
+    // Check if we can find users that should be visible
+    const visibleUsers = await User.find({
+      isPublic: true,
+      accountStatus: 'active'
+    }).select('name phoneNumber').limit(5);
+    
+    // Get count of all users and visible users
+    const totalUsers = await User.countDocuments({});
+    const visibleCount = await User.countDocuments({
+      isPublic: true,
+      accountStatus: 'active'
+    });
+    
+    console.log(`Found ${visibleCount} visible users out of ${totalUsers} total users`);
+    
+    res.json({
+      debug: true,
+      counts: {
+        total: totalUsers,
+        visible: visibleCount,
+        percentage: Math.round((visibleCount / totalUsers) * 100)
+      },
+      sample: visibleUsers.map(user => ({
+        id: user._id,
+        name: user.name,
+        phone: user.phoneNumber ? user.phoneNumber.substring(0, 3) + '***' : 'N/A'
+      })),
+      query: {
+        isPublic: true,
+        accountStatus: 'active'
+      }
+    });
+  } catch (err) {
+    console.error('Directory debug error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
 module.exports = router;

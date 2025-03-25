@@ -9,6 +9,96 @@ import PremiumBanner from '../components/PremiumBanner';
 import PageHeader from '../components/PageHeader';
 import { Search, RefreshCw, Filter, ChevronDown, Users, X } from 'lucide-react';
 import '../styles/Directory.css';
+import api from '../services/api';
+
+const DirectoryDiagnostic = () => {
+  const [debugInfo, setDebugInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const runDiagnostic = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get('/api/directory/debug');
+      setDebugInfo(response.data);
+    } catch (err) {
+      console.error('Directory diagnostic error:', err);
+      setError(err.message || 'Error running directory diagnostic');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  if (!debugInfo && !loading && !error) {
+    return (
+      <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+        <p className="text-yellow-700">No users showing in the directory?</p>
+        <button 
+          onClick={runDiagnostic}
+          className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+        >
+          Run Diagnostic
+        </button>
+      </div>
+    );
+  }
+  
+  if (loading) {
+    return <div className="p-4 bg-gray-100">Running diagnostic...</div>;
+  }
+  
+  if (error) {
+    return (
+      <div className="bg-red-100 border-l-4 border-red-500 p-4 mb-4">
+        <p className="text-red-700">Error: {error}</p>
+        <button 
+          onClick={runDiagnostic}
+          className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="bg-blue-100 border-l-4 border-blue-500 p-4 mb-4">
+      <h3 className="font-bold text-blue-700">Directory Diagnostic Results</h3>
+      <p>Total users: {debugInfo.counts.total}</p>
+      <p>Visible users: {debugInfo.counts.visible} ({debugInfo.counts.percentage}%)</p>
+      
+      {debugInfo.counts.visible === 0 && (
+        <div className="mt-2 p-2 bg-red-100 rounded">
+          <p className="text-red-700 font-semibold">No users are currently visible in the directory!</p>
+          <p className="text-sm mt-1">
+            To fix this issue, run the directory fixer script on the server:
+            <br />
+            <code className="bg-gray-200 px-1 py-0.5 rounded">node scripts/fix-directory-users.js</code>
+          </p>
+        </div>
+      )}
+      
+      {debugInfo.sample.length > 0 && (
+        <div className="mt-2">
+          <p className="font-medium">Sample visible users:</p>
+          <ul className="list-disc pl-5">
+            {debugInfo.sample.map((user, i) => (
+              <li key={i}>{user.name} ({user.phone}...)</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
+      <button 
+        onClick={() => setDebugInfo(null)}
+        className="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded"
+      >
+        Hide Diagnostic
+      </button>
+    </div>
+  );
+};
 
 const Directory = () => {
   const { api, serverStatus, user: currentUser, token } = useContext(AuthContext);
@@ -270,6 +360,7 @@ const Directory = () => {
                 <RefreshCw size={14} />
                 <span>Refresh Directory</span>
               </button>
+              <DirectoryDiagnostic />
             </div>
           )}
 
