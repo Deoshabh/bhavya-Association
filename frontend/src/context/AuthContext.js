@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }) => {
     const validateToken = async () => {
       try {
         // Try to make a request using the token
-        await api.get('/api/profile/me');
+        await api.get('/profile/me'); // Without the /api prefix - interceptor will add it
         // If successful, token is still valid
         return true;
       } catch (error) {
@@ -168,7 +168,7 @@ export const AuthProvider = ({ children }) => {
       
       // Use withRetry with auth error handler
       const res = await withRetry(
-        () => api.get('/api/profile/me'), 
+        () => api.get('/profile/me'), // Without the /api prefix - interceptor will add it
         2, 
         `profile-${token.slice(-10)}`,
         forceRefresh, // Bypass throttle on login or manual refresh
@@ -426,7 +426,7 @@ export const AuthProvider = ({ children }) => {
     const validateTokenOnMount = async () => {
       try {
         // Try to make a lightweight request to verify token
-        await api.get('/api/auth/token-status');
+        await api.get('/auth/token-status'); // Without the /api prefix - interceptor will add it
         console.log('Token validated successfully on mount');
       } catch (error) {
         if (error.response?.status === 401) {

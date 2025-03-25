@@ -2,28 +2,52 @@ import axios from 'axios';
 
 // Create a centralized API instance
 const api = axios.create({
-  // Remove the `/api` from the baseURL as it's included in the endpoint paths
+  // Important: baseURL should NOT include /api as this will be added in the paths
   baseURL: process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com',
   timeout: 15000,
-  // Add withCredentials to work with CORS cookies if needed
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Add a request interceptor to always include the latest token
+// Utility to fix API path duplication
+const normalizeApiPath = (url) => {
+  if (!url) return url;
+  
+  // If URL already has external protocol/domain, leave it alone
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Strip duplicate /api prefixes
+  let normalizedUrl = url;
+  while (normalizedUrl.includes('/api/api/')) {
+    normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
+  }
+  
+  // Handle case where url doesn't start with /api
+  if (!normalizedUrl.startsWith('/api/') && !normalizedUrl.startsWith('/health')) {
+    normalizedUrl = '/api' + (normalizedUrl.startsWith('/') ? normalizedUrl : '/' + normalizedUrl);
+  }
+  
+  return normalizedUrl;
+};
+
+// Add a request interceptor to always include the latest token and fix URL duplication
 api.interceptors.request.use(
   config => {
     // Get the latest token from localStorage before each request
     const token = localStorage.getItem('token');
     
-    // Fix URL duplication issue by removing any double `/api` prefixes
-    if (config.url && config.url.startsWith('/api/')) {
-      // URLs should start with /api/, not /api/api/
-      if (config.url.startsWith('/api/api/')) {
-        config.url = config.url.replace('/api/api/', '/api/');
-        console.log(`Fixed duplicate API prefix in URL: ${config.url}`);
+    // Fix URL duplication issue by normalizing the URL
+    if (config.url) {
+      const originalUrl = config.url;
+      config.url = normalizeApiPath(config.url);
+      
+      // Log only if URL was changed for debugging
+      if (originalUrl !== config.url) {
+        console.log(`Fixed API URL path: ${originalUrl} → ${config.url}`);
       }
     }
     

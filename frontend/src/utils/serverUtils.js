@@ -30,6 +30,33 @@ const DIRECTORY_CACHE_TTL = 300000; // 5 minutes
 const apiCache = new Map();
 
 /**
+ * Normalizes an API URL path to ensure consistent format
+ * @param {string} url - The URL to normalize
+ * @returns {string} The normalized URL
+ */
+const normalizeApiPath = (url) => {
+  if (!url) return url;
+  
+  // If URL already has external protocol/domain, leave it alone
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Strip duplicate /api prefixes
+  let normalizedUrl = url;
+  while (normalizedUrl.includes('/api/api/')) {
+    normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
+  }
+  
+  // Handle case where url doesn't start with /api
+  if (!normalizedUrl.startsWith('/api/') && !normalizedUrl.startsWith('/health')) {
+    normalizedUrl = '/api' + (normalizedUrl.startsWith('/') ? normalizedUrl : '/' + normalizedUrl);
+  }
+  
+  return normalizedUrl;
+};
+
+/**
  * Checks if the server is up with caching to avoid frequent checks.
  * @returns {Promise<boolean>} True if server is available, false otherwise
  */
@@ -42,7 +69,8 @@ export const checkServerStatus = async () => {
   }
 
   try {
-    const response = await axios.get(`${BASE_URL}/api/health`, { timeout: 3000 });
+    // Use normalized path to ensure correct URL format
+    const response = await axios.get(normalizeApiPath('/health'), { timeout: 3000 });
     const isUp = response.data && response.data.status === 'ok';
     serverStatusCache = { isUp, timestamp: now, ttl: 5000 };
     return isUp;

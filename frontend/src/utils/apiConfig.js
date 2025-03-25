@@ -3,6 +3,9 @@
  * This helps avoid duplication of API paths
  */
 
+// Important: These paths should NOT include the /api prefix
+// The interceptor will add it if needed
+
 // Base API paths
 export const AUTH = {
   LOGIN: '/auth/login',
@@ -39,14 +42,19 @@ export const LISTINGS = {
   DELETE: (id) => `/listings/${id}`
 };
 
-// Helper function to ensure API paths don't have duplicate /api prefix
+// Helper function to ensure API paths are correctly formatted
 export const getApiPath = (path) => {
   // Ensure path starts with a slash
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   
-  // Check for and remove duplicate /api prefix
-  if (normalizedPath.startsWith('/api/')) {
-    return normalizedPath;
+  // Ensure no duplicate /api prefixes
+  if (normalizedPath.includes('/api/api/')) {
+    return normalizedPath.replace('/api/api/', '/api/');
+  }
+  
+  // Add /api if it's not already there
+  if (!normalizedPath.startsWith('/api/')) {
+    return `/api${normalizedPath}`;
   }
   
   return normalizedPath;
