@@ -2,8 +2,8 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/LoginForm.css';
 
-const LoginForm = ({ onLoginSuccess }) => {
-  const { login, loading } = useContext(AuthContext);
+const LoginForm = ({ onLoginSuccess, onLoginError }) => {
+  const { login } = useContext(AuthContext);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -74,83 +74,51 @@ const LoginForm = ({ onLoginSuccess }) => {
       
       console.log('Starting login process with phone number:', phoneNumber);
       
-      // Login process
-      const response = await login(phoneNumber, password);
+      // Call the login function from AuthContext
+      const result = await login(phoneNumber, password);
       
-      // Check if component is still mounted
+      // Check if component is still mounted before updating state
       if (!isMountedRef.current) {
         console.log('Component unmounted during login - aborting state updates');
         return;
       }
       
-      if (response && response.success) {
-        console.log('Login successful - preparing to redirect');
-        setSuccess('Login successful! Redirecting to profile...');
+      if (result.success) {
+        setSuccess('Login successful! Redirecting...');
         
-        // Verify token is set in localStorage
-        const token = localStorage.getItem('token');
-        console.log('Token present after login:', !!token);
-        
-        // First try callback-based navigation if provided (React Router)
-        if (onLoginSuccess && typeof onLoginSuccess === 'function') {
-          console.log('Using provided navigation callback');
+        // If onLoginSuccess is provided, call it
+        if (onLoginSuccess) {
+          // Set a short timeout to show success message before redirect
           redirectTimeoutRef.current = setTimeout(() => {
-            onLoginSuccess();
-          }, 1000);
-        } 
-        // Fallback to direct page navigation
-        else {
-          console.log('Using direct page navigation');
-          redirectTimeoutRef.current = setTimeout(() => {
-            // Use window.location.assign for more reliable navigation
-            window.location.assign('/profile');
-          }, 1000);
+            if (isMountedRef.current) {
+              onLoginSuccess();
+            }
+          }, 500);
         }
       } else {
-        setError(response?.message || 'Login failed. Please try again.');
+        const errorMessage = result.message || 'Login failed. Please try again.';
+        setError(errorMessage);
+        
+        if (onLoginError) {
+          onLoginError(errorMessage);
+        }
+        
+        // Debug info for development
+        if (process.env.NODE_ENV !== 'production') {
+          setDebugInfo({
+            error: result.error,
+            field: result.field
+          });
+        }
       }
     } catch (err) {
       if (!isMountedRef.current) return;
       
       console.error('Login error:', err);
+      setError(err.message || 'An unexpected error occurred');
       
-      // Special handling for throttle errors
-      if (err.message && err.message.includes('throttled')) {
-        setSuccess('Login successful, but data is loading slowly. Redirecting...');
-        
-        // Handle throttled login with safer redirect approach
-        redirectTimeoutRef.current = setTimeout(() => {
-          // Ensure all promises settle before navigation
-          Promise.resolve().then(() => {
-            window.location.href = '/';
-          });
-        }, 1500);
-        
-        return;
-      }
-      
-      // Error handling
-      const debugData = {
-        message: err.message,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data
-      };
-      setDebugInfo(debugData);
-      
-      // Set appropriate error message
-      if (err.response?.data?.error === 'NO_DB_CONNECTION' || 
-          err.response?.data?.error === 'DB_NOT_CONNECTED' || 
-          err.response?.data?.error === 'MONGO_NETWORK_ERROR') {
-        setError('Database connection issue. Please try again later.');
-      } else if (err.response?.status === 400) {
-        setError(err.response.data.msg || 'Invalid credentials.');
-      } else if (err.response?.status === 401) {
-        setError('Authentication failed. Please try again.');
-      } else if (err.response?.status >= 500) {
-        setError('Server error. Please try again later.');
-      } else {
-        setError(err.message || 'Login failed. Please try again.');
+      if (onLoginError) {
+        onLoginError(err.message || 'An unexpected error occurred');
       }
     } finally {
       if (isMountedRef.current) {

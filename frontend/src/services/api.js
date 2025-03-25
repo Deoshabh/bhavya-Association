@@ -20,18 +20,24 @@ const normalizeApiPath = (url) => {
     return url;
   }
   
-  // Strip duplicate /api prefixes
+  // Strip duplicate /api prefixes - handle multiple occurrences
   let normalizedUrl = url;
   while (normalizedUrl.includes('/api/api/')) {
     normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
   }
   
-  // Handle case where url doesn't start with /api
-  if (!normalizedUrl.startsWith('/api/') && !normalizedUrl.startsWith('/health')) {
-    normalizedUrl = '/api' + (normalizedUrl.startsWith('/') ? normalizedUrl : '/' + normalizedUrl);
+  // If the URL already starts with /api/, we're done
+  if (normalizedUrl.startsWith('/api/')) {
+    return normalizedUrl;
   }
   
-  return normalizedUrl;
+  // Handle health endpoints separately
+  if (normalizedUrl === '/health') {
+    return normalizedUrl;
+  }
+  
+  // For all other endpoints, add the /api prefix
+  return '/api' + (normalizedUrl.startsWith('/') ? normalizedUrl : '/' + normalizedUrl);
 };
 
 // Add a request interceptor to always include the latest token and fix URL duplication
@@ -49,6 +55,11 @@ api.interceptors.request.use(
       if (originalUrl !== config.url) {
         console.log(`Fixed API URL path: ${originalUrl} → ${config.url}`);
       }
+    }
+    
+    // For debugging purposes, if the URL still contains /api/api/, log a warning
+    if (config.url && config.url.includes('/api/api/')) {
+      console.warn('⚠️ Double API prefix still detected after normalization:', config.url);
     }
     
     if (token) {

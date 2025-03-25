@@ -168,7 +168,7 @@ export const AuthProvider = ({ children }) => {
       
       // Use withRetry with auth error handler
       const res = await withRetry(
-        () => api.get('/profile/me'), // Without the /api prefix - interceptor will add it
+        () => api.get('profile/me'), // No leading slash
         2, 
         `profile-${token.slice(-10)}`,
         forceRefresh, // Bypass throttle on login or manual refresh
@@ -233,7 +233,7 @@ export const AuthProvider = ({ children }) => {
     fetchUserProfile();
   }, [token, fetchUserProfile]);
 
-  // Fix login method to ensure correct path
+  // Fix login method to use the correct path
   const login = async (phoneNumber, password) => {
     setLoading(true);
     setError(null);
@@ -241,10 +241,10 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Attempting login with phone:', phoneNumber);
       
-      // Ensure the URL starts with /auth/ not /api/auth/ to avoid duplication
-      const loginPath = '/auth/login'; // This will become /api/auth/login when used with the API
-      
-      const response = await api.post(loginPath, { phoneNumber, password });
+      // Use raw path without /api prefix - our interceptor will add it correctly
+      // Note: Don't use /auth/login which gets transformed to /api/auth/login
+      // Use auth/login (no leading slash) to avoid confusion with the base URL
+      const response = await api.post('auth/login', { phoneNumber, password });
       
       if (response.data && response.data.token) {
         // Rest of login logic remains the same
@@ -425,8 +425,8 @@ export const AuthProvider = ({ children }) => {
     // Verify token validity on mount
     const validateTokenOnMount = async () => {
       try {
-        // Try to make a lightweight request to verify token
-        await api.get('/auth/token-status'); // Without the /api prefix - interceptor will add it
+        // Use path without leading slash
+        await api.get('auth/token-status'); 
         console.log('Token validated successfully on mount');
       } catch (error) {
         if (error.response?.status === 401) {

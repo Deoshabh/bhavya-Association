@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
@@ -9,6 +9,7 @@ import { AUTH } from '../utils/apiConfig';
 const Login = () => {
   const { user, loading, serverStatus } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [loginError, setLoginError] = useState(null);
   
   // Check authentication status on mount and when user/loading changes
   useEffect(() => {
@@ -39,7 +40,6 @@ const Login = () => {
       <div className="login-container">
         <div className="login-header">
           <BackButton />
-        
         </div>
         
         {!serverStatus && (
@@ -48,7 +48,16 @@ const Login = () => {
           </div>
         )}
         
-        <LoginForm onLoginSuccess={() => navigate('/profile')} />
+        {loginError && (
+          <div className="login-error">
+            <p>{loginError}</p>
+          </div>
+        )}
+        
+        <LoginForm 
+          onLoginSuccess={() => navigate('/profile')} 
+          onLoginError={(err) => setLoginError(err)}
+        />
       </div>
     </div>
   );
