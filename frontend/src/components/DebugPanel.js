@@ -12,7 +12,7 @@ const DebugPanel = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeEndpoint, setActiveEndpoint] = useState('');
-  const baseUrl = 'http://api.bhavyasangh.com';
+  const baseUrl = 'https://api.bhavyasangh.com';
 
   useEffect(() => {
     const checkServerHealth = async () => {

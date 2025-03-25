@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://api.bhavyasangh.com';
+const BASE_URL = 'https://api.bhavyasangh.com';
 
 // **Server Status Cache**
 let serverStatusCache = {

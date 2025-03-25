@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a centralized API instance
 const api = axios.create({
-  baseURL: 'http://api.bhavyasangh.com'
+  baseURL: 'https://api.bhavyasangh.com'
 });
 
 // Add a request interceptor to always include the latest token
