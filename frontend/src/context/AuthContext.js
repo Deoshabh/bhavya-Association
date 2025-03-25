@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [serverStatus, setServerStatus] = useState(true);
   const [showReactivatePrompt, setShowReactivatePrompt] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
@@ -232,49 +233,22 @@ export const AuthProvider = ({ children }) => {
     fetchUserProfile();
   }, [token, fetchUserProfile]);
 
-  // Update the login function to ensure token is properly set
-  const login = async (formDataOrPhone, passwordOrIsAdmin = false) => {
+  // Fix login method to ensure correct path
+  const login = async (phoneNumber, password) => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      // Set loading state
-      setLoading(true);
+      console.log('Attempting login with phone:', phoneNumber);
       
-      let loginData;
-      let useAdminEndpoint = false;
+      // Ensure the URL starts with /auth/ not /api/auth/ to avoid duplication
+      const loginPath = '/auth/login'; // This will become /api/auth/login when used with the API
       
-      // Case 1: Object passed as first parameter
-      if (typeof formDataOrPhone === 'object') {
-        loginData = formDataOrPhone;
-        useAdminEndpoint = passwordOrIsAdmin === true;
-      } 
-      // Case 2: String passed as first and second parameters (phoneNumber, password)
-      else if (typeof passwordOrIsAdmin === 'string') {
-        loginData = { 
-          phoneNumber: formDataOrPhone, 
-          password: passwordOrIsAdmin 
-        };
-        useAdminEndpoint = false;
-      }
-      // Case 3: String passed as first parameter, Boolean passed as second
-      else {
-        loginData = { phoneNumber: formDataOrPhone };
-        useAdminEndpoint = passwordOrIsAdmin === true;
-      }
+      const response = await api.post(loginPath, { phoneNumber, password });
       
-      // Select the appropriate endpoint
-      const endpoint = useAdminEndpoint ? '/api/auth/admin-login' : '/api/auth/login';
-      
-      console.log('Login request:', { 
-        endpoint, 
-        isAdmin: useAdminEndpoint,
-        dataType: typeof loginData
-      });
-      
-      // Make login request
-      const res = await api.post(endpoint, loginData);
-      
-      // Store token in localStorage and state BEFORE making profile fetch
-      if (res.data.token) {
-        const newToken = res.data.token;
+      if (response.data && response.data.token) {
+        // Rest of login logic remains the same
+        const newToken = response.data.token;
         console.log('Token received from server:', newToken ? 'yes (length: ' + newToken.length + ')' : 'no');
         
         // Update localStorage first
@@ -308,8 +282,7 @@ export const AuthProvider = ({ children }) => {
           };
         }
       } else {
-        setLoading(false);
-        return { success: false, message: 'No token received from server' };
+        setError('Invalid response from server. Please try again.');
       }
     } catch (err) {
       setLoading(false);
@@ -321,6 +294,8 @@ export const AuthProvider = ({ children }) => {
         field: err.response?.data?.field,
         error: err
       };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -525,15 +500,16 @@ export const AuthProvider = ({ children }) => {
     // Check both for the token and the user object
     return !!token && !!user;
   }, [token, user]);
-
   return (
     <AuthContext.Provider
       value={{ 
         user, 
         token, 
-        loading, 
+        loading,
+        error,
         serverStatus,
         isAuthenticated: isAuthenticated(), // Expose the result of the function
+        checkAuth: isAuthenticated, // Expose the function itself for components to call
         checkAuth: isAuthenticated, // Expose the function itself for components to call
         updateUser, 
         login, 

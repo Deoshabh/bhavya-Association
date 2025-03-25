@@ -6,8 +6,8 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const directoryRoutes = require('./routes/directory');
 const usersRoutes = require('./routes/users');
-const listingsRoutes = require('./routes/listings'); // Add this line
-const adminRoutes = require('./routes/admin'); // Add this line
+const listingsRoutes = require('./routes/listings'); 
+const adminRoutes = require('./routes/admin'); 
 const validateUserSchema = require('./utils/validateUserSchema');
 const requireDbConnection = require('./middleware/dbConnection');
 const { verifyModels } = require('./utils/modelUtil');
@@ -15,8 +15,30 @@ const { verifyModels } = require('./utils/modelUtil');
 // Create Express app
 const app = express();
 
+// Configure CORS with specific options
+const corsOptions = {
+  origin: ['https://bhavyasangh.com', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  maxAge: 86400 // 24 hours
+};
+
+// Apply CORS middleware with options
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
+// Log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'unknown'}`);
+  next();
+});
+
 // Middlewares
-app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -73,8 +95,8 @@ app.use('/api/auth', requireDbConnection, authRoutes);
 app.use('/api/profile', requireDbConnection, profileRoutes);
 app.use('/api/directory', requireDbConnection, directoryRoutes);
 app.use('/api/users', requireDbConnection, usersRoutes);
-app.use('/api/listings', requireDbConnection, listingsRoutes); // Add this line
-app.use('/api/admin', requireDbConnection, adminRoutes); // Add this line
+app.use('/api/listings', requireDbConnection, listingsRoutes);
+app.use('/api/admin', requireDbConnection, adminRoutes);
 
 // Initialize database connection before setting up routes
 async function startServer() {
