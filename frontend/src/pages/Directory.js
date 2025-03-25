@@ -124,7 +124,6 @@ const Directory = () => {
   // Fetch directory data with retry and caching
   const fetchDirectory = React.useCallback(
     async (forceRefresh = false) => {
-      // ... existing fetch logic ...
       if (fetchInProgress.current && !forceRefresh) {
         console.log('Directory fetch already in progress, skipping duplicate request');
         return;
@@ -146,20 +145,33 @@ const Directory = () => {
       try {
         fetchInProgress.current = true;
         setLoading(true);
+        console.log('Fetching directory data with token:', token.substring(0, 10) + '...');
 
+        // Ensure token is set in the authorization header
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        const res = await getCachedDirectory(() =>
-          authRequest(() => api.get('/api/directory'), {
-            maxRetries: 2,
-            throttleKey: 'directory',
-            bypassThrottle: forceRefresh
-          })
-        );
+        
+        // Direct API call without caching to troubleshoot
+        const res = await api.get('/api/directory');
+        
+        console.log('Directory API response:', {
+          status: res.status,
+          isArray: Array.isArray(res.data),
+          dataLength: Array.isArray(res.data) ? res.data.length : 'not array',
+          data: res.data
+        });
 
         if (res && res.data) {
-          setDirectoryData(res.data);
-          setUsers(res.data.users || []);
-          setPlanStatus(res.data.userPlan || 'free');
+          if (Array.isArray(res.data)) {
+            // Handle case where response is directly an array of users
+            setDirectoryData({ users: res.data });
+            setUsers(res.data);
+            setPlanStatus(currentUser?.planType || 'free');
+          } else {
+            // Handle case where response is an object with users property
+            setDirectoryData(res.data);
+            setUsers(res.data.users || []);
+            setPlanStatus(res.data.userPlan || currentUser?.planType || 'free');
+          }
           setError('');
         } else {
           throw new Error('Invalid response format from server');
@@ -170,14 +182,14 @@ const Directory = () => {
           console.log('Authentication error accessing directory');
           setAuthRequired(true);
         } else {
-          setError(err.message || 'Failed to load directory. Please try again later.');
+          setError(`Failed to load directory: ${err.message || 'Unknown error'}. Please try again later.`);
         }
       } finally {
         setLoading(false);
         fetchInProgress.current = false;
       }
     },
-    [api, serverStatus, token, authRequest]
+    [api, serverStatus, token, currentUser]
   );
 
   // Handle manual refresh

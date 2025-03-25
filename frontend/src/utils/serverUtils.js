@@ -148,44 +148,30 @@ export const clearUserProfileCache = (userId = null) => {
 };
 
 /**
- * Fetches directory data with caching and deduplication of concurrent requests.
- * @param {Function} fetchFn - Function to fetch directory data
- * @param {boolean} [forceRefresh=false] - Bypass cache if true
- * @returns {Promise<Object>} Directory data
+ * Get directory data with caching
+ * @param {Function} fetchFunction - Function to call API
+ * @returns {Promise<Object>} - API response
  */
-export const getCachedDirectory = async (fetchFn, forceRefresh = false) => {
-  const now = Date.now();
-
-  // Return cached data if valid and not forced to refresh
-  if (!forceRefresh && directoryCache.data && now - directoryCache.timestamp < DIRECTORY_CACHE_TTL) {
-    console.log('Using cached directory data');
-    return directoryCache.data;
+export const getCachedDirectory = async (fetchFunction) => {
+  console.log('getCachedDirectory called');
+  
+  try {
+    // Try to get response directly without caching during debugging
+    console.log('Bypassing cache for directory data');
+    const response = await fetchFunction();
+    
+    // Log response for debugging
+    console.log('Directory response received:', {
+      status: response.status,
+      isArray: Array.isArray(response.data),
+      dataLength: Array.isArray(response.data) ? response.data.length : 'not array'
+    });
+    
+    return response;
+  } catch (error) {
+    console.error('Error in getCachedDirectory:', error);
+    throw error;
   }
-
-  // Deduplicate concurrent requests
-  if (ongoingDirectoryFetch) {
-    console.log('Waiting for ongoing directory fetch');
-    return ongoingDirectoryFetch;
-  }
-
-  ongoingDirectoryFetch = (async () => {
-    try {
-      const data = await fetchFn();
-      directoryCache.data = data;
-      directoryCache.timestamp = now;
-      return data;
-    } catch (error) {
-      if (directoryCache.data) {
-        console.warn('Fetch failed for directory, using stale cache');
-        return directoryCache.data;
-      }
-      throw error;
-    } finally {
-      ongoingDirectoryFetch = null;
-    }
-  })();
-
-  return ongoingDirectoryFetch;
 };
 
 /**

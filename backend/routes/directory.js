@@ -101,9 +101,11 @@ router.put('/config', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
   try {
     await ensureConnected();
+    console.log('Directory endpoint accessed, constructing query...');
     
     // Get the current user for exclusion
     const currentUserId = req.user.id;
+    console.log(`Current user ID: ${currentUserId}`);
     
     // Build query
     const query = {};
@@ -128,11 +130,27 @@ router.get('/', auth, async (req, res) => {
       query.planType = { $ne: 'admin' };
     }
     
+    console.log('Directory query:', JSON.stringify(query));
+    
     // Get all users matching query with sensitive fields excluded
     const users = await User.find(query)
       .select('-password -__v')
       .sort({ name: 1 })
       .limit(CONFIG.limit);
+    
+    console.log(`Found ${users.length} users matching directory criteria`);
+    
+    if (users.length === 0) {
+      // Log some diagnostic info to help understand why no users were found
+      const totalUsers = await User.countDocuments({});
+      const publicUsers = await User.countDocuments({ isPublic: true });
+      const activeUsers = await User.countDocuments({ accountStatus: 'active' });
+      
+      console.log(`Directory query returned 0 users. Diagnostic counts:`);
+      console.log(`- Total users in database: ${totalUsers}`);
+      console.log(`- Public users: ${publicUsers}`);
+      console.log(`- Active users: ${activeUsers}`);
+    }
     
     res.json(users);
   } catch (err) {

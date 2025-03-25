@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // Create a centralized API instance
 const api = axios.create({
-  baseURL: 'https://api.bhavyasangh.com'
+  // Use environment variable if available, otherwise use production URL
+  baseURL: process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com',
+  timeout: 15000
 });
 
 // Add a request interceptor to always include the latest token
@@ -14,11 +16,6 @@ api.interceptors.request.use(
     if (token) {
       // Add Authorization header with token
       config.headers['Authorization'] = `Bearer ${token}`;
-      
-      // Ensure headers object exists and is properly structured
-      if (!config.headers) {
-        config.headers = {};
-      }
       
       // Log token being used (useful for debugging)
       if (process.env.NODE_ENV !== 'production') {
@@ -34,35 +31,35 @@ api.interceptors.request.use(
     return config;
   },
   error => {
-    console.error('Request interceptor error:', error);
+    console.error('API request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Add a response interceptor to handle token-related errors
+// Add a response interceptor for better debugging
 api.interceptors.response.use(
-  response => response,
-  async error => {
-    // Log detailed error information for debugging
+  response => {
+    // Log successful responses in development
     if (process.env.NODE_ENV !== 'production') {
-      console.error('API Error:', {
-        endpoint: error.config?.url,
-        method: error.config?.method,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        hasToken: !!localStorage.getItem('token')
+      console.log(`API Response from ${response.config.url}:`, {
+        status: response.status,
+        dataLength: Array.isArray(response.data) ? response.data.length : 'not an array',
+        dataType: typeof response.data
       });
     }
-    
-    // Add check for login success but token cleared issue
-    if (error.response?.status === 401 && 
-        error.config?.url?.includes('/api/profile') && 
-        localStorage.getItem('token')) {
-      console.warn('Auth error despite token in localStorage - possible sync issue');
-      // Can add additional recovery logic here if needed
+    return response;
+  },
+  error => {
+    // Enhanced error logging
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('API Error:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
     }
-    
     return Promise.reject(error);
   }
 );
