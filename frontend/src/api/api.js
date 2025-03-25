@@ -10,7 +10,7 @@ const getRequestKey = (config) => {
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  baseURL: process.env.REACT_APP_API_URL || 'http://api.bhavyasangh.com',
   timeout: 15000, // 15 seconds timeout
   headers: {
     'Content-Type': 'application/json'
