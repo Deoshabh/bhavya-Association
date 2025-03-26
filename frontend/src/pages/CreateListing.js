@@ -1,7 +1,11 @@
 import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import BackButton from '../components/BackButton';
+import { ChevronLeft, Upload, X, AlertTriangle, CheckCircle, Camera, Loader } from 'lucide-react';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import FormInput from '../components/FormInput';
+import Alert from '../components/Alert';
 
 const CreateListing = () => {
   const navigate = useNavigate();
@@ -222,147 +226,230 @@ const CreateListing = () => {
     }
   };
   
-  // Cancel and go back to listings
-  const handleCancel = () => {
-    navigate('/service-listings');
-  };
-  
   return (
-    <div className="create-listing-page">
-      <div className="create-listing-container">
-        <div className="create-listing-header">
-          <BackButton />
-          <h1>Add New Service Listing</h1>
-        </div>
-        
-        {!serverStatus && (
-          <div className="server-warning">
-            <p>⚠️ Server connection issues detected. You may not be able to create a listing right now.</p>
-          </div>
-        )}
-        
-        <form className="listing-form" onSubmit={handleSubmit}>
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
-          
-          <div className="form-group">
-            <label htmlFor="title">Service Title *</label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Professional Plumbing Services"
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="category">Service Category *</label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-            >
-              <option value="">Select a category</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            {category === 'Other' && (
-              <input
-                type="text"
-                placeholder="Please specify category"
-                className="other-category"
-                onChange={(e) => setCategory(e.target.value === 'Other' ? '' : e.target.value)}
-              />
-            )}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="description">Service Description *</label>
-            <textarea
-              id="description"
-              rows="5"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your services in detail..."
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="image">Service Image</label>
-            <div className="image-upload-container">
-              {imagePreview && (
-                <div className="image-preview">
-                  <img src={imagePreview} alt="Service preview" />
-                  <button 
-                    type="button" 
-                    className="remove-image" 
-                    onClick={handleRemoveImage}
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-              <input
-                type="file"
-                id="image"
-                accept="image/*"
-                onChange={handleImageChange}
-                ref={fileInputRef}
-              />
-              <p className="image-hint">
-                Upload an image for your service (Max 6MB). {imageSize && `Current size: ${imageSize}MB`}
-                {imageSize && imageSize > 1 ? ' - Image will be compressed automatically' : ''}
-              </p>
-            </div>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="contactPhone">Contact Phone *</label>
-            <input
-              type="tel"
-              id="contactPhone"
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              placeholder="Your contact phone number"
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="contactEmail">Contact Email</label>
-            <input
-              type="email"
-              id="contactEmail"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              placeholder="Your contact email (optional)"
-            />
-          </div>
-          
-          <div className="form-actions">
-            <button 
-              type="button" 
-              onClick={handleCancel} 
-              className="cancel-button"
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="submit-button"
-              disabled={loading || !serverStatus}
-            >
-              {loading ? 'Creating...' : 'Create Listing'}
-            </button>
-          </div>
-        </form>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      {/* Header with back button */}
+      <div className="flex items-center mb-6">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="mr-4 p-2 rounded-full hover:bg-neutral-100 transition-colors"
+          aria-label="Go back"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <h1 className="text-2xl font-bold text-neutral-800">Add New Service Listing</h1>
       </div>
+      
+      {/* Server status warning */}
+      {!serverStatus && (
+        <Alert 
+          variant="warning" 
+          className="mb-6"
+          title="Connection Issues"
+          dismissible={false}
+        >
+          Server connection issues detected. You may not be able to create a listing right now.
+        </Alert>
+      )}
+      
+      <Card>
+        <Card.Body>
+          <form onSubmit={handleSubmit}>
+            {/* Error and success messages */}
+            {error && (
+              <Alert 
+                variant="error" 
+                className="mb-6"
+                onDismiss={() => setError('')}
+                dismissible
+              >
+                {error}
+              </Alert>
+            )}
+            
+            {success && (
+              <Alert 
+                variant="success" 
+                className="mb-6"
+                onDismiss={() => setSuccess('')}
+                dismissible
+              >
+                {success}
+              </Alert>
+            )}
+            
+            <div className="space-y-6">
+              {/* Basic Info Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-neutral-800 mb-4">Basic Information</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormInput
+                    label="Service Title"
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g., Professional Plumbing Services"
+                    required
+                  />
+                  
+                  <div className="form-group">
+                    <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="category">
+                      Service Category <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="category"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      required
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                    {category === 'Other' && (
+                      <input
+                        type="text"
+                        placeholder="Please specify category"
+                        className="mt-3 block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        onChange={(e) => setCategory(e.target.value === 'Other' ? '' : e.target.value)}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Description Section */}
+              <div className="form-group">
+                <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="description">
+                  Service Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="description"
+                  rows="5"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe your services in detail..."
+                  className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  required
+                />
+              </div>
+              
+              {/* Image Upload Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-neutral-800 mb-4">Service Image</h2>
+                
+                <div className="bg-neutral-50 p-6 rounded-lg border border-neutral-200">
+                  {imagePreview ? (
+                    <div className="relative mb-4">
+                      <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-neutral-100">
+                        <img 
+                          src={imagePreview} 
+                          alt="Service preview" 
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        className="absolute top-2 right-2 p-1.5 bg-white bg-opacity-75 hover:bg-opacity-100 rounded-full shadow-sm border border-neutral-200"
+                        onClick={handleRemoveImage}
+                        aria-label="Remove image"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div 
+                      className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-neutral-300 rounded-lg cursor-pointer bg-white hover:bg-neutral-50 transition-colors text-center mb-4"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera size={36} className="text-neutral-400 mb-2" />
+                      <p className="text-neutral-800 font-medium mb-1">Click to upload an image</p>
+                      <p className="text-neutral-500 text-sm">Recommended size: 1200 x 800px</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col">
+                    <input
+                      type="file"
+                      id="image"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      ref={fileInputRef}
+                      className="hidden"
+                    />
+                    
+                    <div className="flex justify-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="md"
+                        onClick={() => fileInputRef.current?.click()}
+                        leftIcon={<Upload size={16} />}
+                      >
+                        {imagePreview ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                    </div>
+                    
+                    <p className="text-xs text-neutral-500 text-center mt-3">
+                      Maximum size: 6MB {imageSize && `(Current: ${imageSize}MB${imageSize > 1 ? ' - will be compressed' : ''})`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Contact Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-neutral-800 mb-4">Contact Information</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormInput
+                    label="Contact Phone"
+                    id="contactPhone"
+                    type="tel"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder="Your contact phone number"
+                    required
+                  />
+                  
+                  <FormInput
+                    label="Contact Email (Optional)"
+                    id="contactEmail"
+                    type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="Your contact email"
+                  />
+                </div>
+              </div>
+              
+              {/* Form Actions */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200 mt-8">
+                <Button
+                  type="button"
+                  variant="subtle"
+                  onClick={() => navigate('/service-listings')}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+                
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={loading || !serverStatus}
+                  isLoading={loading}
+                >
+                  {loading ? 'Creating...' : 'Create Listing'}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
