@@ -60,18 +60,24 @@ const AdminLogin = () => {
     setLoginError('');
     
     try {
-      // Pass true as the second parameter to indicate admin login
-      const response = await login(formData, true);
+      // Extract phone number and password to ensure they are strings
+      const phoneNumber = formData.phoneNumber.trim();
+      const password = formData.password;
       
-      if (!response.success) {
-        setLoginError(response.message || 'Invalid credentials');
+      // Pass true as the second parameter to indicate admin login
+      const response = await login(phoneNumber, password, true);
+      
+      // Safely check for success property
+      if (!response || !response.success) {
+        setLoginError(response?.message || 'Login failed. Please try again.');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setLoginError(
-        err.response?.data?.msg || 
-        'Login failed. Please check your credentials and try again.'
-      );
+      
+      // Safe error handling
+      const errorMessage = err?.response?.data?.msg || 
+                          'Login failed. Please check your credentials and try again.';
+      setLoginError(errorMessage);
     } finally {
       setLoading(false);
     }

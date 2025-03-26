@@ -167,11 +167,15 @@ export const AuthProvider = ({ children }) => {
       pendingRequest.current = true;
       lastFetchTime.current = now;
       
+      // Create a safe token key by checking if token exists and is a string
+      const tokenKey = token && typeof token === 'string' ? 
+        token.slice(-10) : 'unknown-token';
+      
       // Use withRetry with auth error handler
       const res = await withRetry(
         () => api.get('profile/me'), // No leading slash
         2, 
-        `profile-${token.slice(-10)}`,
+        `profile-${tokenKey}`, // Now safely using tokenKey
         forceRefresh, // Bypass throttle on login or manual refresh
         async () => {
           // Try to refresh the token
@@ -246,11 +250,14 @@ export const AuthProvider = ({ children }) => {
       const endpoint = isAdminLogin ? 'auth/admin-login' : 'auth/login';
       console.log(`Making login request to endpoint: "${endpoint}"`);
       
+      // Ensure baseURL exists before using it
+      const baseURL = api.defaults.baseURL || 'https://api.bhavyasangh.com';
+      
       // IMPORTANT FIX: The issue is with the URL, so we'll manually construct the correct URL
       // instead of relying on the interceptor which might be adding the duplicate /api
       const response = await axios({
         method: 'post',
-        url: `${api.defaults.baseURL}/api/${endpoint}`,
+        url: `${baseURL}/api/${endpoint}`,
         data: { phoneNumber, password },
         headers: {
           'Content-Type': 'application/json'
@@ -424,7 +431,13 @@ export const AuthProvider = ({ children }) => {
 
     // Set the token in the API instance when it changes
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('Token set in AuthContext:', token.substring(0, 10) + '...');
+    
+    // Safe logging to prevent undefined errors
+    if (token && typeof token === 'string') {
+      console.log('Token set in AuthContext:', token.substring(0, 10) + '...');
+    } else {
+      console.log('Token set in AuthContext but is not a valid string');
+    }
     
     // Verify token validity on mount
     const validateTokenOnMount = async () => {

@@ -16,7 +16,17 @@ console.log('API baseURL set to:', api.defaults.baseURL);
 
 // Completely rewrite the normalizeApiPath function to fix the URL duplication issue
 const normalizeApiPath = (url) => {
-  if (!url) return url;
+  // If url is undefined or null, return a safe default
+  if (!url) {
+    console.warn('Attempting to normalize undefined or null URL');
+    return '/api'; // Return a safe default
+  }
+  
+  // Ensure url is a string
+  if (typeof url !== 'string') {
+    console.warn(`URL is not a string but ${typeof url}:`, url);
+    return '/api';
+  }
   
   // For debugging: log the incoming URL
   console.log('Normalizing URL path:', url);
@@ -34,8 +44,9 @@ const normalizeApiPath = (url) => {
   // Remove leading slash if present
   let normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
   
-  // IMPORTANT FIX: Check if baseURL already includes /api
-  const baseUrlHasApi = api.defaults.baseURL.includes('/api');
+  // Check if baseURL exists before checking if it includes /api
+  const baseUrlHasApi = api.defaults.baseURL ? 
+    api.defaults.baseURL.includes('/api') : false;
   
   // If baseURL already has /api AND path includes api/, we need to remove the api/ prefix from the path
   if (baseUrlHasApi && normalizedUrl.includes('api/')) {
@@ -68,8 +79,17 @@ api.interceptors.request.use(
     // Get the latest token from localStorage before each request
     const token = localStorage.getItem('token');
     
+    // Make sure config.url exists before trying to construct a full URL
+    if (!config.url) {
+      console.warn('Request interceptor received config with undefined URL');
+      config.url = '/api'; // Set a default to prevent errors
+    }
+    
+    // Safe full URL construction
+    const baseURL = config.baseURL || '';
+    const fullUrlBefore = `${baseURL}${config.url || ''}`;
+    
     // IMPROVED URL LOGGING - Log the full URL being requested
-    const fullUrlBefore = `${config.baseURL}${config.url}`;
     console.log(`Full URL before normalization: ${fullUrlBefore}`);
     
     // Fix URL duplication issue by normalizing the URL
@@ -77,7 +97,7 @@ api.interceptors.request.use(
       config.url = normalizeApiPath(config.url);
       
       // Log the full fixed URL for debugging
-      const fullUrlAfter = `${config.baseURL}${config.url}`;
+      const fullUrlAfter = `${baseURL}${config.url || ''}`;
       console.log(`Full URL after normalization: ${fullUrlAfter}`);
       
       // Emergency check - if we still see /api/api/ pattern, fix it immediately
@@ -93,7 +113,10 @@ api.interceptors.request.use(
       
       // Log token being used (useful for debugging)
       if (process.env.NODE_ENV !== 'production') {
-        console.log(`API Request to ${config.url} with token: ${token.substring(0, 10)}...`);
+        // Safe substring operation
+        const tokenPreview = typeof token === 'string' ? 
+          `${token.substring(0, 10)}...` : 'invalid-token';
+        console.log(`API Request to ${config.url} with token: ${tokenPreview}`);
       }
     } else {
       // Log when no token is available
