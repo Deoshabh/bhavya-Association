@@ -21,7 +21,14 @@ const fetchWithRetry = async (url, options = {}, maxRetries = 3) => {
       return retryCount * 1000;
     },
     retryCondition: (error) => {
-      // Retry on network errors and 5xx responses
+      // First check if this is a login request - never retry login requests
+      const requestUrl = error.config?.url || '';
+      if (requestUrl.includes('/api/auth/login')) {
+        console.log('Login request failed - not retrying as per policy');
+        return false;
+      }
+      
+      // For other requests, retry on network errors and 5xx responses
       return axiosRetry.isNetworkOrIdempotentRequestError(error) || 
              (error.response && error.response.status >= 500);
     },
