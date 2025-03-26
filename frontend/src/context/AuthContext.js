@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
+import axios from 'axios';
 import { withRetry, checkServerStatus } from '../utils/serverUtils';
 
 export const AuthContext = createContext();
@@ -234,50 +235,49 @@ export const AuthProvider = ({ children }) => {
   }, [token, fetchUserProfile]);
 
   // Fix login method to eliminate URL path issues
-  const login = async (phoneNumber, password) => {
+  const login = async (phoneNumber, password, isAdminLogin = false) => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log('Attempting login with phone:', phoneNumber);
+      console.log(`Attempting ${isAdminLogin ? 'admin ' : ''}login with phone:`, phoneNumber);
       
-      // VERY IMPORTANT: Don't use any leading slash or any 'api/' in the path
-      // Our interceptor will handle adding these correctly
-      console.log('Making login request to endpoint: "auth/login"');
+      // Use the correct endpoint without any prefix - let the interceptor handle it
+      const endpoint = isAdminLogin ? 'auth/admin-login' : 'auth/login';
+      console.log(`Making login request to endpoint: "${endpoint}"`);
       
-      // Use 'auth/login' as a direct string, not from AUTH.LOGIN or any other source
-      // This bypasses any potential issues with imported constants
-      const response = await api.post('auth/login', { phoneNumber, password });
+      // IMPORTANT FIX: The issue is with the URL, so we'll manually construct the correct URL
+      // instead of relying on the interceptor which might be adding the duplicate /api
+      const response = await axios({
+        method: 'post',
+        url: `${api.defaults.baseURL}/api/${endpoint}`,
+        data: { phoneNumber, password },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (response.data && response.data.token) {
-        // Rest of login logic remains the same
         const newToken = response.data.token;
         console.log('Token received from server:', newToken ? 'yes (length: ' + newToken.length + ')' : 'no');
         
         // Update localStorage first
         localStorage.setItem('token', newToken);
         
-        // Verify token was set correctly
-        const storedToken = localStorage.getItem('token');
-        console.log('Token stored in localStorage:', storedToken ? 'yes (length: ' + storedToken.length + ')' : 'no');
-        
-        // Then update state (this will trigger the useEffect that sets the Authorization header)
+        // Then update state
         setToken(newToken);
         
-        // Set the header explicitly as well to ensure it's set immediately for subsequent requests
+        // Set the header explicitly for subsequent requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-        console.log('Authorization header set:', api.defaults.headers.common['Authorization'] ? 'yes' : 'no');
         
         try {
-          // Get user data using token but allow login to succeed even if this fails
+          // Get user data
           await fetchUserProfile(true).catch(err => {
             console.warn('Profile fetch error (non-fatal):', err.message);
           });
           
-          // Return success regardless of profile fetch outcome
           return { success: true };
         } catch (profileErr) {
-          // If profile fetch fails but we have a token, still consider login successful
           console.warn('Login successful but profile fetch failed:', profileErr);
           return { 
             success: true, 
@@ -286,6 +286,7 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         setError('Invalid response from server. Please try again.');
+        return { success: false, message: 'Invalid response from server' };
       }
     } catch (err) {
       setLoading(false);
