@@ -3,7 +3,10 @@ require('dotenv').config();
 
 // Track recent token verifications to reduce logging and prevent repeated verifications
 const verificationCache = new Map();
+// Add a cache specifically for tracking recently expired tokens
+const expiredTokensCache = new Map();
 const CACHE_TTL = 30000; // 30 seconds for cache TTL
+const EXPIRED_CACHE_TTL = 300000; // 5 minutes for expired tokens cache (longer to reduce noise)
 
 // The actual middleware function
 const authMiddleware = (req, res, next) => {
@@ -46,6 +49,16 @@ const authMiddleware = (req, res, next) => {
     if (process.env.NODE_ENV !== 'production') {
       console.log(`Using JWT_SECRET: ${process.env.JWT_SECRET.substring(0, 5)}...`);
       console.log(`Token first 10 chars: ${token.substring(0, 10)}...`);
+    }
+    
+    // Check if token is known to be expired (to avoid repeated verification and logging)
+    const tokenLastChars = token.slice(-20); // Use last 20 chars as identifier
+    if (expiredTokensCache.has(tokenLastChars)) {
+      // Token is known to be expired, return 401 without additional verification or logging
+      return res.status(401).json({
+        msg: 'Token has expired',
+        errorType: 'TokenExpiredError'
+      });
     }
     
     // Check cache first to reduce logging and processing
@@ -110,6 +123,31 @@ const authMiddleware = (req, res, next) => {
           errorDetails: verifyErr.message
         });
       } else if (verifyErr.name === 'TokenExpiredError') {
+        // Cache this token as expired to avoid re-verification and repeated logging
+        expiredTokensCache.set(tokenLastChars, {
+          timestamp: currentTime,
+          expiredAt: verifyErr.expiredAt
+        });
+        
+        // Clean up expired tokens cache if it grows too large
+        if (expiredTokensCache.size > 500) {
+          const keysToDelete = [];
+          expiredTokensCache.forEach((value, key) => {
+            if (currentTime - value.timestamp > EXPIRED_CACHE_TTL) {
+              keysToDelete.push(key);
+            }
+          });
+          keysToDelete.forEach(key => expiredTokensCache.delete(key));
+        }
+        
+        // Log expired token error only if we haven't logged it recently
+        // or if this is a verify-token endpoint (which needs accurate response)
+        if (req.originalUrl.includes('/api/auth/verify-token') || 
+            !cachedVerification || 
+            (currentTime - cachedVerification.logTimestamp > 60000)) { // Log once per minute max
+          console.log(`Token expired at ${verifyErr.expiredAt} for request to ${req.originalUrl}`);
+        }
+        
         return res.status(401).json({
           msg: 'Token has expired',
           errorType: 'TokenExpiredError',
@@ -128,3 +166,4 @@ const authMiddleware = (req, res, next) => {
 // Export the middleware and the verification cache for debug purposes
 module.exports = authMiddleware;
 module.exports.getVerificationCache = () => verificationCache;
+module.exports.getExpiredTokensCache = () => expiredTokensCache; // Export for debugging

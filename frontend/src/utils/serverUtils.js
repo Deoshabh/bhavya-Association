@@ -57,25 +57,50 @@ const normalizeApiPath = (url) => {
 };
 
 /**
- * Checks if the server is up with caching to avoid frequent checks.
- * @returns {Promise<boolean>} True if server is available, false otherwise
+ * Checks if the server is available by making a request to the health endpoint
+ * @returns {Promise<boolean>} Whether the server is available
  */
 export const checkServerStatus = async () => {
-  const now = Date.now();
-
-  // Return cached result if still valid
-  if (now - serverStatusCache.timestamp < serverStatusCache.ttl) {
-    return serverStatusCache.isUp;
-  }
-
   try {
-    // Use normalized path to ensure correct URL format
-    const response = await axios.get(normalizeApiPath('/health'), { timeout: 3000 });
-    const isUp = response.data && response.data.status === 'ok';
-    serverStatusCache = { isUp, timestamp: now, ttl: 5000 };
+    // Use a cache to prevent frequent server checks
+    const now = Date.now();
+    const lastCheck = serverStatusCache.timestamp || 0;
+    const cacheAge = now - lastCheck;
+    
+    // If we have a recent cached status, use it (within 30 seconds)
+    if (cacheAge < 30000 && serverStatusCache.status !== undefined) {
+      return serverStatusCache.status;
+    }
+    
+    // Create a new axios instance for this specific request to avoid interceptors
+    const instance = axios.create({
+      timeout: 5000 // 5 second timeout to prevent long waiting periods
+    });
+    
+    // Make a request to the health endpoint
+    const response = await instance.get(
+      `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}/api/health`
+    );
+    
+    // Consider the server up if we get any valid response, even if it indicates DB issues
+    const isUp = response && response.status >= 200 && response.status < 500;
+    
+    // Update cache
+    serverStatusCache.status = isUp;
+    serverStatusCache.timestamp = now;
+    
     return isUp;
   } catch (error) {
-    serverStatusCache = { isUp: false, timestamp: now, ttl: 30000 }; // 30 seconds on failure
+    // Only update the cache if more than 10 seconds have passed since the last check
+    // This prevents immediate caching of down status, reducing false negatives on temporary issues
+    const now = Date.now();
+    const lastCheck = serverStatusCache.timestamp || 0;
+    if (now - lastCheck > 10000) {
+      serverStatusCache.status = false;
+      serverStatusCache.timestamp = now;
+    }
+    
+    console.warn('Server status check failed:', error.message);
     return false;
   }
 };

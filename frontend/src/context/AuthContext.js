@@ -349,15 +349,41 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update the server status monitoring effect to require multiple failures
   useEffect(() => {
     let isMounted = true;
-    let interval = 60000;
-
+    let interval = 60000; // 1 minute
+    let consecutiveFailures = 0;
+    let consecutiveSuccesses = 0;
+    
     const checkServer = async () => {
       const isUp = await checkServerStatus();
+      
       if (isMounted) {
-        setServerStatus(isUp);
-        interval = isUp ? 60000 : Math.min(interval * 2, 300000);
+        if (isUp) {
+          consecutiveSuccesses++;
+          consecutiveFailures = 0;
+          
+          // Require at least 2 consecutive successful checks to consider the server up
+          // if it was previously considered down
+          if (consecutiveSuccesses >= 2 || serverStatus === true) {
+            setServerStatus(true);
+          }
+          
+          // Reset check interval to 1 minute on success
+          interval = 60000;
+        } else {
+          consecutiveFailures++;
+          consecutiveSuccesses = 0;
+          
+          // Only mark the server as down after 2 consecutive failures
+          // This prevents temporary glitches from showing the error message
+          if (consecutiveFailures >= 2) {
+            setServerStatus(false);
+            // Use exponential backoff for retries, but cap at 5 minutes
+            interval = Math.min(interval * 2, 300000);
+          }
+        }
       }
     };
 

@@ -354,6 +354,23 @@ router.post('/verify-token', (req, res) => {
       });
     }
     
+    // Check if this token is already known to be expired
+    // (Import the cache if implemented in the auth middleware)
+    const { getExpiredTokensCache } = require('../middleware/auth');
+    const expiredTokensCache = getExpiredTokensCache();
+    const tokenLastChars = token.slice(-20);
+    
+    if (expiredTokensCache && expiredTokensCache.has(tokenLastChars)) {
+      const expiredData = expiredTokensCache.get(tokenLastChars);
+      // No need to log again - we already know this token is expired
+      return res.status(401).json({
+        valid: false,
+        errorType: 'TokenExpiredError',
+        expiredAt: expiredData.expiredAt,
+        msg: 'Token has expired (cached response)'
+      });
+    }
+    
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
@@ -363,21 +380,38 @@ router.post('/verify-token', (req, res) => {
       expiresAt: new Date(decoded.exp * 1000).toISOString()
     });
   } catch (err) {
-    console.error('Token verification failed:', err.message);
-    
-    // Return specific error information
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        valid: false,
-        errorType: 'JsonWebTokenError',
-        msg: err.message
-      });
-    } else if (err.name === 'TokenExpiredError') {
+    // If this is a token expiration error, add it to the cache
+    if (err.name === 'TokenExpiredError') {
+      const currentTime = Date.now();
+      const tokenLastChars = token.slice(-20);
+      
+      // Get the cache if available
+      const { getExpiredTokensCache } = require('../middleware/auth');
+      const expiredTokensCache = getExpiredTokensCache();
+      
+      if (expiredTokensCache) {
+        expiredTokensCache.set(tokenLastChars, {
+          timestamp: currentTime,
+          expiredAt: err.expiredAt
+        });
+      }
+      
+      // Log the error (but only once per token)
+      console.log(`Token verified as expired at ${err.expiredAt}`);
+      
       return res.status(401).json({
         valid: false,
         errorType: 'TokenExpiredError',
         expiredAt: err.expiredAt,
         msg: 'Token has expired'
+      });
+    }
+    
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        valid: false,
+        errorType: 'JsonWebTokenError',
+        msg: err.message
       });
     } else {
       return res.status(500).json({
