@@ -155,7 +155,7 @@ const Home = () => {
                     </p>
                     
                     <a 
-                    href="https://www.bhavya.org.in" 
+                    href="https://bhavya.org.in" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="group flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-600 text-white font-bold px-5 py-3 sm:px-6 sm:py-3.5 md:px-8 md:py-4 rounded-full text-sm sm:text-base shadow-lg border-2 border-white/30 hover:border-white/80 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/20"
