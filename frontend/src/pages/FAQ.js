@@ -1,6 +1,5 @@
 import React from 'react';
 import BackButton from '../components/BackButton';
-import '../styles/FAQ.css';
 
 const FAQ = () => {
   return (

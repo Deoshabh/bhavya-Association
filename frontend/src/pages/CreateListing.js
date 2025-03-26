@@ -2,7 +2,6 @@ import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
-import '../styles/CreateListing.css';
 
 const CreateListing = () => {
   const navigate = useNavigate();

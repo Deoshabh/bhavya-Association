@@ -4,7 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
 import { Search, ExternalLink, PlusCircle, X, RefreshCw, MessageCircle } from 'lucide-react';
 import api from '../services/api'; // Import the centralized API service
-import '../styles/ServiceListings.css';
 
 const ServiceListings = () => {
   const navigate = useNavigate();

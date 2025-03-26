@@ -1,5 +1,4 @@
 import React from 'react';
-import '../styles/UpgradeMembershipModal.css';
 
 const UpgradeMembershipModal = ({ onClose, onUpgrade }) => {
   // Prevent clicks inside the modal from closing it

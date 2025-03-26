@@ -1,0 +1,257 @@
+/* Button Components */
+.btn {
+  @apply px-4 py-2 font-medium rounded transition-all duration-300 focus:outline-none;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary-dark;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:bg-secondary-dark;
+}
+
+.btn-outline {
+  @apply border border-primary text-primary hover:bg-primary hover:text-white;
+}
+
+.toggle-button {
+  @apply flex items-center justify-center mx-auto mb-6 bg-transparent border-none cursor-pointer;
+}
+
+/* Card Components */
+.card {
+  @apply bg-white rounded-lg shadow overflow-hidden;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+.card-header {
+  @apply px-6 py-4 border-b border-neutral-200;
+}
+
+.card-body {
+  @apply p-6;
+}
+
+.card-footer {
+  @apply px-6 py-4 bg-neutral-50 border-t border-neutral-200;
+}
+
+/* Form Components */
+.form-group {
+  @apply mb-4;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-neutral-700 mb-1;
+}
+
+.form-input {
+  @apply block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm 
+         focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+.form-error {
+  @apply mt-1 text-sm text-secondary;
+}
+
+/* Layout Components */
+.container-narrow {
+  @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.container-wide {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section {
+  @apply py-12 md:py-16;
+}
+
+.section-header {
+  @apply mb-10 text-center;
+}
+
+/* Navigation Components */
+.nav-link {
+  @apply px-4 py-2 text-neutral-600 hover:text-primary transition-colors duration-300;
+}
+
+.nav-link-active {
+  @apply text-primary font-medium;
+}
+
+.mobile-menu {
+  @apply fixed inset-0 bg-white z-50 flex flex-col p-5 transform transition-transform duration-300;
+}
+
+/* Alert Components */
+.alert {
+  @apply p-4 mb-4 rounded-md;
+}
+
+.alert-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.alert-danger {
+  @apply bg-red-100 text-red-800;
+}
+
+.alert-warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.alert-info {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Badge Components */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-primary-100 text-primary-800;
+}
+
+.badge-secondary {
+  @apply bg-secondary-100 text-secondary-800;
+}
+
+/* Avatar Components */
+.avatar {
+  @apply rounded-full overflow-hidden bg-neutral-200 flex-shrink-0;
+}
+
+.avatar-sm {
+  @apply w-10 h-10;
+}
+
+.avatar-md {
+  @apply w-16 h-16;
+}
+
+.avatar-lg {
+  @apply w-24 h-24;
+}
+
+/* Directory Components */
+.directory-item {
+  @apply card mb-4 flex flex-col sm:flex-row items-center gap-4 p-4;
+}
+
+.directory-item-content {
+  @apply flex-grow text-center sm:text-left;
+}
+
+/* Typography Utilities */
+.heading-1 {
+  @apply text-4xl font-bold text-neutral-900 mb-4;
+}
+
+.heading-2 {
+  @apply text-3xl font-bold text-neutral-900 mb-3;
+}
+
+.heading-3 {
+  @apply text-2xl font-semibold text-neutral-900 mb-2;
+}
+
+.body-text {
+  @apply text-base text-neutral-700;
+}
+
+.body-text-sm {
+  @apply text-sm text-neutral-600;
+}
+
+/* Animation Classes */
+.fade-in {
+  @apply animate-fadeIn;
+}
+
+.slide-in {
+  @apply animate-slideIn;
+}
+
+.spin {
+  @apply animate-spin;
+}
+
+/* Modal Components */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+}
+
+.modal {
+  @apply bg-white rounded-lg shadow-xl w-full max-w-md mx-auto overflow-hidden transform transition-all;
+}
+
+.modal-header {
+  @apply px-6 py-4 border-b border-neutral-200 flex items-center justify-between;
+}
+
+.modal-body {
+  @apply p-6;
+}
+
+.modal-footer {
+  @apply px-6 py-4 bg-neutral-50 border-t border-neutral-200 flex justify-end space-x-2;
+}
+
+.modal-enter {
+  @apply opacity-0 scale-95;
+}
+
+.modal-enter-active {
+  @apply opacity-100 scale-100 transition-all duration-300;
+}
+
+.modal-exit {
+  @apply opacity-100 scale-100;
+}
+
+.modal-exit-active {
+  @apply opacity-0 scale-95 transition-all duration-200;
+}
+
+/* Table Components */
+.table-container {
+  @apply w-full overflow-x-auto rounded-lg shadow;
+}
+
+.table {
+  @apply min-w-full divide-y divide-neutral-200 bg-white;
+}
+
+.table-header {
+  @apply bg-neutral-50;
+}
+
+.table-header-cell {
+  @apply px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider;
+}
+
+.table-body {
+  @apply bg-white divide-y divide-neutral-200;
+}
+
+.table-row {
+  @apply hover:bg-neutral-50 transition-colors duration-200;
+}
+
+.table-row-striped:nth-child(even) {
+  @apply bg-neutral-50;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-neutral-700;
+}
+
+.table-cell-actions {
+  @apply px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2;
+}

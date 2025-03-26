@@ -5,7 +5,6 @@ import { withRetry } from '../../utils/serverUtils';
 import { Search, Filter, RefreshCw, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import AdminLayout from '../../components/Admin/AdminLayout';
 import ListingEditModal from '../../components/Admin/ListingEditModal';
-import '../../styles/Admin/ListingManagement.css';
 
 const ListingManagement = () => {
   const { api, user, serverStatus } = useContext(AuthContext);

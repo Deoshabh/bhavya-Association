@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import '../../styles/Admin/ListingEditModal.css';
 
 const ListingEditModal = ({ listing, onClose, onSave }) => {
   const [formData, setFormData] = useState({

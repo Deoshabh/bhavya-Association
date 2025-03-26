@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import '../../styles/Admin/UserEditModal.css';
 
 const UserEditModal = ({ user, isCreating = false, onClose, onSave }) => {
   const initialFormData = isCreating ? {

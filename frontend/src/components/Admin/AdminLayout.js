@@ -10,7 +10,6 @@ import {
   LogOut, 
   ChevronLeft
 } from 'lucide-react';
-import '../../styles/Admin/AdminLayout.css';
 
 const AdminLayout = ({ children, title, currentPage }) => {
   const { user } = useContext(AuthContext);

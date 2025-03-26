@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import React, { useContext, useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import {
   Menu,
   X,
@@ -11,11 +11,11 @@ import {
   Briefcase,
   LogIn,
   UserPlus,
-  Calendar
-} from 'lucide-react';
+  Calendar,
+} from "lucide-react";
 
-import '../styles/Navbar.css'; // Make sure this path is correct
-import logo from '../assets/logo4-1.png'; // Adjust to your logo path
+import "../styles/Navbar.css"; // Make sure this path is correct
+import logo from "../assets/logo4-1.png"; // Adjust to your logo path
 
 const Navbar = () => {
   const { user, loading, logout } = useContext(AuthContext);
@@ -29,8 +29,8 @@ const Navbar = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close the mobile menu on route change
@@ -56,41 +56,54 @@ const Navbar = () => {
   // Define nav items
   const navItems = user
     ? [
-        { label: 'Home', path: '/', icon: <Home size={18} /> },
-        { label: 'Directory', path: '/directory', icon: <Users size={18} /> },
-        { label: 'Services', path: '/service-listings', icon: <Briefcase size={18} /> },
-        { label: 'Profile', path: '/profile', icon: <User size={18} /> },
-        user.planType === 'admin' && {
-          label: 'Admin Panel',
-          path: '/admin/dashboard',
-          icon: <User size={18} />
-        }
+        { label: "Home", path: "/", icon: <Home size={18} /> },
+        { label: "Directory", path: "/directory", icon: <Users size={18} /> },
+        {
+          label: "Services",
+          path: "/service-listings",
+          icon: <Briefcase size={18} />,
+        },
+        { label: "Profile", path: "/profile", icon: <User size={18} /> },
+        user.planType === "admin" && {
+          label: "Admin Panel",
+          path: "/admin/dashboard",
+          icon: <User size={18} />,
+        },
       ].filter(Boolean)
-    : [{ label: 'Home', path: '/', icon: <Home size={18} /> }];
+    : [{ label: "Home", path: "/", icon: <Home size={18} /> }];
 
   // Toggle the mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <header className={`navbar-container ${scrolled ? 'scrolled' : ''}`}>
+    <header className={`navbar-container ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar">
-        {/* Logo (left side) */}
-        <Link to="/" className="navbar-logo">
-          <img src={logo} alt="Bhavya Association Logo" className="logo-image" />
-          <div className="logo-text-container">
-            <span className="logo-text">Bhavya</span>
-            <span className="logo-accent">Association</span>
-          </div>
-        </Link>
-
-        {/* Desktop Nav (hidden on mobile) */}
+          <Link to="/" className="navbar-logo">
+            <img
+              src={logo}
+              alt="Bhavya Association Logo"
+              className="logo-image"
+            />
+            <div className="logo-container">
+              <div className="main-logo-text" style={{ fontSize: '0.9em' }}>
+                <span className="logo-text">Bhavya</span>
+                <span className="logo-accent">Association</span>
+              </div>
+              <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>Bharat Vyapar Association</div>
+            </div>
+          </Link>
+          
+          
+          {/* Desktop Nav (hidden on mobile) */}
         <nav className="desktop-nav">
           <ul className="nav-menu">
             {navItems.map((item, idx) => (
               <li className="nav-item" key={idx}>
                 <Link
                   to={item.path}
-                  className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
+                  className={`nav-link ${
+                    location.pathname === item.path ? "active" : ""
+                  }`}
                 >
                   {item.icon}
                   <span>{item.label}</span>
@@ -125,10 +138,14 @@ const Navbar = () => {
             <div className="user-actions">
               <div className="user-info">
                 <span className="welcome-text">
-                  <Link to="/profile">Hello, {user.name.split(' ')[0]}</Link>
+                  <Link to="/profile">Hello, {user.name.split(" ")[0]}</Link>
                 </span>
               </div>
-              <button onClick={logout} className="logout-button" aria-label="Logout">
+              <button
+                onClick={logout}
+                className="logout-button"
+                aria-label="Logout"
+              >
                 <LogOut size={18} />
                 <span>Logout</span>
               </button>
@@ -151,7 +168,7 @@ const Navbar = () => {
         <button
           className="mobile-menu-toggle"
           onClick={toggleMenu}
-          aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
         >
           {isOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -165,7 +182,9 @@ const Navbar = () => {
               <li className="mobile-nav-item" key={idx}>
                 <Link
                   to={item.path}
-                  className={`mobile-nav-link ${location.pathname === item.path ? 'active' : ''}`}
+                  className={`mobile-nav-link ${
+                    location.pathname === item.path ? "active" : ""
+                  }`}
                   onClick={() => setIsOpen(false)}
                 >
                   {item.icon}
@@ -177,7 +196,7 @@ const Navbar = () => {
               <a
                 href="https://www.bhavya.org.in"
                 className="mobile-nav-link events"
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
               >

@@ -6,7 +6,6 @@ import { Search, Filter, RefreshCw, Edit, UserX, UserCheck, Award, Download, Plu
 import AdminLayout from '../../components/Admin/AdminLayout';
 import UserEditModal from '../../components/Admin/UserEditModal';
 import DeleteConfirmModal from '../../components/Admin/DeleteConfirmModal';
-import '../../styles/Admin/UserManagement.css';
 
 const UserManagement = () => {
   const { api, user: currentUser, serverStatus } = useContext(AuthContext);

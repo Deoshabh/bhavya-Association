@@ -68,39 +68,45 @@ const Home = () => {
           </div>
           
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
-            {/* More horizontal card with less vertical padding */}
-            <div className={`bg-secondary text-white py-2 px-4 md:px-6 rounded-lg shadow-lg max-w-xs md:max-w-md text-center transform transition-transform ${isBlinking ? 'scale-105' : 'scale-100'}`}>
-              <h2 className="text-lg md:text-2xl font-bold mb-0.5">International Bahujan Directory</h2>
-              <p className="text-xs md:text-sm mb-1.5">Connect with community members worldwide</p>
-              <button 
-                onClick={handleHeroButtonClick}
-                className="bg-white text-secondary hover:bg-gray-100 font-bold py-1 px-4 rounded-lg transition-colors text-sm md:text-base"
-              >
-                {user ? 'Explore Directory' : 'Join Now'}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        
-
-        {/* Explanation section with dropdown functionality */}
-        <section ref={explanationRef} className="py-6 md:py-8 bg-white">
-          <div className="container mx-auto max-w-4xl">
-            {/* Replace the heading and side button with a single button */}
-            <button 
-              onClick={scrollToExplanation}
-              className="flex items-center justify-center mx-auto mb-6 bg-transparent border-none cursor-pointer group"
-              aria-expanded={showBenefits}
-            >
-              <h2 className="text-2xl md:text-3xl font-bold text-center">Why Join Bhavya Association?</h2>
-              <ChevronDown 
-                size={24} 
-                className={`ml-2 text-gray-600 group-hover:text-primary transition-transform ${showBenefits ? 'rotate-180' : 'rotate-0'}`} 
-              />
-            </button>
-            
-            {/* Dropdown content */}
+           
+                  <div className={`bg-secondary text-white py-2 px-4 md:px-6 rounded-lg shadow-lg max-w-xs md:max-w-md text-center transform transition-transform ${isBlinking ? 'scale-105' : 'scale-100'}`}>
+                    <h2 className="text-lg md:text-2xl font-bold mb-0.5">International Bahujan Directory</h2>
+                    <p className="text-xs md:text-sm mb-1.5">Connect with community worldwide</p>
+                    <button 
+                    onClick={handleHeroButtonClick}
+                    className="bg-white text-secondary hover:bg-gray-100 font-bold py-1 px-4 rounded-lg transition-colors text-sm md:text-base"
+                    >
+                    {user ? 'Explore Directory' : 'Join Now'}
+                    </button>
+                  </div>
+                  </div>
+                </section>
+                {/* Explanation Section */} 
+                <section ref={explanationRef} className="py-6 md:py-8 bg-white">
+                  <div className="container mx-auto max-w-4xl">
+                  {/* Replace the heading and side button with a single button */}
+                  <button 
+                    onClick={scrollToExplanation}
+                    className="flex items-center justify-center mx-auto mb-6 bg-transparent border-none cursor-pointer group"
+                    aria-expanded={showBenefits}
+                  >
+                    <h2 className="text-xl md:text-2xl font-bold text-center">Why Join Bhavya Association?</h2>
+                    <ChevronDown 
+                    size={24} 
+                    className={`ml-2 text-gray-600 group-hover:text-primary transition-transform ${showBenefits ? 'rotate-180' : 'rotate-0'}`} 
+                    />
+                  </button>
+                  
+                  {/* Scrolling text marquee */}
+                  <div className="overflow-hidden mb-4 bg-gray-100 py-2 px-4 rounded-lg">
+                    <div className="whitespace-nowrap inline-block animate-[marquee_15s_linear_infinite]">
+                    <span className="inline-block text-primary font-medium">
+                      Connect with Bahujan community worldwide • Expand your business network • Discover new opportunities • Join cultural events • Find community members globally
+                    </span>
+                    </div>
+                  </div>
+                  
+                  {/* Dropdown content */}
             <div className={`transition-all duration-500 overflow-hidden ${showBenefits ? 'max-h-[1000px]' : 'max-h-0'}`}>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-white p-5 rounded-lg shadow-md">

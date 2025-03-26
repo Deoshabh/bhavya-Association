@@ -4,7 +4,6 @@ import { AuthContext } from '../../context/AuthContext';
 import { withRetry } from '../../utils/serverUtils';
 import { Save, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import '../../styles/Admin/AdminSettings.css';
 
 const AdminSettings = () => {
   const { api, user, serverStatus } = useContext(AuthContext);

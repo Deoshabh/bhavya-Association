@@ -3,7 +3,6 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import LoginForm from '../components/LoginForm';
-import '../styles/Login.css';
 import { AUTH } from '../utils/apiConfig';
 
 const Login = () => {

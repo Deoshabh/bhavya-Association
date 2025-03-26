@@ -1,6 +1,5 @@
 import React from 'react';
 import { X, AlertTriangle } from 'lucide-react';
-import '../../styles/Admin/DeleteConfirmModal.css';
 
 const DeleteConfirmModal = ({ title, message, onConfirm, onCancel }) => {
   return (

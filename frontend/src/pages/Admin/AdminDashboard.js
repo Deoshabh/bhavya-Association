@@ -5,7 +5,6 @@ import { withRetry } from '../../utils/serverUtils';
 import { Users, ShoppingBag, Briefcase, DollarSign, UserCheck, UserX, Shield } from 'lucide-react';
 import AdminLayout from '../../components/Admin/AdminLayout';
 import StatCard from '../../components/Admin/StatCard';
-import '../../styles/Admin/AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { api, user, serverStatus } = useContext(AuthContext);

@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
-import '../styles/UpgradeMembership.css';
 
 const UpgradeMembership = () => {
   const { user, loading } = useContext(AuthContext);

@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import ConfirmDialog from './ConfirmDialog';
-import '../styles/ProfileSettings.css';
 
 const ProfileSettings = ({ user }) => {
   const { api, updateUser } = useContext(AuthContext);

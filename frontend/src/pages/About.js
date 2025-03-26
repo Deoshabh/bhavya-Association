@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
-import '../styles/About.css';
 
 const About = () => {
   const navigate = useNavigate();

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, Star, Shield, Users } from 'lucide-react';
-import '../styles/PremiumBanner.css';
 
 const PremiumBanner = ({ planStatus, searchContext = '' }) => {
   const navigate = useNavigate();

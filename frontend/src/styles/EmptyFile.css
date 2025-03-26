@@ -1,0 +1,10 @@
+/*
+ * This is a transitional empty file.
+ * The styles previously in this file have been migrated to Tailwind utility classes 
+ * and component classes in components.css.
+ * 
+ * This file is kept temporarily to prevent import errors while components
+ * are being refactored to use the new styling system.
+ * 
+ * TODO: Remove this file once the importing component has been fully migrated to Tailwind.
+ */

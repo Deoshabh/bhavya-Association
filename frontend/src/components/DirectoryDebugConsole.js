@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import '../styles/DirectoryDebugConsole.css';
 
 const DirectoryDebugConsole = ({ directoryData, onRefresh }) => {
   const [detailsExpanded, setDetailsExpanded] = useState(false);

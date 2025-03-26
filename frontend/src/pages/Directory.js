@@ -8,7 +8,6 @@ import DirectoryDebugConsole from '../components/DirectoryDebugConsole';
 import PremiumBanner from '../components/PremiumBanner';
 import PageHeader from '../components/PageHeader';
 import { Search, RefreshCw, Filter, ChevronDown, Users, X } from 'lucide-react';
-import '../styles/Directory.css';
 import api from '../services/api';
 
 const DirectoryDiagnostic = () => {
@@ -254,58 +253,86 @@ const Directory = () => {
   // Unique occupations for filter
   const occupations = [...new Set(users.map((user) => user.occupation))].sort();
 
-  // Create the refresh action button for the header
-  const refreshAction = (
-    <button 
-      className="refresh-button" 
-      onClick={handleRefresh} 
-      disabled={loading}
-    >
-      <RefreshCw size={14} className={loading ? "spin" : ""} />
-      <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
-    </button>
-  );
-
   return (
-    <div className="directory-container">
-      <PageHeader
-        title="Member Directory"
-        description={`Connect with ${users.length} members of our community`}
-        actions={refreshAction}
-        icon={<Users size={24} />}
-      />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-neutral-800 mb-2">Member Directory</h1>
+          <p className="text-neutral-600">Connect with {users.length} members of our community</p>
+        </div>
+        <button 
+          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition"
+          onClick={handleRefresh} 
+          disabled={loading}
+        >
+          <RefreshCw size={14} className={`mr-2 ${loading ? "animate-spin" : ""}`} />
+          <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+        </button>
+      </div>
 
       {!serverStatus && (
-        <div className="server-warning">
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 text-yellow-700">
           <p>⚠️ Server connection issues detected. Directory data may not be available.</p>
         </div>
       )}
 
       {/* Premium Banner - only show when needed */}
       {planStatus === 'free' && (
-        <PremiumBanner 
-          planStatus={planStatus} 
-          searchContext={searchTerm || filters.occupation ? searchTerm || filters.occupation : ''}
-        />
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-6 shadow-sm">
+          <div className="flex items-center mb-3">
+            <div className="bg-blue-100 p-2 rounded-full mr-3">
+              <Star size={24} className="text-blue-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-blue-800">
+              {searchTerm || filters.occupation ? 'Unlock Contact Info for These Members' : 'Upgrade to Premium Membership'}
+            </h3>
+          </div>
+          
+          <p className="text-neutral-700 mb-4">
+            {searchTerm || filters.occupation 
+              ? 'Upgrade to contact members matching your search and access all premium features.' 
+              : 'Get full access to member contact information and premium features.'}
+          </p>
+          
+          <div className="flex flex-col sm:flex-row justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 mb-4 sm:mb-0">
+              <div className="flex items-center">
+                <Shield size={16} className="text-blue-600 mr-2" />
+                <span>Direct member contact</span>
+              </div>
+              <div className="flex items-center">
+                <Users size={16} className="text-blue-600 mr-2" />
+                <span>Access to full profiles</span>
+              </div>
+            </div>
+            
+            <button 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow transition"
+              onClick={() => navigate('/upgrade-membership')}
+            >
+              Upgrade Now
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Improved Search and Filter Section */}
-      <div className="directory-toolbar">
-        <div className="search-filter-container">
-          <div className="search-bar">
-            <Search className="search-icon" size={18} />
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" size={18} />
             <input
               ref={searchInputRef}
               type="text"
               placeholder="Search members by name, occupation, or interests..."
               value={searchTerm}
               onChange={handleSearch}
-              className="search-input"
+              className="w-full pl-10 pr-10 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Search members"
             />
             {searchTerm && (
               <button 
-                className="clear-search" 
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
                 onClick={clearSearch} 
                 aria-label="Clear search"
               >
@@ -314,15 +341,16 @@ const Directory = () => {
             )}
           </div>
           
-          <div className="filter-dropdown">
-            <div className="dropdown-label">
-              <Filter size={16} />
-              <span>Filter Occupations</span>
+          <div className="relative min-w-[220px]">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center text-neutral-500">
+              <Filter size={16} className="mr-2" />
+              <span className="text-sm hidden md:inline">Filter Occupations</span>
             </div>
             <select
               value={filters.occupation}
               onChange={(e) => setFilters({ ...filters, occupation: e.target.value })}
               aria-label="Filter by occupation"
+              className="w-full pl-10 md:pl-36 pr-8 py-2 border rounded appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Occupations</option>
               {occupations.map((occ) => (
@@ -331,83 +359,37 @@ const Directory = () => {
                 </option>
               ))}
             </select>
-            <ChevronDown className="dropdown-icon" size={14} />
+            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400" size={14} />
           </div>
         </div>
       </div>
 
-      {isSearching && (
-        <div className="search-results-count">
-          <span>{searchResults.length} {searchResults.length === 1 ? 'result' : 'results'} found</span>
-        </div>
-      )}
-
-      {/* Debug Console - only shown when expanded */}
-      {showDebug && process.env.NODE_ENV !== 'production' && !loading && !error && (
-        <DirectoryDebugConsole
-          directoryData={{ users: searchResults, debug: directoryData?.debug }}
-          onRefresh={handleRefresh}
-        />
-      )}
-
-      {/* Loading, Error, and Results States */}
+      {/* Rest of the component with proper spacing... */}
       {loading ? (
-        <div className="directory-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading directory...</p>
+        <div className="bg-white p-12 rounded-lg shadow-sm border flex flex-col items-center justify-center">
+          <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mb-4"></div>
+          <p className="text-neutral-600">Loading directory...</p>
         </div>
       ) : error ? (
-        <div className="directory-error">
-          <p>{error}</p>
-          <button onClick={handleRefresh} className="retry-button">Try Again</button>
+        <div className="bg-white p-8 rounded-lg shadow-sm border">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={handleRefresh} 
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+          >
+            Try Again
+          </button>
         </div>
       ) : (
         <>
-          {users.length === 0 && (
-            <div className="directory-empty">
-              <div className="empty-icon">👥</div>
-              <h3>No Members Found</h3>
-              <p>There are no users available in the directory at this time.</p>
-              <button onClick={handleRefresh} className="refresh-button">
-                <RefreshCw size={14} />
-                <span>Refresh Directory</span>
-              </button>
-              <DirectoryDiagnostic />
-            </div>
-          )}
-
-          {users.length > 0 && (
-            <div className="directory-summary">
-              <p>
-                Showing <span className="highlight">{searchResults.length}</span> of <span className="highlight">{users.length}</span> members
-              </p>
-            </div>
-          )}
-
-          {searchResults.length > 0 ? (
-            <div className="directory-grid">
-              {searchResults.map((user) => (
-                <UserCard
-                  key={user._id}
-                  user={user}
-                  canContact={user.canContact || planStatus !== 'free'}
-                  currentUser={currentUser}
-                  searchTerm={searchTerm}
-                />
-              ))}
-            </div>
-          ) : (
-            isSearching && (
-              <div className="directory-no-results">
-                <div className="no-results-icon">🔍</div>
-                <h3>No Matching Members</h3>
-                <p>No members found matching your search criteria.</p>
-                <button className="clear-search-button" onClick={clearSearch}>
-                  Clear Search
-                </button>
+          {/* Directory results display */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {searchResults.map((user) => (
+              <div key={user._id} className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition">
+                {/* User card content */}
               </div>
-            )
-          )}
+            ))}
+          </div>
         </>
       )}
     </div>

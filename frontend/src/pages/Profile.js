@@ -4,7 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 import ProfileForm from '../components/ProfileForm';
 import ProfileCard from '../components/ProfileCard';
 import ProfileSettings from '../components/ProfileSettings';
-import '../styles/Profile.css';
 
 const Profile = () => {
   const { user, loading, serverStatus } = useContext(AuthContext);

@@ -1,6 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/LoginForm.css';
 
 const LoginForm = ({ onLoginSuccess, onLoginError }) => {
   const { login } = useContext(AuthContext);
@@ -129,56 +128,68 @@ const LoginForm = ({ onLoginSuccess, onLoginError }) => {
 
   // Rest of the component remains the same
   return (
-    <form className="login-form" onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success">{success}</p>}
-      <div className="form-group">
-        <label htmlFor="phoneNumber">Phone Number</label>
-        <input
-          type="tel"
-          id="phoneNumber"
-          name="phoneNumber"
-          value={phoneNumber}
-          onChange={e => setPhoneNumber(e.target.value)}
-          placeholder="Enter registered phone number"
-          autoComplete="tel"
-          required
+    <form className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto" onSubmit={handleSubmit}>
+      <h2 className="text-2xl font-bold mb-6 text-center text-neutral-800">Login</h2>
+      
+      {error && <p className="text-red-600 mb-4 p-3 bg-red-50 rounded">{error}</p>}
+      {success && <p className="text-green-600 mb-4 p-3 bg-green-50 rounded">{success}</p>}
+      
+      <div className="space-y-4">
+        <div className="form-group">
+          <label htmlFor="phoneNumber" className="block text-neutral-700 font-medium mb-2">Phone Number</label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={phoneNumber}
+            onChange={e => setPhoneNumber(e.target.value)}
+            placeholder="Enter registered phone number"
+            autoComplete="tel"
+            required
+            disabled={isSubmitting}
+            className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="password" className="block text-neutral-700 font-medium mb-2">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+            disabled={isSubmitting}
+            className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
+        </div>
+        
+        <button 
+          type="submit" 
           disabled={isSubmitting}
-        />
+          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded transition mt-4"
+        >
+          {isSubmitting ? 'Logging in...' : 'Login'}
+        </button>
       </div>
-      <div className="form-group">
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Enter your password"
-          autoComplete="current-password"
-          required
-          disabled={isSubmitting}
-        />
-      </div>
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Logging in...' : 'Login'}
-      </button>
       
       {debugInfo && process.env.NODE_ENV !== 'production' && (
-        <div className="debug-section">
-          <p className="debug-title">Debug Information:</p>
-          <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-          <p className="debug-hint">
+        <div className="mt-6 p-3 bg-neutral-100 rounded text-sm">
+          <p className="font-medium mb-1">Debug Information:</p>
+          <pre className="bg-neutral-200 p-2 rounded overflow-x-auto">{JSON.stringify(debugInfo, null, 2)}</pre>
+          <p className="mt-2 text-neutral-600">
             This information can help diagnose login issues. 
             Most common cause is incorrect phone number format or unregistered account.
           </p>
         </div>
       )}
       
-      <div className="form-footer">
+      <div className="text-center mt-6 text-neutral-600">
         <p>
-          Don't have an account? <a href="/register">Register here</a>
+          Don't have an account? <a href="/register" className="text-primary-600 hover:text-primary-800">Register here</a>
         </p>
       </div>
     </form>

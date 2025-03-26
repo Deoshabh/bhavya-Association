@@ -4,7 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
 import { MapPin, Phone, Mail, Share2, Calendar, Tag } from 'lucide-react';
 import BackButton from '../components/BackButton';
-import '../styles/ListingDetails.css';
 
 const ListingDetails = () => {
   // Get listing ID from URL parameters
@@ -101,10 +100,10 @@ const ListingDetails = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="listing-details-container">
-        <div className="loading-animation">
-          <div className="loading-spinner"></div>
-          <p>Loading listing details...</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-t-4 border-b-4 border-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading listing details...</p>
         </div>
       </div>
     );
@@ -147,126 +146,134 @@ const ListingDetails = () => {
   
   // Main content - Listing details
   return (
-    <div className="listing-details-container">
-      <div className="listing-details-header">
-        <BackButton />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex justify-between mb-6">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="inline-flex items-center text-neutral-600 hover:text-neutral-900"
+        >
+          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </button>
         
         <button 
-          className="share-button" 
+          className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded transition"
           onClick={shareOnWhatsApp}
           aria-label="Share on WhatsApp"
         >
-          <Share2 size={18} />
+          <Share2 size={18} className="mr-2" />
           <span>Share</span>
         </button>
       </div>
       
-      <div className="listing-details-card">
-        <div className="listing-details-grid">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="md:flex">
           {/* Image Section */}
-          <div className="listing-image-section">
-            <div className="listing-image-container">
+          <div className="md:w-1/2 lg:w-2/5">
+            <div className="h-64 md:h-full relative">
               <img 
                 src={listing.image || DEFAULT_IMAGE} 
                 alt={listing.title} 
-                className="listing-image"
+                className="w-full h-full object-cover"
                 onError={(e) => { e.target.src = DEFAULT_IMAGE }}
               />
             </div>
           </div>
           
           {/* Details Section */}
-          <div className="listing-info-section">
-            <div className="listing-title-section">
-              <h1 className="listing-title">{listing.title}</h1>
-              <div className="listing-meta">
-                <div className="listing-category">
-                  <Tag size={16} />
+          <div className="md:w-1/2 lg:w-3/5 p-6 md:p-8">
+            <div className="mb-6">
+              <h1 className="text-2xl md:text-3xl font-bold text-neutral-800 mb-2">{listing.title}</h1>
+              <div className="flex flex-wrap gap-3 mt-2">
+                <div className="flex items-center text-neutral-600">
+                  <Tag size={16} className="mr-1" />
                   <span>{listing.category}</span>
                 </div>
-                <div className="listing-date">
-                  <Calendar size={16} />
+                <div className="flex items-center text-neutral-600">
+                  <Calendar size={16} className="mr-1" />
                   <span>Listed on {formatDate(listing.createdAt)}</span>
                 </div>
               </div>
             </div>
             
-            <div className="listing-provider-info">
-              <p>Service provided by: <strong>{listing.user.name}</strong></p>
-              <p className="provider-occupation">{listing.user.occupation}</p>
+            <div className="p-3 bg-neutral-50 rounded mb-6">
+              <p className="text-sm">Service provided by: <strong>{listing.user.name}</strong></p>
+              <p className="text-neutral-600 text-sm">{listing.user.occupation}</p>
             </div>
             
-            <h2 className="section-title">Description</h2>
-            <div className="listing-description">
-              <p>{listing.description}</p>
+            <h2 className="text-xl font-semibold mb-3 text-neutral-800">Description</h2>
+            <div className="bg-white rounded mb-6">
+              <p className="text-neutral-700">{listing.description}</p>
             </div>
             
-            <h2 className="section-title">Location</h2>
-            <div className="listing-location">
-              <div className="location-icon">
-                <MapPin size={20} />
+            <h2 className="text-xl font-semibold mb-3 text-neutral-800">Location</h2>
+            <div className="flex items-start mb-6">
+              <div className="bg-neutral-100 p-2 rounded-full mr-3">
+                <MapPin size={20} className="text-neutral-700" />
               </div>
-              <p>Service available in Bhavya Association area</p>
+              <p className="text-neutral-700">Service available in Bhavya Association area</p>
             </div>
             
             {/* Contact Section - Conditional based on premium status */}
-            <div className="listing-contact-section">
-              <h2 className="section-title">Contact Information</h2>
+            <div>
+              <h2 className="text-xl font-semibold mb-3 text-neutral-800">Contact Information</h2>
               
               {listing.premiumRequired ? (
-                <div className="premium-required-card">
-                  <div className="premium-required-content">
-                    <h3>Premium Access Required</h3>
-                    <p>Contact details are available to premium members only</p>
-                    <button 
-                      className="upgrade-button"
-                      onClick={() => navigate('/upgrade-membership')}
-                    >
-                      Upgrade to Premium
-                    </button>
-                  </div>
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 shadow-sm">
+                  <h3 className="text-lg font-medium text-blue-800 mb-2">Premium Access Required</h3>
+                  <p className="text-neutral-700 mb-4">Contact details are available to premium members only</p>
+                  <button 
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded transition"
+                    onClick={() => navigate('/upgrade-membership')}
+                  >
+                    Upgrade to Premium
+                  </button>
                 </div>
               ) : (
-                <div className="contact-details-grid">
-                  <div className="contact-item">
-                    <div className="contact-icon">
-                      <Phone size={20} />
+                <div className="bg-white rounded-lg border p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="flex items-center">
+                      <div className="bg-primary-100 p-2 rounded-full mr-3">
+                        <Phone size={20} className="text-primary-700" />
+                      </div>
+                      <div>
+                        <span className="block text-sm text-neutral-500">Phone</span>
+                        <span className="font-medium">{listing.contactPhone}</span>
+                      </div>
                     </div>
-                    <div className="contact-info">
-                      <span className="contact-label">Phone</span>
-                      <span className="contact-value">{listing.contactPhone}</span>
-                    </div>
+                    
+                    {listing.contactEmail && (
+                      <div className="flex items-center">
+                        <div className="bg-primary-100 p-2 rounded-full mr-3">
+                          <Mail size={20} className="text-primary-700" />
+                        </div>
+                        <div>
+                          <span className="block text-sm text-neutral-500">Email</span>
+                          <span className="font-medium">{listing.contactEmail}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
-                  {listing.contactEmail && (
-                    <div className="contact-item">
-                      <div className="contact-icon">
-                        <Mail size={20} />
-                      </div>
-                      <div className="contact-info">
-                        <span className="contact-label">Email</span>
-                        <span className="contact-value">{listing.contactEmail}</span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="contact-actions">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <a 
                       href={`tel:${listing.contactPhone}`} 
-                      className="call-button"
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded flex items-center justify-center"
                       aria-label="Call service provider"
                     >
-                      <Phone size={18} />
+                      <Phone size={18} className="mr-2" />
                       Call Now
                     </a>
                     
                     {listing.contactEmail && (
                       <a 
                         href={`mailto:${listing.contactEmail}`} 
-                        className="email-button"
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded flex items-center justify-center"
                         aria-label="Email service provider"
                       >
-                        <Mail size={18} />
+                        <Mail size={18} className="mr-2" />
                         Send Email
                       </a>
                     )}
