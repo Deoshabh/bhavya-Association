@@ -61,8 +61,8 @@
   border-radius: 0 0 3px 3px;
 }
 
-/* Hide bottom navigation on larger screens */
-@media (min-width: 769px) {
+/* Hide bottom navigation on larger screens - using Tailwind approach */
+@media (min-width: 768px) {
   .bottom-navigation {
     display: none;
   }
@@ -81,16 +81,5 @@
   
   .bottom-nav-label {
     font-size: 0.65rem;
-  }
-}
-
-/* iPhone 5/SE and other very small devices */
-@media (max-width: 320px) {
-  .bottom-navigation {
-    height: 50px;
-  }
-  
-  .bottom-nav-label {
-    font-size: 0.6rem;
   }
 }

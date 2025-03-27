@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Store, Users } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Home, User, Store, Users, Search, Grid } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import '../styles/BottomNavigation.css';
 
 const BottomNavigation = () => {
   const location = useLocation();
@@ -38,20 +39,19 @@ const BottomNavigation = () => {
   }
 
   return (
-    <nav className="bottom-nav">
-      <ul>
-        {menuItems.map((item, index) => (
-          <li key={index}>
-            <Link 
-              to={item.path} 
-              className={location.pathname === item.path ? 'active' : ''}
-            >
-              <span className="sidebar-icon">{item.icon}</span>
-              <span className="sidebar-text">{item.name}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <nav className="bottom-navigation block md:hidden">
+      {menuItems.map((item, index) => (
+        <NavLink 
+          key={index} 
+          to={item.path} 
+          className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+        >
+          <div className="bottom-nav-icon">
+            {item.icon}
+          </div>
+          <span className="bottom-nav-label">{item.name}</span>
+        </NavLink>
+      ))}
     </nav>
   );
 };
