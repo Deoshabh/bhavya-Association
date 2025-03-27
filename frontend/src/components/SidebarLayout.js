@@ -1,88 +1,63 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Sidebar from './Sidebar';
+import React, { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
+// Remove import for './Sidebar' since it's been deleted
 import '../styles/SidebarLayout.css';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SidebarLayout = ({ children }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const collapseTimerRef = useRef(null);
-  
-  // Function to start collapse timer
-  const startCollapseTimer = () => {
-    // Clear any existing timer
-    if (collapseTimerRef.current) {
-      clearTimeout(collapseTimerRef.current);
-    }
-    
-    // Set a new timer to collapse the sidebar after 4 seconds
-    collapseTimerRef.current = setTimeout(() => {
-      if (!isHovering) {
-        setIsCollapsed(true);
-      }
-    }, 4000);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Toggle sidebar open/closed state for mobile
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
-  
-  // Reset timer when component mounts or when user interacts
+
+  // Toggle sidebar collapsed/expanded state for desktop
+  const toggleSidebarCollapse = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
+  // Close sidebar on window resize (e.g., when switching from mobile to desktop)
   useEffect(() => {
-    startCollapseTimer();
-    
-    // Clean up timer when component unmounts
-    return () => {
-      if (collapseTimerRef.current) {
-        clearTimeout(collapseTimerRef.current);
+    const handleResize = () => {
+      if (window.innerWidth >= 992) {
+        setIsSidebarOpen(false);
       }
     };
-  }, );
 
-  // Handle mouse enter event
-  const handleMouseEnter = () => {
-    setIsHovering(true);
-    setIsCollapsed(false);
-    
-    // Clear any existing timer
-    if (collapseTimerRef.current) {
-      clearTimeout(collapseTimerRef.current);
-    }
-  };
-  
-  // Handle mouse leave event
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    startCollapseTimer();
-  };
-  
-  // Toggle sidebar collapse state manually
-  const toggleSidebar = () => {
-    setIsCollapsed(prev => !prev);
-    
-    if (isCollapsed) {
-      // Reset timer when manually expanding
-      startCollapseTimer();
-    } else {
-      // Clear timer when manually collapsing
-      if (collapseTimerRef.current) {
-        clearTimeout(collapseTimerRef.current);
-      }
-    }
-  };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <div className={`sidebar-layout ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
-      <div 
-        className="sidebar-container"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+    <div className={`sidebar-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {/* Since Sidebar.js is deleted, we'll show a basic sidebar replacement or nothing */}
+      <div className="sidebar-container">
+        {/* Sidebar content would go here if needed */}
+        {/* For now, we'll leave this empty since Sidebar.js was deleted */}
+      </div>
+
+      {/* Toggle button for desktop */}
+      <button
+        className="sidebar-toggle"
+        onClick={toggleSidebarCollapse}
+        aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        <Sidebar isCollapsed={isCollapsed} />
-        <button 
-          className="sidebar-toggle" 
+        {isSidebarCollapsed ? <Menu size={18} /> : <X size={18} />}
+      </button>
+
+      {/* Mobile menu toggle */}
+      <div className="md:hidden">
+        <button
+          className="mobile-menu-toggle"
           onClick={toggleSidebar}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label="Toggle navigation menu"
         >
-          {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
+
+      {/* Main content area */}
       <main className="sidebar-layout-main">
         {children}
       </main>

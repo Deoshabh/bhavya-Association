@@ -77,3 +77,81 @@ export const getDataUrlSizeInMB = (dataUrl) => {
   const sizeInBytes = Math.ceil(base64Length * 0.75);
   return sizeInBytes / (1024 * 1024);
 };
+
+/**
+ * Handles the image upload workflow including cropping and compression
+ * @param {File} file - The image file to process
+ * @param {Function} setOriginalImage - Function to set the original image for cropping
+ * @param {Function} setShowCropModal - Function to control crop modal visibility
+ * @param {Function} setError - Function to set error message
+ * @param {Function} setImageSize - Function to set image size display
+ * @returns {boolean} - Whether the process was initiated successfully
+ */
+export const handleImageUpload = (file, setOriginalImage, setShowCropModal, setError, setImageSize) => {
+  if (!file) return false;
+
+  // Validate file is an image
+  if (!file.type.match('image.*')) {
+    setError('Please select an image file (png, jpg, jpeg)');
+    return false;
+  }
+
+  // Get file size in MB
+  const fileSizeMB = file.size / (1024 * 1024);
+  if (setImageSize) {
+    setImageSize(fileSizeMB.toFixed(2));
+  }
+
+  // Show warning for large images
+  if (fileSizeMB > 4 && setError) {
+    setError('Warning: Images larger than 4MB may cause upload issues. The image will be compressed.');
+  } else if (setError) {
+    setError('');
+  }
+
+  // Create a preview of the image and show cropper
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const originalDataUrl = e.target.result;
+    
+    // Store original image and show crop modal
+    setOriginalImage(originalDataUrl);
+    setShowCropModal(true);
+  };
+  reader.readAsDataURL(file);
+  return true;
+};
+
+/**
+ * Process a cropped image by compressing if needed
+ * @param {string} croppedImage - Cropped image data URL
+ * @param {Function} setError - Function to set error message
+ * @param {Function} setImageSize - Function to set image size
+ * @param {number} maxSizeMB - Maximum allowed size in MB
+ * @returns {Promise<string>} - Processed image data URL
+ */
+export const processCroppedImage = async (croppedImage, setError, setImageSize, maxSizeMB = 8) => {
+  // Get file size of cropped image
+  const base64Size = Math.ceil((croppedImage.length - 22) * 0.75);
+  const fileSizeMB = base64Size / (1024 * 1024);
+  
+  if (setImageSize) {
+    setImageSize(fileSizeMB.toFixed(2));
+  }
+  
+  // Apply compression if needed
+  const processedImage = fileSizeMB > 1 
+    ? await compressImage(croppedImage)
+    : croppedImage;
+  
+  // Estimate new size after compression
+  const newSizeMB = (processedImage.length * 0.75) / (1024 * 1024);
+  if (newSizeMB > maxSizeMB && setError) {
+    setError(`The image is still too large even after compression. Please select a smaller image. Maximum size: ${maxSizeMB}MB`);
+    return null;
+  } else if (setError) {
+    setError('');
+  }
+  
+  return processedImage;
+};

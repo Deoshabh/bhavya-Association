@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from './ConfirmDialog';
-import { User, MapPin, Briefcase, Phone, Mail, Edit, Share2, Shield, AlertTriangle, Lock } from 'lucide-react';
+import { User, MapPin, Briefcase, Phone, Mail, Edit, AlertTriangle, Lock } from 'lucide-react';
 import Card from './Card';
 import Button from './Button';
 
@@ -21,12 +21,12 @@ const ProfileCard = ({ user, setEditMode }) => {
   });
   const navigate = useNavigate();
 
-  // Construct share content
+  // Construct share content - Keep this function to be passed to ProfileSettings
   const shareText = `Check out my profile on Bhavya Association!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nProfession: ${user.profession || 'Not specified'}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}`;
   // Keep WhatsApp URL as fallback
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   
-  // Handle generalized sharing
+  // Handle generalized sharing - Keep function to be used in ProfileSettings 
   const handleShare = async () => {
     // Create share data object
     const shareData = {
@@ -164,7 +164,7 @@ const ProfileCard = ({ user, setEditMode }) => {
         {/* Contact information */}
         <div className="bg-neutral-50 rounded-lg p-4 mb-6">
           <h3 className="text-md font-semibold text-neutral-700 mb-3 flex items-center">
-            <Shield size={16} className="mr-2 text-primary-600" />
+            <Lock size={16} className="mr-2 text-primary-600" />
             Contact Information
           </h3>
           
@@ -206,64 +206,12 @@ const ProfileCard = ({ user, setEditMode }) => {
           )}
         </div>
         
-        {/* Privacy settings section */}
-        <div className="mb-6 border-t border-neutral-200 pt-5">
-          <h3 className="text-md font-semibold text-neutral-700 mb-3 flex items-center">
-            <Lock size={16} className="mr-2 text-primary-600" />
-            Privacy Settings
-          </h3>
-          
-          <div className="space-y-4">
-            <div>
-              <p className="text-neutral-600 text-sm mb-1">
-                Account deactivation temporarily hides your profile from the directory.
-              </p>
-              <button
-                className="py-2 px-4 border border-yellow-500 text-yellow-700 hover:bg-yellow-50 font-medium rounded-md transition-colors w-full"
-                onClick={() => {
-                  resetConfirmations();
-                  setActionState((prev) => ({
-                    ...prev,
-                    showDeactivateConfirm: true
-                  }));
-                }}
-              >
-                Deactivate Account
-              </button>
-            </div>
-            
-            <div className="border-t border-neutral-100 pt-4"></div>
-              <p className="text-neutral-600 text-sm mb-2">
-                Permanently delete your account and all associated data:
-              </p>
-              <p 
-                className="text-red-600 text-sm cursor-pointer hover:underline font-medium"
-                onClick={() => {
-                  resetConfirmations();
-                  setActionState((prev) => ({
-                    ...prev,
-                    showDeleteConfirm: true
-                  }));
-                }}
-              >
-                Delete my account
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Removed Privacy Settings section */}
         
-      {/* Action buttons */}
-      <div className="flex flex-col gap-3">
-        <button
-          onClick={handleShare}
-          className="flex items-center justify-center py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors"
-        >
-          <Share2 size={18} className="mr-2" />
-          Share Profile
-        </button>
+        {/* Removed Share Profile button */}
       </div>
       
-      {/* Confirm Dialogs */}
+      {/* Confirm Dialogs - keep them here as they might still be needed for other actions */}
       {actionState.showDeactivateConfirm && (
         <ConfirmDialog
           title="Deactivate Account"

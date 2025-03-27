@@ -2,13 +2,15 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
 import { Upload, X, AlertTriangle, CheckCircle, Loader, ArrowLeft, Camera, Briefcase } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // Add useNavigate hook
+import { useNavigate } from 'react-router-dom';
 import Card from './Card';
 import FormInput from './FormInput';
 import Button from './Button';
+import ImageCropper from './ImageCropper';
+import { handleImageUpload, processCroppedImage, compressImage } from '../utils/imageUtils';
 
 const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode }) => {
-  const navigate = useNavigate(); // Add navigate function
+  const navigate = useNavigate();
   const { updateUser, api, serverStatus } = useContext(AuthContext);
   const [bio, setBio] = useState(user?.bio || '');
   const [address, setAddress] = useState(user?.address || '');
@@ -20,6 +22,10 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageSize, setImageSize] = useState(null);
   const fileInputRef = useRef(null);
+  
+  // State for image cropping
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [originalImage, setOriginalImage] = useState(null);
 
   useEffect(() => {
     if (isEditing && user) {
@@ -30,111 +36,37 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
     }
   }, [isEditing, user]);
 
-  // Function to compress and resize image
-  const compressImage = (imageDataUrl, maxSizeMB = 1) => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = imageDataUrl;
-      
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        let quality = 0.7; // starting quality
-        
-        // Calculate max dimensions for resize if needed
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 800;
-        
-        // Resize if too large
-        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
-          width = Math.floor(width * ratio);
-          height = Math.floor(height * ratio);
-        }
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Try to get the image size under the maxSizeMB
-        const maxSizeBytes = maxSizeMB * 1024 * 1024;
-        
-        // Compress with decreasing quality until size is under limit
-        const compress = (currentQuality) => {
-          if (currentQuality < 0.1) {
-            // Can't compress further, return best effort
-            return canvas.toDataURL('image/jpeg', 0.1);
-          }
-          
-          const dataUrl = canvas.toDataURL('image/jpeg', currentQuality);
-          // Estimate size of base64 string (subtract header and calculate actual bytes)
-          const base64Size = Math.ceil((dataUrl.length - 22) * 0.75);
-          
-          if (base64Size <= maxSizeBytes || currentQuality <= 0.1) {
-            return dataUrl;
-          } else {
-            // Try again with lower quality
-            return compress(currentQuality - 0.1);
-          }
-        };
-        
-        resolve(compress(quality));
-      };
-      
-      img.onerror = () => {
-        resolve(imageDataUrl); // Return original if there's an error
-      };
-    });
+  const handleCropComplete = async (croppedImage) => {
+    const processedImage = await processCroppedImage(
+      croppedImage,
+      setError,
+      setImageSize
+    );
+    
+    if (processedImage) {
+      setImagePreview(processedImage);
+      setProfileImage(processedImage);
+      setShowCropModal(false);
+    }
   };
 
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file is an image
-    if (!file.type.match('image.*')) {
-      setError('Please select an image file (png, jpg, jpeg)');
-      return;
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setOriginalImage(null);
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
+  };
 
-    // Get file size in MB
-    const fileSizeMB = file.size / (1024 * 1024);
-    setImageSize(fileSizeMB.toFixed(2));
-
-    // Show warning for large images
-    if (fileSizeMB > 4) {
-      setError('Warning: Images larger than 4MB may cause upload issues. The image will be compressed.');
-    } else {
-      setError('');
-    }
-
-    // Create a preview of the image
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const originalDataUrl = e.target.result;
-      
-      try {
-        // Compress image if it's larger than 1MB
-        const processedImage = fileSizeMB > 1 
-          ? await compressImage(originalDataUrl)
-          : originalDataUrl;
-          
-        setImagePreview(processedImage);
-        setProfileImage(processedImage);
-        
-        // Estimate new size
-        const newSizeMB = (processedImage.length * 0.75) / (1024 * 1024);
-        if (newSizeMB > 8) {
-          setError('The image is still too large even after compression. Please select a smaller image.');
-        }
-      } catch (err) {
-        setError('Error processing image. Please try a different image.');
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleImageChange = (e) => {
+    handleImageUpload(
+      e.target.files[0],
+      setOriginalImage,
+      setShowCropModal,
+      setError,
+      setImageSize
+    );
   };
 
   const handleSubmit = async e => {
@@ -468,6 +400,18 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
           </div>
         </div>
       </form>
+
+      {/* Image Crop Modal */}
+      {showCropModal && (
+        <ImageCropper
+          image={originalImage}
+          onCancel={handleCropCancel}
+          onCrop={handleCropComplete}
+          aspectRatio={1}
+          cropShape="round"
+          title="Crop Profile Image"
+        />
+      )}
     </Card>
   );
 };

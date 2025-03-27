@@ -101,7 +101,7 @@ const RegistrationForm = () => {
               onChange={e => setName(e.target.value)}
               required
               disabled={isSubmitting}
-              className="block w-full pl-10 pr-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-12 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               placeholder="Enter your full name"
             />
           </div>
@@ -122,7 +122,7 @@ const RegistrationForm = () => {
               onChange={e => setPhoneNumber(e.target.value)}
               required
               disabled={isSubmitting}
-              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm
+              className={`block w-full pl-12 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm
                 ${duplicateUser ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-neutral-300'}`}
               placeholder="Enter your phone number"
             />
@@ -147,7 +147,7 @@ const RegistrationForm = () => {
               onChange={e => setOccupation(e.target.value)}
               required
               disabled={isSubmitting}
-              className="block w-full pl-10 pr-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-12 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               placeholder="Enter your occupation"
             />
           </div>
@@ -168,7 +168,7 @@ const RegistrationForm = () => {
               onChange={e => setPassword(e.target.value)}
               required
               disabled={isSubmitting}
-              className="block w-full pl-10 pr-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-12 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               placeholder="Create a password"
               minLength="6"
             />

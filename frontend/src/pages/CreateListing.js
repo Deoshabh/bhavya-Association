@@ -6,6 +6,8 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import FormInput from '../components/FormInput';
 import Alert from '../components/Alert';
+import ImageCropper from '../components/ImageCropper';
+import { handleImageUpload, processCroppedImage } from '../utils/imageUtils';
 
 const CreateListing = () => {
   const navigate = useNavigate();
@@ -25,6 +27,10 @@ const CreateListing = () => {
   const [success, setSuccess] = useState('');
   const [imageSize, setImageSize] = useState(null);
   
+  // New state for image cropping
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [originalImage, setOriginalImage] = useState(null);
+  
   // Common categories for the dropdown
   const categories = [
     'Plumber',
@@ -41,112 +47,39 @@ const CreateListing = () => {
     'Other'
   ];
   
-  // Function to compress and resize image
-  const compressImage = (imageDataUrl, maxSizeMB = 1) => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = imageDataUrl;
-      
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        let quality = 0.7; // starting quality
-        
-        // Calculate max dimensions for resize if needed
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 800;
-        
-        // Resize if too large
-        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
-          width = Math.floor(width * ratio);
-          height = Math.floor(height * ratio);
-        }
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Try to get the image size under the maxSizeMB
-        const maxSizeBytes = maxSizeMB * 1024 * 1024;
-        
-        // Compress with decreasing quality until size is under limit
-        const compress = (currentQuality) => {
-          if (currentQuality < 0.1) {
-            // Can't compress further, return best effort
-            return canvas.toDataURL('image/jpeg', 0.1);
-          }
-          
-          const dataUrl = canvas.toDataURL('image/jpeg', currentQuality);
-          // Estimate size of base64 string
-          const base64Size = Math.ceil((dataUrl.length - 22) * 0.75);
-          
-          if (base64Size <= maxSizeBytes || currentQuality <= 0.1) {
-            return dataUrl;
-          } else {
-            // Try again with lower quality
-            return compress(currentQuality - 0.1);
-          }
-        };
-        
-        resolve(compress(quality));
-      };
-      
-      img.onerror = () => {
-        resolve(imageDataUrl); // Return original if there's an error
-      };
-    });
+  // Handle image upload
+  const handleImageChange = (e) => {
+    handleImageUpload(
+      e.target.files[0],
+      setOriginalImage,
+      setShowCropModal,
+      setError,
+      setImageSize
+    );
   };
   
-  // Handle image upload
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file is an image
-    if (!file.type.match('image.*')) {
-      setError('Please select an image file (png, jpg, jpeg)');
-      return;
+  const handleCropComplete = async (croppedImage) => {
+    const processedImage = await processCroppedImage(
+      croppedImage,
+      setError,
+      setImageSize,
+      6 // 6MB limit for listing images
+    );
+    
+    if (processedImage) {
+      setImagePreview(processedImage);
+      setImage(processedImage);
+      setShowCropModal(false);
     }
-
-    // Get file size in MB
-    const fileSizeMB = file.size / (1024 * 1024);
-    setImageSize(fileSizeMB.toFixed(2));
-
-    // Show warning for large images
-    if (fileSizeMB > 4) {
-      setError('Warning: Images larger than 4MB may cause upload issues. The image will be compressed.');
-    } else {
-      setError('');
+  };
+  
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setOriginalImage(null);
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
-
-    // Create a preview of the image
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const originalDataUrl = e.target.result;
-      
-      try {
-        // Compress image if it's larger than 1MB
-        const processedImage = fileSizeMB > 1 
-          ? await compressImage(originalDataUrl)
-          : originalDataUrl;
-          
-        setImagePreview(processedImage);
-        setImage(processedImage);
-        
-        // Estimate new size
-        const newSizeMB = (processedImage.length * 0.75) / (1024 * 1024);
-        if (newSizeMB > 6) {
-          setError('The image is too large even after compression. Please select a smaller image.');
-        }
-      } catch (err) {
-        setError('Error processing image. Please try a different image.');
-      }
-    };
-    reader.readAsDataURL(file);
   };
   
   // Remove uploaded image
@@ -450,6 +383,18 @@ const CreateListing = () => {
           </form>
         </Card.Body>
       </Card>
+      
+      {/* Image Crop Modal */}
+      {showCropModal && (
+        <ImageCropper
+          image={originalImage}
+          onCancel={handleCropCancel}
+          onCrop={handleCropComplete}
+          aspectRatio={16/9}
+          cropShape="rect"
+          title="Crop Service Image"
+        />
+      )}
     </div>
   );
 };

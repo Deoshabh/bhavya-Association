@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, User, Phone, Briefcase, Shield, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, User, Phone, Briefcase, Shield, AlertCircle, Upload, Camera } from 'lucide-react';
+import ImageCropper from '../ImageCropper';
+import { handleImageUpload, processCroppedImage } from '../../utils/imageUtils';
+import Button from '../Button';
 
 const UserEditModal = ({ user, isCreating, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -9,12 +12,18 @@ const UserEditModal = ({ user, isCreating, onClose, onSave }) => {
     occupation: '',
     planType: 'free',
     accountStatus: 'active',
-    isPublic: true
+    isPublic: true,
+    profileImage: ''
   });
   
   const [fieldErrors, setFieldErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [originalImage, setOriginalImage] = useState(null);
+  const [imageSize, setImageSize] = useState(null);
+  const fileInputRef = useRef(null);
   
   // Initialize form with user data when editing
   useEffect(() => {
@@ -26,8 +35,13 @@ const UserEditModal = ({ user, isCreating, onClose, onSave }) => {
         occupation: user.occupation || '',
         planType: user.planType || 'free',
         accountStatus: user.accountStatus || 'active',
-        isPublic: user.isPublic !== undefined ? user.isPublic : true
+        isPublic: user.isPublic !== undefined ? user.isPublic : true,
+        profileImage: user.profileImage || ''
       });
+      
+      if (user.profileImage) {
+        setImagePreview(user.profileImage);
+      }
     }
   }, [user, isCreating]);
   
@@ -44,6 +58,53 @@ const UserEditModal = ({ user, isCreating, onClose, onSave }) => {
         ...fieldErrors,
         [name]: ''
       });
+    }
+  };
+  
+  const handleImageChange = (e) => {
+    handleImageUpload(
+      e.target.files[0],
+      setOriginalImage,
+      setShowCropModal,
+      setError,
+      setImageSize
+    );
+  };
+  
+  const handleCropComplete = async (croppedImage) => {
+    const processedImage = await processCroppedImage(
+      croppedImage,
+      setError,
+      setImageSize
+    );
+    
+    if (processedImage) {
+      setImagePreview(processedImage);
+      setFormData({
+        ...formData,
+        profileImage: processedImage
+      });
+      setShowCropModal(false);
+    }
+  };
+  
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setOriginalImage(null);
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setFormData({
+      ...formData,
+      profileImage: ''
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
   
@@ -278,6 +339,67 @@ const UserEditModal = ({ user, isCreating, onClose, onSave }) => {
               </p>
             </div>
             
+            <div className="form-group">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Profile Image
+              </label>
+              <div className="flex flex-col items-center">
+                <div className="mb-4 relative">
+                  {imagePreview ? (
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-full overflow-hidden border border-gray-200">
+                        <img 
+                          src={imagePreview} 
+                          alt="Profile preview" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-sm"
+                        onClick={handleRemoveImage}
+                        aria-label="Remove image"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center border border-dashed border-gray-300 cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera size={32} className="text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center mb-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    ref={fileInputRef}
+                    className="hidden"
+                    id="profile-image-upload"
+                  />
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<Upload size={16} />}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Upload Image
+                  </Button>
+                </div>
+                
+                <p className="text-xs text-gray-500 text-center mt-1">
+                  Maximum size: 6MB {imageSize && `(Current: ${imageSize}MB${imageSize > 1 ? ' - will be compressed' : ''})`}
+                </p>
+              </div>
+            </div>
+            
             <div className="pt-4 border-t border-gray-200 flex justify-end space-x-3">
               <button
                 type="button"
@@ -302,6 +424,17 @@ const UserEditModal = ({ user, isCreating, onClose, onSave }) => {
               </button>
             </div>
           </form>
+          
+          {showCropModal && (
+            <ImageCropper
+              image={originalImage}
+              onCancel={handleCropCancel}
+              onCrop={handleCropComplete}
+              aspectRatio={1}
+              cropShape="round"
+              title="Crop Profile Image"
+            />
+          )}
         </div>
       </div>
     </div>
