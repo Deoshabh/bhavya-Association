@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { User, Phone, Briefcase, Lock, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 
 const RegistrationForm = () => {
   const { register } = useContext(AuthContext);
@@ -90,43 +90,33 @@ const RegistrationForm = () => {
           <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="name">
             Full Name
           </label>
-          <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <User className="h-5 w-5 text-neutral-400" aria-hidden="true" />
-            </div>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-              disabled={isSubmitting}
-              className="block w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-              placeholder="Enter your full name"
-            />
-          </div>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+            disabled={isSubmitting}
+            className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            placeholder="Enter your full name"
+          />
         </div>
         
         <div className="form-group">
           <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="phoneNumber">
             Phone Number
           </label>
-          <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Phone className="h-5 w-5 text-neutral-400" aria-hidden="true" />
-            </div>
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={e => setPhoneNumber(e.target.value)}
-              required
-              disabled={isSubmitting}
-              className={`block w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm
-                ${duplicateUser ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-neutral-300'}`}
-              placeholder="Enter your phone number"
-            />
-          </div>
+          <input
+            type="tel"
+            id="phoneNumber"
+            value={phoneNumber}
+            onChange={e => setPhoneNumber(e.target.value)}
+            required
+            disabled={isSubmitting}
+            className={`block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm
+              ${duplicateUser ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-neutral-300'}`}
+            placeholder="Enter your phone number"
+          />
           {duplicateUser && (
             <p className="mt-1 text-sm text-red-600">This phone number is already registered</p>
           )}
@@ -136,43 +126,33 @@ const RegistrationForm = () => {
           <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="occupation">
             Occupation
           </label>
-          <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Briefcase className="h-5 w-5 text-neutral-400" aria-hidden="true" />
-            </div>
-            <input
-              type="text"
-              id="occupation"
-              value={occupation}
-              onChange={e => setOccupation(e.target.value)}
-              required
-              disabled={isSubmitting}
-              className="block w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-              placeholder="Enter your occupation"
-            />
-          </div>
+          <input
+            type="text"
+            id="occupation"
+            value={occupation}
+            onChange={e => setOccupation(e.target.value)}
+            required
+            disabled={isSubmitting}
+            className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            placeholder="Enter your occupation"
+          />
         </div>
         
         <div className="form-group">
           <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="password">
             Password
           </label>
-          <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Lock className="h-5 w-5 text-neutral-400" aria-hidden="true" />
-            </div>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              disabled={isSubmitting}
-              className="block w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-              placeholder="Create a password"
-              minLength="6"
-            />
-          </div>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            disabled={isSubmitting}
+            className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            placeholder="Create a password"
+            minLength="6"
+          />
           <p className="mt-1 text-xs text-neutral-500">Password must be at least 6 characters long</p>
         </div>
         
