@@ -221,9 +221,7 @@ const Directory = () => {
         searchTerm &&
         !user.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
         !user.occupation?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !user.interests?.some((interest) =>
-          interest.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        !user.profession?.toLowerCase().includes(searchTerm.toLowerCase())
       ) {
         return false;
       }
@@ -292,52 +290,6 @@ const Directory = () => {
         >
           Server connection issues detected. Directory data may not be available.
         </Alert>
-      )}
-
-      {/* Premium Banner - only show when needed */}
-      {planStatus === 'free' && (
-        <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <div className="bg-blue-100 p-3 rounded-full text-blue-600 flex-shrink-0">
-              <Star size={24} />
-            </div>
-            
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-blue-800 mb-2">
-                {searchTerm || filters.occupation 
-                  ? 'Unlock Full Contact Details' 
-                  : 'Upgrade to Premium Membership'}
-              </h3>
-              <p className="text-neutral-700">
-                {searchTerm || filters.occupation 
-                  ? 'Upgrade to view phone numbers and contact details of members matching your search.' 
-                  : 'Get full access to member contact information, profile details, and premium features.'}
-              </p>
-              
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-700">
-                <div className="flex items-center">
-                  <Shield size={16} className="text-blue-600 mr-2" />
-                  <span>Direct contact with members</span>
-                </div>
-                <div className="flex items-center">
-                  <Phone size={16} className="text-blue-600 mr-2" />
-                  <span>Phone numbers and email access</span>
-                </div>
-                <div className="flex items-center">
-                  <Users size={16} className="text-blue-600 mr-2" />
-                  <span>Premium profile features</span>
-                </div>
-              </div>
-            </div>
-            
-            <button 
-              className="sm:self-center bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-md shadow transition font-medium"
-              onClick={handleUpgrade}
-            >
-              Upgrade Now
-            </button>
-          </div>
-        </div>
       )}
 
       {/* Search and Filter Section */}
@@ -484,7 +436,22 @@ const Directory = () => {
                       </p>
                     )}
                     
-                    {/* Member Interests */}
+                    {/* Member Profession */}
+                    {member.profession && (
+                      <div className="mb-4">
+                        <h4 className="text-xs uppercase text-neutral-500 font-medium mb-2 flex items-center">
+                          <Briefcase size={12} className="mr-1" />
+                          Profession
+                        </h4>
+                        <div className="flex flex-wrap gap-1">
+                          <span className="inline-block bg-neutral-100 text-neutral-700 rounded-full px-2 py-1 text-xs">
+                            {member.profession}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Contact Info - For Premium Users Only */}
                     {member.interests && member.interests.length > 0 && (
                       <div className="mb-4">
                         <h4 className="text-xs uppercase text-neutral-500 font-medium mb-2 flex items-center">
@@ -530,9 +497,15 @@ const Directory = () => {
                         )}
                       </div>
                     ) : (
-                      <div className="mb-4 bg-neutral-50 p-4 rounded-md border border-neutral-200">
-                        <p className="text-neutral-600 text-sm font-medium mb-1">Contact information hidden</p>
-                        <p className="text-neutral-500 text-xs">Upgrade to premium to view contact details</p>
+                      <div className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-md border border-blue-100">
+                        <p className="text-blue-800 font-medium text-sm mb-3">Premium access required for contact details</p>
+                        <button
+                          onClick={handleUpgrade}
+                          className="text-dark bg-warning hover:bg-yellow-600 text-sm font-medium py-2 px-3 rounded w-full transition flex items-center justify-center"
+                        >
+                          <Star size={14} className="mr-1.5" />
+                          Upgrade to Premium
+                        </button>
                       </div>
                     )}
                     

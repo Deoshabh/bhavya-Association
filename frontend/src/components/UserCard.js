@@ -15,7 +15,7 @@ const UserCard = ({ user, canContact, currentUser, searchTerm }) => {
   const upgradeToContact = () => {
     navigate('/upgrade-membership');
   };
-
+  
   // Determine if this is the current user's card
   const isOwnProfile = currentUser?._id === user._id;
   
@@ -59,6 +59,12 @@ const UserCard = ({ user, canContact, currentUser, searchTerm }) => {
         <h3 className="user-name">{user.name}</h3>
         <p className="user-occupation">{user.occupation}</p>
         
+        {user.profession && (
+          <div className="mb-2">
+            <span className="text-sm font-medium text-primary-600">{user.profession}</span>
+          </div>
+        )}
+
         {user.location && (
           <div className="user-location">
             <MapPin size={14} />
@@ -84,18 +90,14 @@ const UserCard = ({ user, canContact, currentUser, searchTerm }) => {
           </div>
         )}
         
-        {/* Interests tags if available */}
-        {user.interests && user.interests.length > 0 && (
-          <div className="interests-container">
-            <div className="interests-tags">
-              {user.interests.slice(0, 3).map((interest, idx) => (
-                <span key={idx} className="interest-tag">
-                  {interest}
-                </span>
-              ))}
-              {user.interests.length > 3 && (
-                <span className="interest-tag more">+{user.interests.length - 3}</span>
-              )}
+        {/* Profession if available */}
+        {user.profession && (
+          <div className="mt-2">
+            <div className="text-xs text-neutral-500 mb-1">Profession:</div>
+            <div className="flex flex-wrap gap-1 justify-center">
+              <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full text-xs">
+                {user.profession}
+              </span>
             </div>
           </div>
         )}
@@ -106,20 +108,18 @@ const UserCard = ({ user, canContact, currentUser, searchTerm }) => {
           <button className="btn-primary" onClick={viewProfile}>
             View My Profile
           </button>
-        ) : canContact ? (
+        ) : (
           <>
             <button className="btn-primary" onClick={viewProfile}>
               View Profile
             </button>
-          </>
-        ) : (
-          <>
-            <button className="btn-secondary" onClick={viewProfile}>
-              View Profile
-            </button>
-            <button className="btn-premium" onClick={upgradeToContact}>
-              Upgrade to Contact
-            </button>
+            
+            {!canContact && (
+              <button className="btn-premium" onClick={upgradeToContact}>
+                <Star size={14} className="mr-1" />
+                Upgrade to Contact
+              </button>
+            )}
           </>
         )}
       </div>

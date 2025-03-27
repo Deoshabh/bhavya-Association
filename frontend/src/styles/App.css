@@ -1,3 +1,5 @@
+@import './variables.css';
+
 /* Global styles for bottom navigation spacing */
 
 @media (max-width: 768px) {
@@ -9,5 +11,159 @@
   /* Adjust footer to not overlap with bottom navigation */
   footer {
     margin-bottom: 60px;
+  }
+}
+
+/* Global container styles */
+.container {
+  width: 100%;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Global section styles */
+.section {
+  padding: var(--spacing-lg) 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--spacing-xl) 0;
+  }
+}
+
+/* Main content area - provides space for fixed navbar */
+.main-content {
+  padding-top: 70px; /* Match navbar height */
+  min-height: calc(100vh - 70px);
+  background-color: var(--color-background);
+}
+
+/* Text alignment utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Margin utilities */
+.mb-xs {
+  margin-bottom: var(--spacing-xs);
+}
+
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mb-xl {
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Padding utilities */
+.p-xs {
+  padding: var(--spacing-xs);
+}
+
+.p-sm {
+  padding: var(--spacing-sm);
+}
+
+.p-md {
+  padding: var(--spacing-md);
+}
+
+.p-lg {
+  padding: var(--spacing-lg);
+}
+
+.p-xl {
+  padding: var(--spacing-xl);
+}
+
+/* Flexbox utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+/* Mobile specific styles */
+@media (max-width: 768px) {
+  /* Add bottom padding to all main content to avoid content being hidden behind bottom nav */
+  .main-content {
+    padding-bottom: 70px; /* Match the height of bottom navigation */
+    padding-top: 60px; /* Match smaller navbar height on mobile */
+    min-height: calc(100vh - 60px);
+  }
+  
+  /* Container padding adjustments */
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  /* Section padding adjustments */
+  .section {
+    padding: var(--spacing-md) 0;
+  }
+  
+  /* Adjust footer to not overlap with bottom navigation */
+  footer {
+    margin-bottom: 60px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .main-content {
+    padding-top: 60px; /* Match even smaller navbar height */
+  }
+  
+  .container {
+    padding: 0 var(--spacing-xs);
+  }
+  
+  .section {
+    padding: var(--spacing-sm) 0;
   }
 }

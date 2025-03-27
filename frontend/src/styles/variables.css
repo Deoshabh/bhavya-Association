@@ -32,54 +32,55 @@
   --z-index-fixed: 300;
   --z-index-modal: 400;
 
-  /* Shadows - adjusted for lighter load on mobile */
+  /* Shadows - optimized for both mobile and desktop */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 3px 5px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 7px 10px rgba(0, 0, 0, 0.07), 0 3px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 15px 20px rgba(0, 0, 0, 0.07), 0 7px 8px rgba(0, 0, 0, 0.04);
 
-  /* Spacing system - scaled down slightly for mobile */
-  --spacing-xs: 0.25rem;  /* 4px */
-  --spacing-sm: 0.5rem;   /* 8px */
-  --spacing-md: 0.75rem;  /* 12px (reduced from 16px) */
-  --spacing-lg: 1rem;     /* 16px (reduced from 24px) */
-  --spacing-xl: 1.5rem;   /* 24px (reduced from 32px) */
-  --spacing-2xl: 2rem;    /* 32px (reduced from 48px) */
-  --spacing-3xl: 2.5rem;  /* 40px (reduced from 64px) */
+  /* Base spacing system optimized for mobile first */
+  --spacing-xxs: 0.125rem; /* 2px */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 0.75rem;   /* 12px (base mobile) */
+  --spacing-lg: 1rem;      /* 16px (base mobile) */
+  --spacing-xl: 1.5rem;    /* 24px (base mobile) */
+  --spacing-2xl: 2rem;     /* 32px (base mobile) */
+  --spacing-3xl: 2.5rem;   /* 40px (base mobile) */
 
-  /* Border radius */
+  /* Border radius - consistent across breakpoints */
   --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;  /* Slightly smaller */
-  --radius-lg: 0.5rem;    /* Reduced from 0.75rem */
-  --radius-xl: 0.75rem;   /* Reduced from 1rem */
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
   --radius-full: 9999px;
 
-  /* Font sizes - adjusted for mobile readability */
-  --font-size-xs: 0.6875rem;  /* 11px */
-  --font-size-sm: 0.8125rem;  /* 13px */
-  --font-size-base: 0.875rem; /* 14px (reduced from 16px) */
-  --font-size-md: 1rem;       /* 16px (reduced from 18px) */
-  --font-size-lg: 1.125rem;   /* 18px (reduced from 20px) */
-  --font-size-xl: 1.25rem;    /* 20px (reduced from 24px) */
-  --font-size-2xl: 1.5rem;    /* 24px (reduced from 28px) */
-  --font-size-3xl: 1.75rem;   /* 28px (reduced from 32px) */
-  --font-size-4xl: 2rem;      /* 32px (reduced from 36px) */
+  /* Font sizes - optimized for mobile readability */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-md: 1.125rem;   /* 18px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px */
+  --font-size-2xl: 1.75rem;   /* 28px */
+  --font-size-3xl: 2rem;      /* 32px */
+  --font-size-4xl: 2.25rem;   /* 36px */
 
-  /* Font weights */
+  /* Font weights - consistent across breakpoints */
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* Animation - faster for mobile */
-  --transition-fast: 100ms;   /* Reduced from 150ms */
-  --transition-normal: 200ms; /* Reduced from 250ms */
-  --transition-slow: 300ms;   /* Reduced from 350ms */
+  /* Animations - optimized for all devices */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 350ms;
   --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Container widths - adjusted for smaller screens */
-  --container-sm: 100%;      /* Full width by default */
+  /* Container widths - mobile first */
+  --container-sm: 100%;
   --container-md: 100%;
   --container-lg: 100%;
   --container-xl: 100%;
@@ -94,7 +95,7 @@
     --font-size-base: 1rem; /* 16px */
     --font-size-md: 1.125rem;
     --font-size-lg: 1.25rem;
-    --container-sm: 640px;  /* Restore original for tablets */
+    --container-sm: 440px;
   }
 }
 
@@ -116,21 +117,37 @@
     --radius-md: 0.5rem;    /* Original */
     --radius-lg: 0.75rem;   /* Original */
     --radius-xl: 1rem;      /* Original */
-    --container-md: 768px;  /* Restore original */
-    --container-lg: 1024px;
+    --container-md: 720px;
+    --container-lg: 960px;
     --container-xl: 1280px;
   }
 }
 
-/* Small mobile devices (max-width: 360px) */
+/* Large desktops (min-width: 1024px) */
+@media (min-width: 1024px) {
+  :root {
+    --container-lg: 980px;
+    --container-xl: 1140px;
+  }
+}
+
+/* Extra large desktops (min-width: 1280px) */
+@media (min-width: 1280px) {
+  :root {
+    --container-xl: 1240px;
+  }
+}
+
+/* Small mobile devices adjustment (max-width: 360px) */
 @media (max-width: 360px) {
   :root {
     --spacing-md: 0.5rem;   /* 8px */
     --spacing-lg: 0.75rem;  /* 12px */
     --spacing-xl: 1rem;     /* 16px */
-    --font-size-xs: 0.625rem;  /* 10px */
-    --font-size-sm: 0.75rem;   /* 12px */
-    --font-size-base: 0.8125rem; /* 13px */
-    --font-size-md: 0.875rem;    /* 14px */
+    --font-size-xs: 0.6875rem;  /* 11px */
+    --font-size-sm: 0.75rem;    /* 12px */
+    --font-size-base: 0.875rem; /* 14px */
+    --font-size-md: 1rem;       /* 16px */
+    --font-size-lg: 1.125rem;   /* 18px */
   }
 }

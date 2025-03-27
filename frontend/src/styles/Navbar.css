@@ -30,7 +30,13 @@
   height: 70px;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 var(--spacing-xl);
+  padding: 0 var(--spacing-md);
+}
+
+@media (min-width: 640px) {
+  .navbar {
+    padding: 0 var(--spacing-xl);
+  }
 }
 
 /* Logo */
@@ -42,9 +48,15 @@
 }
 
 .logo-image {
-  height: 70px;
+  height: 55px;
   width: auto;
   object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .logo-image {
+    height: 70px;
+  }
 }
 
 .logo-text-container {
@@ -56,29 +68,51 @@
 .logo-text {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #333;
 }
 
 .logo-accent {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #666;
   margin-left: 2px;
 }
 
+@media (min-width: 768px) {
+  .logo-text {
+    font-size: 1.2rem;
+  }
+  
+  .logo-accent {
+    font-size: 1rem;
+  }
+}
+
 /* Desktop nav (hidden on mobile) */
 .desktop-nav {
-  display: flex;
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .desktop-nav {
+    display: flex;
+  }
 }
 
 .nav-menu {
   display: flex;
   list-style: none;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   margin: 0;
   padding: 0;
+}
+
+@media (min-width: 1200px) {
+  .nav-menu {
+    gap: var(--spacing-lg);
+  }
 }
 
 .nav-item {
@@ -107,7 +141,7 @@
 }
 
 .nav-link.active {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.07);
   color: #333;
   font-weight: var(--font-weight-semibold);
 }
@@ -132,8 +166,14 @@
 
 /* Auth section (desktop only) */
 .auth-section {
-  display: flex;
-  align-items: center;
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .auth-section {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .auth-buttons {
@@ -249,19 +289,25 @@
 
 /* Mobile toggle (no green) */
 .mobile-menu-toggle {
-  display: none; /* Hidden by default */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: #333;
   cursor: pointer;
-  padding: 4px; /* Reduced padding */
+  padding: 6px;
   transition: color var(--transition-fast);
-  font-size: 1rem; /* smaller icon size */
-  width: 28px; /* Set specific width */
-  height: 28px; /* Set specific height */
-  align-items: center; /* Moved from display: flex */
-  justify-content: center;
-  margin-left: auto; /* Push to right side */
+  font-size: 1.25rem;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+}
+
+@media (min-width: 992px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
 }
 
 .mobile-menu-toggle:hover {
@@ -279,15 +325,16 @@
   z-index: var(--z-index-fixed);
   box-shadow: var(--shadow-md);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav-menu {
   list-style: none;
   margin: 0;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .mobile-nav-item {
@@ -299,20 +346,20 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   text-decoration: none;
   color: #333;
   width: 100%;
+  min-height: 50px; /* Improve tap target size */
 }
 
 .mobile-nav-link:hover,
 .mobile-nav-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
   color: #333;
-  text-decoration: none;
 }
 
 .mobile-nav-link.active {
@@ -324,6 +371,7 @@
 .mobile-nav-link.register {
   background-color: #333;
   color: #fff;
+  margin-top: var(--spacing-sm);
 }
 
 .mobile-nav-link.register:hover {
@@ -387,5 +435,35 @@
   }
   .mobile-nav-menu {
     padding: var(--spacing-md);
+  }
+}
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 360px) {
+  .navbar {
+    height: 60px;
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .logo-image {
+    height: 45px;
+  }
+  
+  .logo-text {
+    font-size: 0.9rem;
+  }
+  
+  .logo-accent {
+    font-size: 0.8rem;
+  }
+  
+  .mobile-nav {
+    top: 60px;
+  }
+  
+  .mobile-nav-link,
+  .mobile-nav-button {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-sm);
   }
 }

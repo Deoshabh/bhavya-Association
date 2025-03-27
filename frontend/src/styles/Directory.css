@@ -3,12 +3,24 @@
 /* Main Container */
 .directory-container {
   width: 100%;
-  max-width: 100%; /* Full width by default */
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm);
   background-color: var(--color-background);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .directory-container {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .directory-container {
+    padding: var(--spacing-lg);
+  }
 }
 
 /* Directory Header */
@@ -18,15 +30,33 @@
 }
 
 .directory-header h1 {
+  font-size: var(--font-size-xl);
   color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
-  font-size: var(--font-size-2xl); /* Mobile-friendly size */
-  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (min-width: 768px) {
+  .directory-header h1 {
+    font-size: var(--font-size-2xl);
+  }
 }
 
 .directory-header p {
   color: var(--color-text-light);
   font-size: var(--font-size-sm);
+}
+
+.directory-description {
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .directory-description {
+    font-size: var(--font-size-base);
+  }
 }
 
 /* Server Warning */
@@ -38,29 +68,52 @@
   border-radius: var(--radius-md);
   color: #856404;
   font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 768px) {
+  .server-warning {
+    padding: var(--spacing-md);
+  }
 }
 
 /* Directory Controls */
 .directory-controls {
   display: flex;
-  flex-direction: column; /* Stack by default */
+  flex-direction: column;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
 }
 
+@media (min-width: 768px) {
+  .directory-controls {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
 /* Search Bar */
 .search-wrapper {
-  width: 100%;
+  position: relative;
+  flex: 1;
+  min-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .search-wrapper {
+    min-width: 250px;
+  }
 }
 
 .search-bar {
-  width: 100%;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
   display: flex;
-  align-items: center;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .search-bar:focus-within {
@@ -69,30 +122,41 @@
 }
 
 .search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--color-text-light);
-  margin-left: 0.75rem;
-  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .search-input {
-  border: none;
-  padding: var(--spacing-sm);
   flex: 1;
+  appearance: none;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
   font-size: var(--font-size-sm);
   color: var(--color-text);
   background: transparent;
+  width: 100%;
 }
 
 .search-input:focus {
   outline: none;
 }
 
+.search-input::placeholder {
+  color: var(--color-text-light);
+}
+
 .clear-search {
   background: none;
   border: none;
   color: var(--color-text-light);
-  cursor: pointer;
   padding: 0 var(--spacing-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
   transition: color 0.2s;
 }
 
@@ -109,21 +173,32 @@
 /* Filters and Actions */
 .filters-actions {
   display: flex;
-  flex-direction: column; /* Stack by default */
+  flex-direction: column;
   gap: var(--spacing-sm);
 }
 
 .filter-dropdown {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  width: 100%;
-  display: flex;
-  align-items: center;
   position: relative;
+  flex: 1;
+  max-width: 100%;
 }
 
-.filter-label {
+@media (min-width: 768px) {
+  .filter-dropdown {
+    max-width: 200px;
+  }
+}
+
+.filter-wrapper {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-icon {
   position: absolute;
   left: 0.75rem;
   display: flex;
@@ -172,6 +247,13 @@
   width: 100%;
 }
 
+@media (min-width: 768px) {
+  .refresh-button {
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
 .refresh-button:hover {
   background-color: #dee2e6;
 }
@@ -212,14 +294,21 @@
 /* Plan Status Card */
 .plan-status-card {
   display: flex;
-  flex-direction: column; /* Stack by default */
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-lg);
   background-color: var(--color-surface);
   box-shadow: var(--shadow-sm);
   gap: var(--spacing-sm);
+}
+
+@media (min-width: 640px) {
+  .plan-status-card {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 .plan-status-card.premium {
@@ -242,6 +331,7 @@
   justify-content: center;
   font-size: 1rem;
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
 .plan-status-card.premium .plan-status-icon {
@@ -250,6 +340,10 @@
 
 .plan-status-card.free .plan-status-icon {
   color: var(--color-warning);
+}
+
+.plan-status-content {
+  flex: 1;
 }
 
 .plan-status-content h3 {
@@ -275,6 +369,22 @@
   cursor: pointer;
   transition: background-color 0.2s;
   width: 100%;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+@media (min-width: 640px) {
+  .upgrade-plan-button {
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
+.upgrade-plan-button:hover {
+  background-color: #e0a800;
 }
 
 /* Loading State */
@@ -326,9 +436,23 @@
 /* Directory Grid */
 .directory-grid {
   display: flex;
-  flex-direction: column; /* Stack by default */
+  flex-direction: column;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 640px) {
+  .directory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .directory-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* Responsive Design */
@@ -448,5 +572,86 @@
   .loading-spinner {
     width: 28px;
     height: 28px;
+  }
+}
+
+/* Empty State */
+.directory-empty {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.directory-empty svg {
+  width: 64px;
+  height: 64px;
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-md);
+}
+
+.directory-empty h3 {
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.directory-empty p {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-xl);
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.pagination-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-button.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.pagination-button:not(:disabled):hover {
+  background-color: var(--color-background);
+  border-color: var(--color-primary);
+}
+
+/* Small mobile devices */
+@media (max-width: 360px) {
+  .directory-grid {
+    gap: var(--spacing-sm);
+  }
+
+  .pagination-button {
+    width: 32px;
+    height: 32px;
   }
 }

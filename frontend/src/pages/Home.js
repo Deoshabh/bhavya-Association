@@ -29,7 +29,12 @@ const categories = [
   { name: 'Electrician', icon: '⚡' },
   { name: 'Plumber', icon: '🚿' },
   { name: 'Teacher', icon: '📚' },
-  { name: 'Doctor', icon: '🩺' }
+  { name: 'Doctor', icon: '🩺' },
+  { name: 'Web Developer', icon: '🌐' },
+  { name: 'Chef', icon: '👨‍🍳' },
+  { name: 'Designer', icon: '🎨' },
+  { name: 'Writer', icon: '✍️' },
+  { name: 'Consultant', icon: '💼' },
 ];
 
 const Home = () => {
@@ -174,11 +179,10 @@ const Home = () => {
                 </div>
                 <div className="bg-white p-5 rounded-lg shadow-md">
                   <h3 className="text-xl font-semibold mb-3">
-                    Premium Benefits
+                    Member Directory
                   </h3>
                   <p>
-                    Gain full access to contact information and enhanced
-                    visibility with premium membership.
+                    Access the complete directory of members with full contact information.
                   </p>
                 </div>
                 <div className="bg-white p-5 rounded-lg shadow-md">

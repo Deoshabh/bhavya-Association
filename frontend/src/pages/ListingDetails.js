@@ -216,16 +216,16 @@ const ListingDetails = () => {
               <p className="text-neutral-700">Service available in Bhavya Association area</p>
             </div>
             
-            {/* Contact Section - Conditional based on premium status */}
+            {/* Contact Section */}
             <div>
               <h2 className="text-xl font-semibold mb-3 text-neutral-800">Contact Information</h2>
               
-              {listing.premiumRequired ? (
+              {listing.premiumRequired && !['premium', 'admin'].includes(user?.planType) ? (
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 shadow-sm">
                   <h3 className="text-lg font-medium text-blue-800 mb-2">Premium Access Required</h3>
                   <p className="text-neutral-700 mb-4">Contact details are available to premium members only</p>
                   <button 
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded transition"
+                    className="bg-warning text-dark hover:bg-yellow-600 font-medium py-2 px-6 rounded transition"
                     onClick={() => navigate('/upgrade-membership')}
                   >
                     Upgrade to Premium
@@ -251,7 +251,7 @@ const ListingDetails = () => {
                         </div>
                         <div>
                           <span className="block text-sm text-neutral-500">Email</span>
-                          <span className="font-medium">{listing.contactEmail}</span>
+                          <span class="font-medium">{listing.contactEmail}</span>
                         </div>
                       </div>
                     )}

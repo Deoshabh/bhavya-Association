@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
-import { Search, ExternalLink, PlusCircle, X, RefreshCw, MessageCircle, Tag, Phone, Mail } from 'lucide-react';
+import { Search, ExternalLink, PlusCircle, X, RefreshCw, MessageCircle, Tag, Phone, Mail, Star } from 'lucide-react';
 import api from '../services/api';
 
 const ServiceListings = () => {
@@ -328,20 +328,21 @@ const ServiceListings = () => {
                       <p className="text-blue-800 font-medium text-sm mb-3">Premium access required for contact details</p>
                       <button
                         onClick={() => navigate('/upgrade-membership')}
-                        className="text-white bg-blue-600 hover:bg-blue-700 text-sm font-medium py-2 px-3 rounded w-full transition"
+                        className="text-dark bg-warning hover:bg-yellow-600 text-sm font-medium py-2 px-3 rounded w-full transition flex items-center justify-center"
                       >
+                        <Star size={14} className="mr-1.5" />
                         Upgrade to Premium
                       </button>
                     </div>
                   ) : (
                     <div className="mb-4 space-y-2">
                       <div className="flex items-center text-sm">
-                        <Phone size={16} className="text-primary-600 mr-2" />
+                        <Phone size={14} className="text-primary-600 mr-2 flex-shrink-0" />
                         <span className="text-neutral-700">{listing.contactPhone}</span>
                       </div>
                       {listing.contactEmail && (
                         <div className="flex items-center text-sm">
-                          <Mail size={16} className="text-primary-600 mr-2" />
+                          <Mail size={14} className="text-primary-600 mr-2 flex-shrink-0" />
                           <span className="text-neutral-700 break-all">{listing.contactEmail}</span>
                         </div>
                       )}

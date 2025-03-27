@@ -12,30 +12,66 @@
   position: relative;
   transition: all var(--transition-normal);
   z-index: 10;
-  display: none; /* Hide sidebar by default for all devices */
+  display: none; /* Hidden by default for mobile */
 }
 
 .sidebar-layout-main {
   flex: 1;
-  padding: var(--spacing-lg);
-  margin-left: 0; /* No margin needed as sidebar is hidden */
+  padding: var(--spacing-md);
+  margin-left: 0; /* No margin by default */
   transition: margin-left var(--transition-normal);
   min-height: 100%;
-  background-color: #fafafa;
-  width: 100%; /* Make sure main content uses full width */
+  background-color: var(--color-background);
+  width: 100%;
 }
 
-/* Collapsed state styling - not needed since sidebar is hidden */
-.sidebar-layout.sidebar-collapsed .sidebar-layout-main {
-  margin-left: 0;
+/* Desktop styles - show sidebar and adjust main content */
+@media (min-width: 992px) {
+  .sidebar-container {
+    display: block;
+    width: 250px;
+  }
+  
+  .sidebar-layout-main {
+    margin-left: 250px;
+    padding: var(--spacing-lg);
+  }
+  
+  .sidebar-layout.sidebar-collapsed .sidebar-container {
+    width: 60px;
+  }
+  
+  .sidebar-layout.sidebar-collapsed .sidebar-layout-main {
+    margin-left: 60px;
+  }
 }
 
-/* Sidebar toggle button - hide it since sidebar is hidden */
+/* Sidebar toggle button */
 .sidebar-toggle {
-  display: none;
+  position: fixed;
+  top: 80px;
+  left: 10px;
+  z-index: 15;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
 }
 
-/* Mobile Responsive Design */
+.sidebar-toggle:hover {
+  background-color: var(--color-primary-dark);
+  transform: scale(1.05);
+}
+
+/* Tablet responsive design */
 @media (max-width: 992px) {
   .sidebar-container {
     width: 100%;
@@ -53,36 +89,30 @@
   }
   
   .sidebar-toggle {
-    display: none; /* Hide toggle on mobile */
+    display: none; /* Hide toggle on tablets */
   }
 }
 
-/* Additional mobile-specific adjustments */
+/* Mobile specific adjustments */
 @media (max-width: 768px) {
-  /* Add bottom padding to prevent content from being hidden behind the bottom nav */
-  .sidebar-layout-main {
-    padding-bottom: calc(var(--spacing-md) + 70px); /* Extra padding for bottom nav */
-  }
-  
-  /* Hide sidebar container entirely on mobile */
-  .sidebar-container {
-    display: none;
-  }
-  
-  /* Make sure the content extends full width */
-  .sidebar-layout-main {
-    width: 100%;
-  }
-  
-  /* Make sure the layout is properly adjusted */
   .sidebar-layout {
-    display: block;
+    margin-top: 60px; /* Match smaller navbar height on mobile */
+    min-height: calc(100vh - 60px); /* Adjust for smaller navbar */
   }
-}
-
-@media (max-width: 576px) {
+  
   .sidebar-layout-main {
     padding: var(--spacing-sm);
-    padding-bottom: calc(var(--spacing-sm) + 70px); /* Maintain extra padding for bottom nav */
+    padding-bottom: calc(var(--spacing-lg) + 60px); /* Add space for bottom nav */
+  }
+  
+  .sidebar-container {
+    display: none; /* Ensure sidebar is hidden on mobile */
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .sidebar-layout-main {
+    padding: var(--spacing-xs);
   }
 }

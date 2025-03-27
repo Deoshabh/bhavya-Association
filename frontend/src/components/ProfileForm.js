@@ -1,16 +1,18 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
-import { Upload, X, AlertTriangle, CheckCircle, Loader, ArrowLeft, Camera } from 'lucide-react';
+import { Upload, X, AlertTriangle, CheckCircle, Loader, ArrowLeft, Camera, Briefcase } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Add useNavigate hook
 import Card from './Card';
 import FormInput from './FormInput';
 import Button from './Button';
 
 const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode }) => {
+  const navigate = useNavigate(); // Add navigate function
   const { updateUser, api, serverStatus } = useContext(AuthContext);
   const [bio, setBio] = useState(user?.bio || '');
   const [address, setAddress] = useState(user?.address || '');
-  const [interests, setInterests] = useState(user?.interests?.join(', ') || '');
+  const [profession, setProfession] = useState(user?.profession || '');
   const [profileImage, setProfileImage] = useState('');
   const [imagePreview, setImagePreview] = useState(user?.profileImage || null);
   const [error, setError] = useState('');
@@ -19,12 +21,11 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
   const [imageSize, setImageSize] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Initialize form with user data if editing
   useEffect(() => {
     if (isEditing && user) {
       setBio(user.bio || '');
       setAddress(user.address || '');
-      setInterests(user.interests?.join(', ') || '');
+      setProfession(user.profession || '');
       setImagePreview(user.profileImage || null);
     }
   }, [isEditing, user]);
@@ -157,7 +158,7 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
       const profileData = {
         bio,
         address,
-        interests: interests.split(',').map(i => i.trim()).filter(i => i),
+        profession
       };
       
       // Only include profile image if it has been changed
@@ -181,12 +182,13 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
         setProfileCompleted(true);
       }
       
-      // If this is an edit and setEditMode exists, exit edit mode after a short delay
+      // Only redirect in edit mode automatically
       if (isEditing && setEditMode) {
         setTimeout(() => {
           setEditMode(false);
         }, 2000);
       }
+      // No automatic redirect on initial profile creation to give time to see the service listing button
     } catch (err) {
       console.error('Profile update error:', err.response?.data || err.message);
       
@@ -215,6 +217,11 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  // Add function to navigate to create listing page
+  const handleCreateListing = () => {
+    navigate('/create-listing');
   };
 
   return (
@@ -385,19 +392,19 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
 
                 {/* Profession Section */}
                 <div className="mb-6">
-                  <label htmlFor="interests" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="profession" className="block text-sm font-medium text-neutral-700 mb-1">
                     Profession <span className="text-red-500">*</span>
                   </label>
                   <input 
-                    id="interests"
+                    id="profession"
                     type="text" 
-                    value={interests} 
-                    onChange={e => setInterests(e.target.value)} 
+                    value={profession} 
+                    onChange={e => setProfession(e.target.value)} 
                     placeholder="Enter your profession"
                     className="w-full px-3 py-2 rounded border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     required
                   />
-                  <p className="mt-1 text-xs text-neutral-500">Separate multiple professions with commas if applicable</p>
+                  <p className="mt-1 text-xs text-neutral-500">Your primary job or occupation</p>
                 </div>
 
                 {/* Expertization Section */}
@@ -413,6 +420,29 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
                   />
                   <p className="mt-1 text-xs text-neutral-500">Separate different areas with commas (e.g., "Web Development, Project Management")</p>
                 </div>
+
+                {/* Add service listing option after profile is successfully created */}
+                {success && !isEditing && (
+                  <div className="mb-6 bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center mb-2">
+                      <CheckCircle className="text-green-600 mr-2" size={20} />
+                      <h3 className="font-medium text-green-800">Profile Created Successfully!</h3>
+                    </div>
+                    <p className="text-green-700 mb-4">Would you like to add your business or service to our directory?</p>
+                    <Button
+                      type="button"
+                      onClick={handleCreateListing}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      leftIcon={<Briefcase size={16} />}
+                      fullWidth
+                    >
+                      Create Service Listing
+                    </Button>
+                    <p className="text-sm text-green-600 mt-2 text-center">
+                      Share your services with our community
+                    </p>
+                  </div>
+                )}
 
                 {/* Form Actions */}
           <div className="flex justify-end gap-3 mt-8">

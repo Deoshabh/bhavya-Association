@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from './ConfirmDialog';
-import { User, MapPin, Briefcase, Phone, Mail, Edit, Share2, Shield, AlertTriangle } from 'lucide-react';
+import { User, MapPin, Briefcase, Phone, Mail, Edit, Share2, Shield, AlertTriangle, Lock } from 'lucide-react';
 import Card from './Card';
 import Button from './Button';
 
@@ -14,13 +14,15 @@ const ProfileCard = ({ user, setEditMode }) => {
   const { api, logout } = useContext(AuthContext);
   const [actionState, setActionState] = useState({
     showDeactivateConfirm: false,
+    showDeleteConfirm: false,
     isDeactivating: false,
+    isDeleting: false,
     error: ''
   });
   const navigate = useNavigate();
 
   // Construct share content
-  const shareText = `Check out my profile on Bhavya Association!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nOccupation: ${user.occupation}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}${user.interests?.length ? `\nInterests: ${user.interests.join(', ')}` : ''}`;
+  const shareText = `Check out my profile on Bhavya Association!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nProfession: ${user.profession || 'Not specified'}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}`;
   // Keep WhatsApp URL as fallback
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   
@@ -57,6 +59,25 @@ const ProfileCard = ({ user, setEditMode }) => {
       setEditMode(true);
     }
   };
+  
+  const handleDeleteAccount = async () => {
+    if (actionState.isDeleting) return;
+
+    setActionState((prev) => ({ ...prev, isDeleting: true, error: '' }));
+
+    try {
+      await api.delete('/api/profile/me');
+      logout(); // Log the user out after account deletion
+      navigate('/'); // Redirect to home page
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      setActionState((prev) => ({
+        ...prev,
+        isDeleting: false,
+        error: 'Failed to delete account. Please try again later.'
+      }));
+    }
+  };
 
   const handleDeactivateAccount = async () => {
     if (actionState.isDeactivating) return;
@@ -81,7 +102,9 @@ const ProfileCard = ({ user, setEditMode }) => {
   const resetConfirmations = () => {
     setActionState({
       showDeactivateConfirm: false,
+      showDeleteConfirm: false,
       isDeactivating: false,
+      isDeleting: false,
       error: ''
     });
   };
@@ -167,48 +190,77 @@ const ProfileCard = ({ user, setEditMode }) => {
           </div>
         </div>
         
-        {/* Bio and interests */}
+        {/* Bio and profession */}
         <div className="mb-6">
-          <h3 className="text-md font-semibold text-neutral-700 mb-2">About Me</h3>
-          <p className="text-neutral-600 mb-4">{user.bio || 'No bio provided'}</p>
+          <h3 className="section-title">
+            <User size={18} />
+            About Me
+          </h3>
+          <p className="bio">{user.bio || 'No bio provided'}</p>
           
-          {user.interests && user.interests.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-neutral-700 mb-2">Interests</h4>
-              <div className="flex flex-wrap gap-2">
-                {user.interests.map((interest, idx) => (
-                  <span key={idx} className="inline-block bg-neutral-100 rounded-full px-3 py-1 text-sm text-neutral-700">
-                    {interest}
-                  </span>
-                ))}
-              </div>
+          {user.profession && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium text-neutral-700 mb-1">Profession:</h4>
+              <p className="text-neutral-600">{user.profession}</p>
             </div>
           )}
         </div>
         
-        {/* Action buttons */}
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={handleShare}
-            className="flex items-center justify-center py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors"
-          >
-            <Share2 size={18} className="mr-2" />
-            Share Profile
-          </button>
+        {/* Privacy settings section */}
+        <div className="mb-6 border-t border-neutral-200 pt-5">
+          <h3 className="text-md font-semibold text-neutral-700 mb-3 flex items-center">
+            <Lock size={16} className="mr-2 text-primary-600" />
+            Privacy Settings
+          </h3>
           
-          <button
-            className="py-2 px-4 border border-yellow-500 text-yellow-700 hover:bg-yellow-50 font-medium rounded-md transition-colors"
-            onClick={() => {
-              resetConfirmations();
-              setActionState((prev) => ({
-                ...prev,
-                showDeactivateConfirm: true
-              }));
-            }}
-          >
-            Deactivate Account
-          </button>
+          <div className="space-y-4">
+            <div>
+              <p className="text-neutral-600 text-sm mb-1">
+                Account deactivation temporarily hides your profile from the directory.
+              </p>
+              <button
+                className="py-2 px-4 border border-yellow-500 text-yellow-700 hover:bg-yellow-50 font-medium rounded-md transition-colors w-full"
+                onClick={() => {
+                  resetConfirmations();
+                  setActionState((prev) => ({
+                    ...prev,
+                    showDeactivateConfirm: true
+                  }));
+                }}
+              >
+                Deactivate Account
+              </button>
+            </div>
+            
+            <div className="border-t border-neutral-100 pt-4"></div>
+              <p className="text-neutral-600 text-sm mb-2">
+                Permanently delete your account and all associated data:
+              </p>
+              <p 
+                className="text-red-600 text-sm cursor-pointer hover:underline font-medium"
+                onClick={() => {
+                  resetConfirmations();
+                  setActionState((prev) => ({
+                    ...prev,
+                    showDeleteConfirm: true
+                  }));
+                }}
+              >
+                Delete my account
+              </p>
+            </div>
+          </div>
         </div>
+        
+      {/* Action buttons */}
+      <div className="flex flex-col gap-3">
+        <button
+          onClick={handleShare}
+          className="flex items-center justify-center py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors"
+        >
+          <Share2 size={18} className="mr-2" />
+          Share Profile
+        </button>
       </div>
       
       {/* Confirm Dialogs */}
@@ -223,6 +275,21 @@ const ProfileCard = ({ user, setEditMode }) => {
           isLoading={actionState.isDeactivating}
           errorMessage={actionState.error}
           onConfirm={handleDeactivateAccount}
+          onCancel={resetConfirmations}
+        />
+      )}
+      
+      {actionState.showDeleteConfirm && (
+        <ConfirmDialog
+          title="Delete Account"
+          message="Are you sure you want to permanently delete your account?"
+          note="This action cannot be undone! All your data will be permanently removed."
+          confirmText="Yes, Delete"
+          cancelText="Cancel"
+          type="danger"
+          isLoading={actionState.isDeleting}
+          errorMessage={actionState.error}
+          onConfirm={handleDeleteAccount}
           onCancel={resetConfirmations}
         />
       )}

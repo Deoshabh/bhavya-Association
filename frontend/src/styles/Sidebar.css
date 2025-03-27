@@ -1,6 +1,6 @@
 @import './variables.css';
 
-/* Default (Desktop) Styles */
+/* Default Desktop Styles */
 .sidebar {
   width: 250px;
   background-color: var(--color-background-alt);
@@ -13,7 +13,8 @@
   z-index: var(--z-index-fixed);
   overflow-y: auto;
   overflow-x: hidden;
-  transition: all var(--transition-normal);
+  transition: width var(--transition-normal);
+  border-right: 1px solid var(--color-border);
 }
 
 /* Collapsed state for Desktop */
@@ -30,42 +31,50 @@
 .sidebar li {
   margin-bottom: var(--spacing-xs);
   animation: fadeIn 0.3s ease-in-out forwards;
+  opacity: 0;
 }
 
 /* Staggered animation for each sidebar item */
-.sidebar li:nth-child(1) { animation-delay: 0.1s; }
-.sidebar li:nth-child(2) { animation-delay: 0.2s; }
-.sidebar li:nth-child(3) { animation-delay: 0.3s; }
-.sidebar li:nth-child(4) { animation-delay: 0.4s; }
-.sidebar li:nth-child(5) { animation-delay: 0.5s; }
+.sidebar li:nth-child(1) { animation-delay: 0.05s; }
+.sidebar li:nth-child(2) { animation-delay: 0.1s; }
+.sidebar li:nth-child(3) { animation-delay: 0.15s; }
+.sidebar li:nth-child(4) { animation-delay: 0.2s; }
+.sidebar li:nth-child(5) { animation-delay: 0.25s; }
+.sidebar li:nth-child(6) { animation-delay: 0.3s; }
+.sidebar li:nth-child(7) { animation-delay: 0.35s; }
+.sidebar li:nth-child(8) { animation-delay: 0.4s; }
 
 .sidebar a {
   display: flex;
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   color: var(--color-text);
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
+  border-left: 3px solid transparent;
   transition: all var(--transition-fast);
-  gap: var(--spacing-md);
   white-space: nowrap;
-  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .sidebar a:hover {
-  background-color: rgba(67, 97, 238, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
   color: var(--color-primary);
-  text-decoration: none;
 }
 
 .sidebar a.active {
-  background-color: rgba(67, 97, 238, 0.1);
   color: var(--color-primary);
-  border-left: 3px solid var(--color-primary);
+  background-color: var(--color-primary-light);
+  border-left-color: var(--color-primary);
 }
 
 .sidebar-icon {
   display: flex;
+  margin-right: var(--spacing-md);
+  width: 22px;
+  height: 22px;
   align-items: center;
   justify-content: center;
   min-width: 24px;
@@ -95,8 +104,9 @@
     width: 100%;
     height: auto;
     position: static;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
     padding: var(--spacing-sm) 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
   
   .sidebar ul,
@@ -105,6 +115,11 @@
     overflow-x: auto;
     padding: var(--spacing-md);
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .sidebar ul::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
   }
   
   .sidebar li,
@@ -114,12 +129,20 @@
     flex-shrink: 0;
   }
   
+  .sidebar-icon,
+  .sidebar.sidebar-collapsed .sidebar-icon {
+    margin-right: var(--spacing-xs);
+    flex-shrink: 0;
+  }
+  
   .sidebar a,
   .sidebar.sidebar-collapsed a {
     border-radius: var(--radius-md);
     padding: var(--spacing-sm) var(--spacing-md);
     white-space: nowrap;
     justify-content: flex-start;
+    border-left: none;
+    border-bottom: 3px solid transparent;
   }
   
   /* Ensure the text is visible in non-desktop layout */
@@ -129,7 +152,7 @@
     overflow: visible;
   }
   
-  /* Change active state underline */
+  /* Change active state indicator */
   .sidebar a.active,
   .sidebar.sidebar-collapsed a.active {
     border-left: none;
@@ -141,18 +164,19 @@
 @media (max-width: 576px) {
   .sidebar,
   .sidebar.sidebar-collapsed {
-    padding: var(--spacing-sm) 0;
+    padding: var(--spacing-xs) 0;
   }
   
   .sidebar ul,
   .sidebar.sidebar-collapsed ul {
     padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
   }
   
   .sidebar a,
   .sidebar.sidebar-collapsed a {
-    padding: var(--spacing-sm);
-    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
 }
 
@@ -215,7 +239,9 @@
   }
   
   .bottom-nav .sidebar-icon {
-    margin-bottom: 4px;
+    margin: 0 0 4px 0;
+    width: 20px;
+    height: 20px;
   }
   
   .bottom-nav .sidebar-text {
@@ -239,14 +265,20 @@
   }
 }
 
-/* For very small screens, make touch targets larger and remove text if needed */
+/* For very small screens, make touch targets larger and icons a bit smaller */
 @media (max-width: 375px) {
   .bottom-nav a {
-    padding: var(--spacing-xs) var(--spacing-xxs);
+    padding: var(--spacing-xxs) var(--spacing-xxs);
   }
   
   .bottom-nav .sidebar-icon {
+    width: 18px;
+    height: 18px;
     margin-bottom: 2px;
+  }
+  
+  .bottom-nav .sidebar-text {
+    font-size: 0.65rem;
   }
 }
 

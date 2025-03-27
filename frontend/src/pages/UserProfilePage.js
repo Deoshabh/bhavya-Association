@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { withRetry, getCachedUserProfile } from '../utils/serverUtils';
 import ProfileForm from '../components/ProfileForm';
-import UpgradeMembershipModal from '../components/UpgradeMembershipModal';
 import { 
   User, Phone, Mail, MapPin, Briefcase, Heart, RefreshCw, ChevronLeft, 
   AlertTriangle, Star, Shield, Share2, ArrowUp, Loader, Edit,
@@ -24,7 +23,6 @@ const UserProfilePage = () => {
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -122,9 +120,7 @@ const UserProfilePage = () => {
   };
   
   const handleContactClick = () => {
-    if (!isPremium) {
-      setShowUpgradeModal(true);
-    }
+    return; 
   };
   
   const handleEditClick = () => {
@@ -141,8 +137,7 @@ const UserProfilePage = () => {
   };
   
   const handleShareProfile = () => {
-    const shareText = `Name: ${profileUser.name}${isPremium ? `\nPhone: ${profileUser.phoneNumber}` : ''}
-Occupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.bio}` : ''}`;
+    const shareText = `Check out my profile on Bhavya Association!\nName: ${profileUser.name}\nPhone: ${profileUser.phoneNumber}\nOccupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.bio}` : ''}${profileUser.address ? `\nAddress: ${profileUser.address}` : ''}${profileUser.profession ? `\nProfession: ${profileUser.profession}` : ''}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -340,20 +335,14 @@ Occupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.b
                 </div>
               )}
               
-              {/* Interests section (if available) */}
-              {profileUser.interests && profileUser.interests.length > 0 && (
+              {/* Professional Details */}
+              {profileUser.profession && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium text-neutral-800 mb-3 flex items-center border-b pb-2">
-                    <Heart size={18} className="mr-2 text-primary-600" />
-                    Interests
+                    <Briefcase size={18} className="mr-2 text-primary-600" />
+                    Professional Details
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {profileUser.interests.map((interest, index) => (
-                      <span key={index} className="inline-block bg-neutral-100 rounded-full px-3 py-1 text-sm text-neutral-700">
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-neutral-600">{profileUser.profession}</p>
                 </div>
               )}
             </div>
@@ -426,24 +415,19 @@ Occupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.b
                     )}
                   </>
                 ) : (
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-5 border border-blue-100">
-                    <div className="flex items-start">
-                      <div className="bg-blue-100 p-2 rounded-full mr-4">
-                        <Shield size={20} className="text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">Premium Access Required</h3>
-                        <p className="text-blue-800 mb-4">Upgrade to view contact information and connect with this member.</p>
-                        <Button 
-                          variant="primary"
-                          onClick={handleContactClick}
-                          leftIcon={<ArrowUp size={16} />}
-                          fullWidth
-                        >
-                          Upgrade Membership
-                        </Button>
-                      </div>
+                  <div className="premium-upgrade-section">
+                    <div className="premium-badge">
+                      <Star size={24} />
                     </div>
+                    <h3>Premium Membership Required</h3>
+                    <p>Upgrade to view contact information and connect with this member directly.</p>
+                    <button 
+                      onClick={() => navigate('/upgrade-membership')}
+                      className="w-full py-2 px-4 bg-warning text-dark font-medium rounded-md transition flex items-center justify-center mt-4"
+                    >
+                      <Star size={16} className="mr-2" />
+                      Upgrade to Premium
+                    </button>
                   </div>
                 )}
               </Card.Body>
@@ -515,13 +499,6 @@ Occupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.b
           </div>
         </div>
       </div>
-      
-      {showUpgradeModal && (
-        <UpgradeMembershipModal 
-          onClose={() => setShowUpgradeModal(false)}
-          onUpgrade={() => navigate('/upgrade-membership')}
-        />
-      )}
     </div>
   );
 };
