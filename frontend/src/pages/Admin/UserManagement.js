@@ -229,32 +229,42 @@ const UserManagement = () => {
   return (
     <AdminLayout title="User Management" currentPage="users">
       {!serverStatus && (
-        <div className="server-warning">
-          <p>⚠️ Server connection issues detected. User data may not be available.</p>
+        <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+          <p className="text-yellow-700 font-medium flex items-center">
+            <span className="mr-2">⚠️</span> 
+            Server connection issues detected. User data may not be available.
+          </p>
         </div>
       )}
       
-      <div className="admin-toolbar">
-        <div className="search-filter-container">
-          <div className="search-bar">
-            <Search className="search-icon" size={18} />
+      {/* Controls Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          {/* Search bar */}
+          <div className="relative w-full md:w-auto md:flex-1 max-w-lg">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               type="text"
               placeholder="Search users by name, phone, or occupation..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 border"
             />
           </div>
           
-          <div className="filter-section">
-            <div className="filter-dropdown">
-              <label>
-                <Filter size={14} />
-                Plan Type:
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3 justify-start">
+            <div className="relative inline-flex">
+              <label className="inline-flex items-center text-sm text-gray-700 mr-2 whitespace-nowrap">
+                <Filter size={14} className="mr-1" />
+                Plan:
               </label>
               <select
                 value={filters.planType}
                 onChange={(e) => setFilters({ ...filters, planType: e.target.value })}
+                className="block bg-white border border-gray-300 rounded-md py-1.5 pl-3 pr-8 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Plans</option>
                 <option value="free">Free</option>
@@ -263,14 +273,15 @@ const UserManagement = () => {
               </select>
             </div>
             
-            <div className="filter-dropdown">
-              <label>
-                <Filter size={14} />
+            <div className="relative inline-flex">
+              <label className="inline-flex items-center text-sm text-gray-700 mr-2 whitespace-nowrap">
+                <Filter size={14} className="mr-1" />
                 Status:
               </label>
               <select
                 value={filters.accountStatus}
                 onChange={(e) => setFilters({ ...filters, accountStatus: e.target.value })}
+                className="block bg-white border border-gray-300 rounded-md py-1.5 pl-3 pr-8 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Statuses</option>
                 <option value="active">Active</option>
@@ -279,155 +290,196 @@ const UserManagement = () => {
               </select>
             </div>
             
-            <button className="refresh-button" onClick={() => fetchUsers(pagination.page)}>
-              <RefreshCw size={14} />
+            <button 
+              className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              onClick={() => fetchUsers(pagination.page)}
+            >
+              <RefreshCw size={14} className="mr-1.5" />
               Refresh
             </button>
           </div>
         </div>
         
-        <div className="action-buttons-container">
+        {/* Action buttons */}
+        <div className="flex gap-3 mt-4 md:mt-0">
           <button 
-            className="action-button create"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={handleCreateUser}
             title="Create New User"
           >
-            <PlusCircle size={16} />
+            <PlusCircle size={16} className="mr-2" />
             <span>Create User</span>
           </button>
           
           <button 
-            className="action-button export"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={exportUsersToCSV}
             disabled={users.length === 0}
             title="Export Users to CSV"
           >
-            <Download size={16} />
+            <Download size={16} className="mr-2" />
             <span>Export</span>
           </button>
         </div>
       </div>
       
       {loading ? (
-        <div className="admin-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading users...</p>
+        <div className="py-12 flex justify-center items-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500">Loading users...</p>
+          </div>
         </div>
       ) : error ? (
-        <div className="admin-error">
-          <p>{error}</p>
-          <button onClick={() => fetchUsers(pagination.page)} className="retry-button">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <p className="text-red-700 mb-4">{error}</p>
+          <button 
+            onClick={() => fetchUsers(pagination.page)} 
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <RefreshCw size={16} className="mr-2" />
             Try Again
           </button>
         </div>
       ) : (
         <>
-          <div className="users-table-container">
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Occupation</th>
-                  <th>Plan</th>
-                  <th>Status</th>
-                  <th>Visibility</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.length > 0 ? (
-                  users.map(user => (
-                    <tr key={user._id}>
-                      <td>{user.name}</td>
-                      <td>{user.phoneNumber}</td>
-                      <td>{user.occupation}</td>
-                      <td>
-                        <span className={`plan-badge plan-${user.planType}`}>
-                          {user.planType}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`status-badge status-${user.accountStatus}`}>
-                          {user.accountStatus}
-                        </span>
-                      </td>
-                      <td>
-                        {user.isPublic ? (
-                          <span className="visibility-badge visible">Public</span>
-                        ) : (
-                          <span className="visibility-badge hidden">Hidden</span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button 
-                            className="action-button edit"
-                            onClick={() => handleEditUser(user)}
-                            title="Edit User"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button 
-                            className="action-button view"
-                            onClick={() => navigate(`/user-profile/${user._id}`)}
-                            title="View Profile"
-                          >
-                            <UserCheck size={16} />
-                          </button>
-                          {user.planType !== 'admin' && (
-                            <button
-                              className="action-button promote"
-                              onClick={() => handleUserUpdate(user._id, { 
-                                planType: user.planType === 'premium' ? 'admin' : 'premium' 
-                              })}
-                              title={user.planType === 'premium' ? 'Make Admin' : 'Make Premium'}
-                            >
-                              <Award size={16} />
-                            </button>
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupation</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visibility</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {users.length > 0 ? (
+                    users.map(user => (
+                      <tr key={user._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phoneNumber}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.occupation}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.planType === 'premium' 
+                              ? 'bg-yellow-100 text-yellow-800' 
+                              : user.planType === 'admin' 
+                                ? 'bg-indigo-100 text-indigo-800' 
+                                : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {user.planType}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.accountStatus === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : user.accountStatus === 'suspended'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {user.accountStatus}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {user.isPublic ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Public
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              Hidden
+                            </span>
                           )}
-                          {/* Add delete button */}
-                          <button 
-                            className="action-button delete"
-                            onClick={() => handleDeleteUser(user._id)}
-                            title="Delete User"
-                            disabled={user._id === currentUser?._id} // Prevent deleting yourself
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex space-x-2">
+                            <button 
+                              className="text-blue-600 hover:text-blue-900"
+                              onClick={() => handleEditUser(user)}
+                              title="Edit User"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button 
+                              className="text-green-600 hover:text-green-900"
+                              onClick={() => navigate(`/user-profile/${user._id}`)}
+                              title="View Profile"
+                            >
+                              <UserCheck size={18} />
+                            </button>
+                            {user.planType !== 'admin' && (
+                              <button
+                                className="text-purple-600 hover:text-purple-900"
+                                onClick={() => handleUserUpdate(user._id, { 
+                                  planType: user.planType === 'premium' ? 'admin' : 'premium' 
+                                })}
+                                title={user.planType === 'premium' ? 'Make Admin' : 'Make Premium'}
+                              >
+                                <Award size={18} />
+                              </button>
+                            )}
+                            <button 
+                              className="text-red-600 hover:text-red-900"
+                              onClick={() => handleDeleteUser(user._id)}
+                              title="Delete User"
+                              disabled={user._id === currentUser?._id}
+                              style={{ opacity: user._id === currentUser?._id ? 0.5 : 1 }}
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                        No users found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7">No users found</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           
-          <div className="pagination">
-            <button
-              disabled={pagination.page === 1}
-              onClick={() => handlePageChange(pagination.page - 1)}
-            >
-              Previous
-            </button>
-            <span>
-              Page {pagination.page} of {pagination.pages}
-            </span>
-            <button
-              disabled={pagination.page === pagination.pages}
-              onClick={() => handlePageChange(pagination.page + 1)}
-            >
-              Next
-            </button>
+          {/* Pagination controls */}
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center">
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">{users.length}</span> of <span className="font-medium">{pagination.total}</span> users
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {pagination.page} of {pagination.pages}
+              </span>
+              <button
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.pages}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </>
       )}
       
+      {/* Modals */}
       {showEditModal && (
         <UserEditModal
           user={editingUser}

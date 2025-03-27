@@ -2,9 +2,34 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { withRetry } from '../../utils/serverUtils';
-import { Users, ShoppingBag, Briefcase, DollarSign, UserCheck, UserX, Shield } from 'lucide-react';
+import { Users, ShoppingBag, Briefcase, DollarSign, UserCheck, UserX, Shield, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import StatCard from '../../components/Admin/StatCard';
+
+// Enhanced stat card component
+const StatCard = ({ title, value, icon, color }) => {
+  const colorClasses = {
+    'blue': 'bg-blue-50 text-blue-700 border-blue-200',
+    'green': 'bg-green-50 text-green-700 border-green-200',
+    'red': 'bg-red-50 text-red-700 border-red-200',
+    'purple': 'bg-purple-50 text-purple-700 border-purple-200',
+    'gold': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    'dark-blue': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  };
+  
+  return (
+    <div className={`bg-white rounded-lg shadow-sm p-6 border ${color ? `border-${color}-100` : 'border-gray-200'}`}>
+      <div className="flex items-center">
+        <div className={`p-3 rounded-lg ${colorClasses[color] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+          {icon}
+        </div>
+        <div className="ml-4">
+          <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
+          <p className="mt-1 text-2xl font-semibold text-gray-900">{value}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AdminDashboard = () => {
   const { api, user, serverStatus } = useContext(AuthContext);
@@ -48,122 +73,160 @@ const AdminDashboard = () => {
   return (
     <AdminLayout title="Admin Dashboard" currentPage="dashboard">
       {!serverStatus && (
-        <div className="server-warning">
-          <p>⚠️ Server connection issues detected. Dashboard data may not be available.</p>
+        <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+          <p className="text-yellow-700 font-medium flex items-center">
+            <span className="mr-2">⚠️</span> 
+            Server connection issues detected. Dashboard data may not be available.
+          </p>
         </div>
       )}
       
       {loading ? (
-        <div className="admin-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading dashboard data...</p>
+        <div className="py-12 flex justify-center items-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500">Loading dashboard data...</p>
+          </div>
         </div>
       ) : error ? (
-        <div className="admin-error">
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="retry-button">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <p className="text-red-700 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            <RefreshCw size={16} className="mr-2" />
             Try Again
           </button>
         </div>
       ) : (
-        <div className="admin-dashboard-content">
-          <section className="stat-cards">
+        <div className="space-y-8">
+          {/* Stat cards in grid */}
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard 
               title="Total Users" 
               value={stats?.userStats.total || 0}
-              icon={<Users />}
+              icon={<Users size={20} />}
               color="blue"
             />
             <StatCard 
               title="Premium Members" 
               value={stats?.userStats.premium || 0}
-              icon={<DollarSign />} 
+              icon={<DollarSign size={20} />} 
               color="gold"
             />
             <StatCard 
               title="Active Users" 
               value={stats?.userStats.active || 0}
-              icon={<UserCheck />}
+              icon={<UserCheck size={20} />}
               color="green"
             />
             <StatCard 
               title="Deactivated Users" 
               value={(stats?.userStats.deactivated || 0) + (stats?.userStats.suspended || 0)}
-              icon={<UserX />}
+              icon={<UserX size={20} />}
               color="red"
             />
             <StatCard 
               title="Total Listings" 
               value={stats?.listingStats.total || 0}
-              icon={<Briefcase />}
+              icon={<Briefcase size={20} />}
               color="purple"
             />
             <StatCard 
               title="Admin Users" 
               value={stats?.userStats.admins || 0}
-              icon={<Shield />}
+              icon={<Shield size={20} />}
               color="dark-blue"
             />
           </section>
           
-          <section className="recent-activity">
-            <div className="recent-users-section">
-              <h3>Recent Users</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent users section */}
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-800">Recent Users</h3>
+              </div>
               {stats?.recentUsers && stats.recentUsers.length > 0 ? (
-                <div className="recent-users-table">
-                  <table>
-                    <thead>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
                       <tr>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Plan</th>
-                        <th>Status</th>
-                        <th>Registered</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="bg-white divide-y divide-gray-200">
                       {stats.recentUsers.map(user => (
-                        <tr key={user._id}>
-                          <td>{user.name}</td>
-                          <td>{user.phoneNumber}</td>
-                          <td>
-                            <span className={`plan-badge plan-${user.planType}`}>
+                        <tr key={user._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phoneNumber}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              user.planType === 'premium' 
+                                ? 'bg-yellow-100 text-yellow-800' 
+                                : user.planType === 'admin' 
+                                  ? 'bg-indigo-100 text-indigo-800' 
+                                  : 'bg-gray-100 text-gray-800'
+                            }`}>
                               {user.planType}
                             </span>
                           </td>
-                          <td>
-                            <span className={`status-badge status-${user.accountStatus}`}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              user.accountStatus === 'active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
                               {user.accountStatus}
                             </span>
                           </td>
-                          <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <p>No recent users found</p>
+                <div className="p-6 text-center text-gray-500">No recent users found</div>
               )}
             </div>
-          </section>
-          
-          <section className="listing-categories">
-            <h3>Listings by Category</h3>
-            {stats?.listingStats.byCategory && 
-             Object.keys(stats.listingStats.byCategory).length > 0 ? (
-              <div className="category-stats">
-                {Object.entries(stats.listingStats.byCategory).map(([category, count]) => (
-                  <div className="category-item" key={category}>
-                    <h4>{category}</h4>
-                    <div className="category-count">{count}</div>
-                  </div>
-                ))}
+            
+            {/* Listings by category */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-800">Listings by Category</h3>
               </div>
-            ) : (
-              <p>No listing categories found</p>
-            )}
-          </section>
+              <div className="p-6">
+                {stats?.listingStats.byCategory && 
+                 Object.keys(stats.listingStats.byCategory).length > 0 ? (
+                  <div className="space-y-4">
+                    {Object.entries(stats.listingStats.byCategory).map(([category, count]) => (
+                      <div key={category} className="flex items-center">
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div 
+                            className="bg-blue-600 h-2.5 rounded-full" 
+                            style={{ width: `${Math.min(100, (count / stats.listingStats.total) * 100)}%` }}
+                          ></div>
+                        </div>
+                        <div className="ml-4 min-w-[100px] flex items-center justify-between">
+                          <span className="text-sm text-gray-600">{category}</span>
+                          <span className="text-sm font-medium text-gray-900">{count}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500">No listing categories found</div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </AdminLayout>

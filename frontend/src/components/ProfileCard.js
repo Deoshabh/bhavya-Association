@@ -2,8 +2,9 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from './ConfirmDialog';
-import '../styles/ProfileCard.css';
-import logo from '../assets/logo4-1.png'; // Adjust the path if necessary
+import { User, MapPin, Briefcase, Phone, Mail, Edit, Share2, Shield, AlertTriangle } from 'lucide-react';
+import Card from './Card';
+import Button from './Button';
 
 // Use a data URL for the default profile image instead of importing an asset
 const DEFAULT_PROFILE_IMAGE =
@@ -12,23 +13,39 @@ const DEFAULT_PROFILE_IMAGE =
 const ProfileCard = ({ user, setEditMode }) => {
   const { api, logout } = useContext(AuthContext);
   const [actionState, setActionState] = useState({
-    showDeleteConfirm: false,
     showDeactivateConfirm: false,
-    isDeleting: false,
     isDeactivating: false,
     error: ''
   });
   const navigate = useNavigate();
 
-  // Construct a share text for WhatsApp
-  const shareText = `Check out my profile on Bhavya Association!
-Name: ${user.name}
-Phone: ${user.phoneNumber}
-Occupation: ${user.occupation}
-Bio: ${user.bio}
-Address: ${user.address}
-Interests: ${user.interests.join(', ')}`;
+  // Construct share content
+  const shareText = `Check out my profile on Bhavya Association!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nOccupation: ${user.occupation}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}${user.interests?.length ? `\nInterests: ${user.interests.join(', ')}` : ''}`;
+  // Keep WhatsApp URL as fallback
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+  
+  // Handle generalized sharing
+  const handleShare = async () => {
+    // Create share data object
+    const shareData = {
+      title: `${user.name}'s Profile on Bhavya Association`,
+      text: shareText
+    };
+    
+    // Try to use the Web Share API if available
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+        // Fall back to WhatsApp if sharing fails
+        window.open(whatsappUrl, '_blank');
+      }
+    } else {
+      // Fall back to WhatsApp if Web Share API is not available
+      window.open(whatsappUrl, '_blank');
+    }
+  };
 
   // Handle profile image loading errors
   const handleImageError = (e) => {
@@ -41,26 +58,6 @@ Interests: ${user.interests.join(', ')}`;
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (actionState.isDeleting) return;
-
-    setActionState((prev) => ({ ...prev, isDeleting: true, error: '' }));
-
-    try {
-      await api.delete('/api/profile/me');
-      alert('Your account has been deleted successfully');
-      logout(); // Log the user out after account deletion
-      navigate('/'); // Redirect to home page
-    } catch (err) {
-      console.error('Error deleting account:', err);
-      setActionState((prev) => ({
-        ...prev,
-        isDeleting: false,
-        error: 'Failed to delete account. Please try again later.'
-      }));
-    }
-  };
-
   const handleDeactivateAccount = async () => {
     if (actionState.isDeactivating) return;
 
@@ -68,7 +65,6 @@ Interests: ${user.interests.join(', ')}`;
 
     try {
       await api.put('/api/profile/deactivate');
-      alert('Your account has been deactivated successfully');
       logout(); // Log the user out after deactivation
       navigate('/');
     } catch (err) {
@@ -84,154 +80,153 @@ Interests: ${user.interests.join(', ')}`;
   // Reset all confirmations
   const resetConfirmations = () => {
     setActionState({
-      showDeleteConfirm: false,
       showDeactivateConfirm: false,
-      isDeleting: false,
       isDeactivating: false,
       error: ''
     });
   };
 
   return (
-    <div className="profile-card">
-      {/* Header Section */}
-      <div className="profile-card-header">
-        {/* Logo */}
-        <img
-          src={logo}
-          alt="Society Logo"
-          className="profile-card-logo"
-        />
-        {/* Text Container */}
-        <div className="text-container">
-          <span className="ex">INTERNATIONAL BHAVYA DIRECTORY</span>
-          <span className="extra">
-            संघ रजि नः 803 | Reg No.: {user.registrationNumber || '67736'}
-          </span>
+    <Card className="overflow-hidden">
+      {/* Profile header with background */}
+      <div className="relative bg-gradient-to-r from-primary-100 to-primary-50 pt-6 pb-20">
+        <div className="px-6 flex justify-between items-center">
+          <div className="flex items-center">
+            <div className="mr-3 p-2 bg-white bg-opacity-50 rounded-full">
+              <User size={18} className="text-primary-700" />
+            </div>
+            <h2 className="text-xl font-bold text-primary-900">My Profile</h2>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            leftIcon={<Edit size={16} />}
+            onClick={handleEditClick}
+          >
+            Edit
+          </Button>
         </div>
       </div>
-
-      {/* Body Section */}
-      <div className="profile-card-body">
-        {/* Profile Image */}
-        <div className="profile-card-img">
+      
+      {/* Profile image - positioned to overlap header */}
+      <div className="flex justify-center -mt-16 mb-4 relative z-10">
+        <div className="w-32 h-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
           <img
             src={user.profileImage || DEFAULT_PROFILE_IMAGE}
             alt={`${user.name}'s profile`}
+            className="w-full h-full object-cover"
             onError={handleImageError}
           />
         </div>
-
-        {/* Content */}
-        <div className="profile-card-content">
-          <h3>{user.name}</h3>
-          <p className="occupation">
-            {user.occupation || 'No Occupation'}
-            {user.accountStatus === 'deactivated' && (
-              <span style={{ color: 'red', marginLeft: '10px' }}>
-                (Deactivated)
-              </span>
-            )}
-          </p>
-          <p><strong>Phone:</strong> {user.phoneNumber}</p>
-          <p><strong>Bio:</strong> {user.bio || 'No bio provided'}</p>
-          <p><strong>Address:</strong> {user.address || 'No address provided'}</p>
-          <p>
-            <strong>Interests:</strong>{' '}
-            {user.interests && user.interests.length > 0
-              ? user.interests.join(', ')
-              : 'None specified'}
-          </p>
-          <p><strong>Location:</strong> {user.location || 'Agra, Uttar Pradesh'}</p>
+      </div>
+      
+      {/* Main profile content */}
+      <div className="px-6 pt-2 pb-6">
+        {/* User's basic info */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-neutral-800">{user.name}</h1>
+          <div className="flex items-center justify-center mt-1">
+            <Briefcase size={16} className="text-neutral-500 mr-2" />
+            <p className="text-neutral-700">{user.occupation || 'No occupation listed'}</p>
+          </div>
           
-          {/* Buttons Container */}
-          <div className="button-container">
-            {/* WhatsApp Share Button */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="share-button"
-            >
-              Share on WhatsApp
-            </a>
-
-            {/* Edit Profile Button */}
-            <button className="share-button edit-button" onClick={handleEditClick}>
-              Edit Profile
-            </button>
-
-            {/* Deactivate / Delete Buttons */}
-            {!actionState.showDeleteConfirm && !actionState.showDeactivateConfirm && (
-              <div className="button-container">
-                <button
-                  className="share-button deactivate-button"
-                  onClick={() => {
-                    resetConfirmations();
-                    setActionState((prev) => ({
-                      ...prev,
-                      showDeactivateConfirm: true
-                    }));
-                  }}
-                >
-                  Deactivate Account
-                </button>
-
-                <button
-                  className="share-button delete-button"
-                  onClick={() => {
-                    resetConfirmations();
-                    setActionState((prev) => ({
-                      ...prev,
-                      showDeleteConfirm: true
-                    }));
-                  }}
-                >
-                  Delete Account
-                </button>
+          {user.accountStatus === 'deactivated' && (
+            <div className="mt-2 inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+              <AlertTriangle size={14} className="mr-1" />
+              Account Deactivated
+            </div>
+          )}
+        </div>
+        
+        {/* Contact information */}
+        <div className="bg-neutral-50 rounded-lg p-4 mb-6">
+          <h3 className="text-md font-semibold text-neutral-700 mb-3 flex items-center">
+            <Shield size={16} className="mr-2 text-primary-600" />
+            Contact Information
+          </h3>
+          
+          <div className="space-y-3">
+            <div className="flex items-center">
+              <Phone size={16} className="text-neutral-500 mr-3 flex-shrink-0" />
+              <span className="text-neutral-800">{user.phoneNumber}</span>
+            </div>
+            
+            {user.email && (
+              <div className="flex items-center">
+                <Mail size={16} className="text-neutral-500 mr-3 flex-shrink-0" />
+                <span className="text-neutral-800">{user.email}</span>
               </div>
             )}
-
-            {/* Confirm Dialogs */}
-            {actionState.showDeactivateConfirm && (
-              <ConfirmDialog
-                title="Deactivate Account"
-                message="Are you sure you want to deactivate your account?"
-                note="You can reactivate it later by logging back in."
-                confirmText="Yes, Deactivate"
-                cancelText="Cancel"
-                type="warning"
-                isLoading={actionState.isDeactivating}
-                errorMessage={actionState.error}
-                onConfirm={handleDeactivateAccount}
-                onCancel={resetConfirmations}
-              />
-            )}
-
-            {actionState.showDeleteConfirm && (
-              <ConfirmDialog
-                title="Delete Account"
-                message="Are you sure you want to permanently delete your account?"
-                note="This action cannot be undone!"
-                confirmText="Yes, Delete"
-                cancelText="Cancel"
-                type="danger"
-                isLoading={actionState.isDeleting}
-                errorMessage={actionState.error}
-                onConfirm={handleDeleteAccount}
-                onCancel={resetConfirmations}
-              />
+            
+            {user.address && (
+              <div className="flex items-start">
+                <MapPin size={16} className="text-neutral-500 mr-3 flex-shrink-0 mt-1" />
+                <span className="text-neutral-800">{user.address}</span>
+              </div>
             )}
           </div>
         </div>
+        
+        {/* Bio and interests */}
+        <div className="mb-6">
+          <h3 className="text-md font-semibold text-neutral-700 mb-2">About Me</h3>
+          <p className="text-neutral-600 mb-4">{user.bio || 'No bio provided'}</p>
+          
+          {user.interests && user.interests.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-neutral-700 mb-2">Interests</h4>
+              <div className="flex flex-wrap gap-2">
+                {user.interests.map((interest, idx) => (
+                  <span key={idx} className="inline-block bg-neutral-100 rounded-full px-3 py-1 text-sm text-neutral-700">
+                    {interest}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Action buttons */}
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={handleShare}
+            className="flex items-center justify-center py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors"
+          >
+            <Share2 size={18} className="mr-2" />
+            Share Profile
+          </button>
+          
+          <button
+            className="py-2 px-4 border border-yellow-500 text-yellow-700 hover:bg-yellow-50 font-medium rounded-md transition-colors"
+            onClick={() => {
+              resetConfirmations();
+              setActionState((prev) => ({
+                ...prev,
+                showDeactivateConfirm: true
+              }));
+            }}
+          >
+            Deactivate Account
+          </button>
+        </div>
       </div>
-
-      {/* Footer */}
-      <div className="profile-card-footer">
-        <div className="footer-left">*Not for official use</div>
-        <div className="footer-right">Generated by Bhavya</div>
-      </div>
-    </div>
+      
+      {/* Confirm Dialogs */}
+      {actionState.showDeactivateConfirm && (
+        <ConfirmDialog
+          title="Deactivate Account"
+          message="Are you sure you want to deactivate your account?"
+          note="You can reactivate it later by logging back in."
+          confirmText="Yes, Deactivate"
+          cancelText="Cancel"
+          type="warning"
+          isLoading={actionState.isDeactivating}
+          errorMessage={actionState.error}
+          onConfirm={handleDeactivateAccount}
+          onCancel={resetConfirmations}
+        />
+      )}
+    </Card>
   );
 };
 

@@ -1,6 +1,10 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
+import { Upload, X, AlertTriangle, CheckCircle, Loader, ArrowLeft, Camera } from 'lucide-react';
+import Card from './Card';
+import FormInput from './FormInput';
+import Button from './Button';
 
 const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode }) => {
   const { updateUser, api, serverStatus } = useContext(AuthContext);
@@ -101,7 +105,7 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
 
     // Show warning for large images
     if (fileSizeMB > 4) {
-      setError('Warning: Images larger than 4MB may cause upload issues. Consider using a smaller image.');
+      setError('Warning: Images larger than 4MB may cause upload issues. The image will be compressed.');
     } else {
       setError('');
     }
@@ -214,125 +218,227 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
   };
 
   return (
-    <form className="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-bold mb-6 text-center text-neutral-800">
-        {isEditing ? 'Edit Your Profile' : 'Complete Your Profile'}
-      </h2>
-      
-      {!serverStatus && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-          <h3 className="font-bold text-red-700">Server Connection Issues</h3>
-          <p className="text-red-600">The backend server appears to be offline or unreachable. Your profile data cannot be saved until the server is back online.</p>
-          <div className="mt-2 p-2 bg-neutral-100 rounded">
-            <h4 className="font-medium">Troubleshooting:</h4>
-            <ol className="list-decimal pl-5 text-sm">
-              <li>Check if the backend server is running</li>
-              <li>Run <code className="bg-neutral-200 px-1 rounded">npm run dev</code> in the backend directory</li>
-              <li>Make sure your computer is connected to the internet</li>
-            </ol>
-          </div>
-        </div>
-      )}
-      
-      {error && <p className="text-red-600 mb-4 p-3 bg-red-50 rounded">{error}</p>}
-      {success && <p className="text-green-600 mb-4 p-3 bg-green-50 rounded">{success}</p>}
-      
-      <div className="space-y-6">
-        <div className="form-group">
-          <label className="block text-neutral-700 font-medium mb-2">Profile Photo</label>
-          <div className="image-upload-container">
-            {imagePreview && (
-              <div className="relative w-32 h-32 mb-4">
-                <img src={imagePreview} alt="Profile preview" className="w-full h-full object-cover rounded-full" />
-                <button 
-                  type="button" 
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                  onClick={handleRemoveImage}
-                  aria-label="Remove image"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              ref={fileInputRef}
-              className="block w-full text-neutral-700 mt-2"
-            />
-            <p className="text-sm text-neutral-500 mt-2">
-              Upload an image (Max 6MB). {imageSize && `Current image: ${imageSize}MB`}
-              {imageSize && imageSize > 1 ? ' - Image will be compressed automatically' : ''}
-            </p>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="block text-neutral-700 font-medium mb-2">Name</label>
-          <input 
-            type="text" 
-            value={user.name} 
-            disabled 
-            className="w-full px-4 py-2 bg-neutral-100 rounded border focus:outline-none"
-          />
-        </div>
-        
-        {/* Other form fields with similar styling */}
-        <div className="form-group">
-          <label className="block text-neutral-700 font-medium mb-2">Phone Number</label>
-          <input 
-            type="tel" 
-            value={user.phoneNumber} 
-            disabled 
-            className="w-full px-4 py-2 bg-neutral-100 rounded border focus:outline-none"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label className="block text-neutral-700 font-medium mb-2">Bio</label>
-          <textarea 
-            value={bio} 
-            onChange={e => setBio(e.target.value)} 
-            placeholder="Tell us about yourself..."
-            required 
-            className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[100px]"
-          />
-        </div>
-        
-        {/* More form fields... */}
-        
-        <div className="flex justify-end space-x-4 mt-8">
-          {isEditing && (
-            <button 
-              type="button" 
-              className="px-6 py-2 bg-neutral-200 hover:bg-neutral-300 rounded transition" 
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-          )}
+    <Card className="overflow-hidden">
+      <div className="bg-gradient-to-r from-primary-100 to-primary-50 px-6 py-4 flex items-center">
+        {isEditing && (
           <button 
-            type="submit" 
-            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded transition" 
-            disabled={isSubmitting || !serverStatus}
+            type="button" 
+            onClick={handleCancel} 
+            className="mr-3 text-primary-700 hover:text-primary-900"
+            aria-label="Go back"
           >
-            {isSubmitting ? 'Saving...' : isEditing ? 'Update Profile' : 'Save Profile'}
+            <ArrowLeft size={20} />
           </button>
-        </div>
+        )}
+        <h2 className="text-xl font-bold text-primary-900">
+          {isEditing ? 'Edit Your Profile' : 'Complete Your Profile'}
+        </h2>
       </div>
       
-      {!serverStatus && (
-        <button 
-          type="button" 
-          className="mt-4 w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-          onClick={() => window.location.reload()}
-        >
-          Refresh Page
-        </button>
-      )}
-    </form>
+      <form className="p-6" onSubmit={handleSubmit}>
+        {!serverStatus && (
+          <div className="mb-6 p-4 rounded-md bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800">
+            <div className="flex">
+              <AlertTriangle className="flex-shrink-0 mr-3 h-5 w-5 text-yellow-400" />
+              <div>
+                <h3 className="font-medium">Server Connection Issues</h3>
+                <p className="text-sm mt-1">The server appears to be offline. Your profile data cannot be saved until the server is back online.</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {error && (
+          <div className="mb-6 p-4 rounded-md bg-red-50 border-l-4 border-red-500 text-red-800">
+            <div className="flex">
+              <AlertTriangle className="flex-shrink-0 mr-3 h-5 w-5 text-red-500" />
+              <div>
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-6 p-4 rounded-md bg-green-50 border-l-4 border-green-500 text-green-800">
+            <div className="flex">
+              <CheckCircle className="flex-shrink-0 mr-3 h-5 w-5 text-green-500" />
+              <div>
+                <p>{success}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div className="space-y-6">
+          {/* Profile Image Section */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">Profile Photo</label>
+            
+            <div className="flex flex-col items-center">
+              <div className="mb-4 relative">
+                {imagePreview ? (
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border border-neutral-200">
+                      <img 
+                        src={imagePreview} 
+                        alt="Profile preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-sm"
+                      onClick={handleRemoveImage}
+                      aria-label="Remove image"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div 
+                    className="w-32 h-32 rounded-full bg-neutral-100 flex items-center justify-center border border-dashed border-neutral-300 cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Camera size={32} className="text-neutral-400" />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center mb-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  ref={fileInputRef}
+                  className="hidden"
+                  id="profile-image-upload"
+                />
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Upload size={16} />}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Upload Image
+                </Button>
+              </div>
+              
+              <p className="text-xs text-neutral-500 text-center mt-1">
+                Maximum size: 6MB {imageSize && `(Current: ${imageSize}MB${imageSize > 1 ? ' - will be compressed' : ''})`}
+              </p>
+            </div>
+          </div>
+          
+          {/* User Basic Info - Read Only */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Name</label>
+              <input 
+                type="text" 
+                value={user.name} 
+                disabled 
+                className="w-full px-3 py-2 bg-neutral-50 rounded border border-neutral-200 text-neutral-700"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Phone Number</label>
+              <input 
+                type="tel" 
+                value={user.phoneNumber} 
+                disabled 
+                className="w-full px-3 py-2 bg-neutral-50 rounded border border-neutral-200 text-neutral-700"
+              />
+            </div>
+          </div>
+          
+          {/* Bio Section */}
+                <div className="mb-6">
+                <label htmlFor="bio" className="block text-sm font-medium text-neutral-700 mb-1">
+                  Bio <span className="text-neutral-500 font-normal">(Optional)</span>
+                </label>
+                <textarea 
+                  id="bio"
+                  value={bio} 
+                  onChange={e => setBio(e.target.value)} 
+                  placeholder="Tell us about yourself, your background, and your interests..."
+                  className="w-full px-3 py-2 rounded border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[120px]"
+                />
+                </div>
+                
+                {/* Address Section */}
+                <div className="mb-6">
+                  <label htmlFor="address" className="block text-sm font-medium text-neutral-700 mb-1">
+                    city <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </label>
+                  <textarea 
+                    id="address"
+                    value={address} 
+                    onChange={e => setAddress(e.target.value)} 
+                    placeholder="Your address (city, state, pin code)"
+                    className="w-full px-3 py-2 rounded border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[80px]"
+                  />
+                </div>
+
+                {/* Profession Section */}
+                <div className="mb-6">
+                  <label htmlFor="interests" className="block text-sm font-medium text-neutral-700 mb-1">
+                    Profession <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    id="interests"
+                    type="text" 
+                    value={interests} 
+                    onChange={e => setInterests(e.target.value)} 
+                    placeholder="Enter your profession"
+                    className="w-full px-3 py-2 rounded border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-neutral-500">Separate multiple professions with commas if applicable</p>
+                </div>
+
+                {/* Expertization Section */}
+                <div className="mb-6">
+                  <label htmlFor="expertization" className="block text-sm font-medium text-neutral-700 mb-1">
+                    Expertization <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </label>
+                  <input 
+                    id="expertization"
+                    type="text" 
+                    placeholder="Areas of expertise"
+                    className="w-full px-3 py-2 rounded border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                  <p className="mt-1 text-xs text-neutral-500">Separate different areas with commas (e.g., "Web Development, Project Management")</p>
+                </div>
+
+                {/* Form Actions */}
+          <div className="flex justify-end gap-3 mt-8">
+            {isEditing && (
+              <Button
+                type="button"
+                variant="subtle"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            )}
+            
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isSubmitting || !serverStatus}
+              leftIcon={isSubmitting ? <Loader className="animate-spin" size={16} /> : null}
+            >
+              {isSubmitting ? 'Saving...' : isEditing ? 'Update Profile' : 'Save Profile'}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Card>
   );
 };
 

@@ -150,32 +150,42 @@ const ListingManagement = () => {
   return (
     <AdminLayout title="Listing Management" currentPage="listings">
       {!serverStatus && (
-        <div className="server-warning">
-          <p>⚠️ Server connection issues detected. Listing data may not be available.</p>
+        <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+          <p className="text-yellow-700 font-medium flex items-center">
+            <span className="mr-2">⚠️</span> 
+            Server connection issues detected. Listing data may not be available.
+          </p>
         </div>
       )}
       
-      <div className="admin-toolbar">
-        <div className="search-filter-container">
-          <div className="search-bar">
-            <Search className="search-icon" size={18} />
+      {/* Controls Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          {/* Search bar */}
+          <div className="relative w-full md:w-auto md:flex-1 max-w-lg">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               type="text"
               placeholder="Search listings by title or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 border"
             />
           </div>
           
-          <div className="filter-section">
-            <div className="filter-dropdown">
-              <label>
-                <Filter size={14} />
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3 justify-start">
+            <div className="relative inline-flex">
+              <label className="inline-flex items-center text-sm text-gray-700 mr-2 whitespace-nowrap">
+                <Filter size={14} className="mr-1" />
                 Category:
               </label>
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                className="block bg-white border border-gray-300 rounded-md py-1.5 pl-3 pr-8 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Categories</option>
                 {categories.map(category => (
@@ -184,8 +194,11 @@ const ListingManagement = () => {
               </select>
             </div>
             
-            <button className="refresh-button" onClick={() => fetchListings(pagination.page)}>
-              <RefreshCw size={14} />
+            <button 
+              className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              onClick={() => fetchListings(pagination.page)}
+            >
+              <RefreshCw size={14} className="mr-1.5" />
               Refresh
             </button>
           </div>
@@ -193,98 +206,124 @@ const ListingManagement = () => {
       </div>
       
       {loading ? (
-        <div className="admin-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading listings...</p>
+        <div className="py-12 flex justify-center items-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500">Loading listings...</p>
+          </div>
         </div>
       ) : error ? (
-        <div className="admin-error">
-          <p>{error}</p>
-          <button onClick={() => fetchListings(pagination.page)} className="retry-button">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <p className="text-red-700 mb-4">{error}</p>
+          <button 
+            onClick={() => fetchListings(pagination.page)} 
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <RefreshCw size={16} className="mr-2" />
             Try Again
           </button>
         </div>
       ) : (
         <>
-          <div className="listings-table-container">
-            <table className="listings-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Owner</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listings.length > 0 ? (
-                  listings.map(listing => (
-                    <tr key={listing._id}>
-                      <td>{listing.title}</td>
-                      <td>{listing.category}</td>
-                      <td>{listing.user ? listing.user.name : 'Unknown'}</td>
-                      <td>
-                        {listing.approved !== false ? (
-                          <span className="status-badge status-approved">Approved</span>
-                        ) : (
-                          <span className="status-badge status-pending">Pending</span>
-                        )}
-                      </td>
-                      <td>{new Date(listing.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <button 
-                            className="action-button edit"
-                            onClick={() => handleEditListing(listing)}
-                            title="Edit Listing"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            className={`action-button ${listing.approved !== false ? 'reject' : 'approve'}`}
-                            onClick={() => handleToggleApproval(listing._id, listing.approved !== false)}
-                            title={listing.approved !== false ? 'Reject Listing' : 'Approve Listing'}
-                          >
-                            {listing.approved !== false ? <XCircle size={16} /> : <CheckCircle size={16} />}
-                          </button>
-                          <button 
-                            className="action-button delete"
-                            onClick={() => handleDeleteListing(listing._id)}
-                            title="Delete Listing"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {listings.length > 0 ? (
+                    listings.map(listing => (
+                      <tr key={listing._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{listing.title}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{listing.category}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{listing.user ? listing.user.name : 'Unknown'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {listing.approved !== false ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Approved
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(listing.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex space-x-2">
+                            <button 
+                              className="text-blue-600 hover:text-blue-900"
+                              onClick={() => handleEditListing(listing)}
+                              title="Edit Listing"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              className={listing.approved !== false ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900"}
+                              onClick={() => handleToggleApproval(listing._id, listing.approved !== false)}
+                              title={listing.approved !== false ? 'Reject Listing' : 'Approve Listing'}
+                            >
+                              {listing.approved !== false ? <XCircle size={18} /> : <CheckCircle size={18} />}
+                            </button>
+                            <button 
+                              className="text-red-600 hover:text-red-900"
+                              onClick={() => handleDeleteListing(listing._id)}
+                              title="Delete Listing"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                        No listings found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6">No listings found</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           
-          <div className="pagination">
-            <button
-              disabled={pagination.page === 1}
-              onClick={() => handlePageChange(pagination.page - 1)}
-            >
-              Previous
-            </button>
-            <span>
-              Page {pagination.page} of {pagination.pages}
-            </span>
-            <button
-              disabled={pagination.page === pagination.pages}
-              onClick={() => handlePageChange(pagination.page + 1)}
-            >
-              Next
-            </button>
+          {/* Pagination controls */}
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center">
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">{listings.length}</span> of <span className="font-medium">{pagination.total}</span> listings
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {pagination.page} of {pagination.pages}
+              </span>
+              <button
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.pages}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </>
       )}

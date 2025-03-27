@@ -105,37 +105,47 @@ module.exports = {
       },
       keyframes: {
         marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+        marquee2: {
           '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(-100%)' }
+          '100%': { transform: 'translateX(0%)' },
         },
         fadeIn: {
           '0%': { opacity: '0' },
-          '100%': { opacity: '1' }
+          '100%': { opacity: '1' },
         },
         fadeOut: {
           '0%': { opacity: '1' },
-          '100%': { opacity: '0' }
+          '100%': { opacity: '0' },
         },
         slideIn: {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' }
+          '100%': { transform: 'translateY(0)', opacity: '1' },
         },
         pulse: {
           '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.5' }
+          '50%': { opacity: '0.5' },
         },
         spin: {
           '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' }
-        }
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
-        marquee: 'marquee 15s linear infinite',
+        // Slower marquee on bigger screens
+        marquee: 'marquee 30s linear infinite',
+        marquee2: 'marquee2 25s linear infinite',
+        // Faster marquee on mobile
+        'marquee-fast': 'marquee 15s linear infinite',
+        'marquee2-fast': 'marquee2 15s linear infinite',
+
         fadeIn: 'fadeIn 0.3s ease-in-out',
         fadeOut: 'fadeOut 0.3s ease-in-out',
         slideIn: 'slideIn 0.5s ease-out',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        spin: 'spin 1s linear infinite'
+        spin: 'spin 1s linear infinite',
       },
       transitionProperty: {
         'height': 'height',
@@ -179,7 +189,7 @@ module.exports = {
           },
         },
         '.card-hover': {
-          'transition': 'all 0.3s ease',
+          transition: 'all 0.3s ease',
           '&:hover': {
             transform: 'translateY(-5px)',
             boxShadow: theme('boxShadow.lg'),
@@ -187,6 +197,6 @@ module.exports = {
         },
       };
       addUtilities(newUtilities);
-    }
+    },
   ],
-}
+};

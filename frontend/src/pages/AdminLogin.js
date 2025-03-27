@@ -98,21 +98,25 @@ const AdminLogin = () => {
     <div className="admin-login-container">
       <div className="admin-login-card">
         <div className="admin-login-header">
-          <Shield size={32} className="admin-icon" />
-          <h1>Admin Login</h1>
-          <p>Access the administration panel</p>
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+              <Shield size={32} className="text-blue-600" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">Admin Login</h1>
+          <p className="text-gray-500 mb-6">Access the administrator dashboard</p>
         </div>
         
         {loginError && (
-          <div className="login-error">
-            <AlertTriangle size={16} />
-            <span>{loginError}</span>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-md flex items-start">
+            <AlertTriangle size={18} className="text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+            <span className="text-red-700">{loginError}</span>
           </div>
         )}
         
         <form onSubmit={handleSubmit} className="admin-login-form">
           <div className="form-group">
-            <label htmlFor="phoneNumber">Phone Number</label>
+            <label className="text-sm font-medium text-gray-700 mb-1 block" htmlFor="phoneNumber">Phone Number</label>
             <input
               type="text"
               id="phoneNumber"
@@ -120,14 +124,14 @@ const AdminLogin = () => {
               value={formData.phoneNumber}
               onChange={handleChange}
               placeholder="Enter your registered phone number"
-              className={errors.phoneNumber ? 'error' : ''}
+              className={`w-full px-4 py-3 rounded-md border ${errors.phoneNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
               disabled={loading}
             />
-            {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
+            {errors.phoneNumber && <span className="text-sm text-red-500 mt-1 block">{errors.phoneNumber}</span>}
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label className="text-sm font-medium text-gray-700 mb-1 block" htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
@@ -135,19 +139,19 @@ const AdminLogin = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className={errors.password ? 'error' : ''}
+              className={`w-full px-4 py-3 rounded-md border ${errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
               disabled={loading}
             />
-            {errors.password && <span className="error-message">{errors.password}</span>}
+            {errors.password && <span className="text-sm text-red-500 mt-1 block">{errors.password}</span>}
           </div>
           
           <button 
             type="submit" 
-            className="admin-login-button"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2 mt-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             disabled={loading}
           >
             {loading ? (
-              <span className="loading-spinner"></span>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <>
                 <LogIn size={18} />
@@ -157,9 +161,11 @@ const AdminLogin = () => {
           </button>
         </form>
         
-        <div className="admin-login-footer">
-          <Link to="/" className="back-to-site">Back to main site</Link>
-          <small className="admin-login-note">
+        <div className="admin-login-footer mt-8 pt-4 border-t border-gray-200 flex flex-col items-center">
+          <Link to="/" className="text-blue-600 hover:text-blue-800 mb-2 inline-flex items-center">
+            <span className="mr-1">←</span> Back to main site
+          </Link>
+          <small className="text-gray-500 text-xs">
             Only administrators can access this area
           </small>
         </div>

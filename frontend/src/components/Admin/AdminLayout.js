@@ -27,61 +27,96 @@ const AdminLayout = ({ children, title, currentPage }) => {
   // Only allow access if user is admin
   if (!user || user.planType !== 'admin') {
     return (
-      <div className="admin-unauthorized">
-        <h1>Unauthorized</h1>
-        <p>You do not have permission to access the admin area.</p>
-        <button onClick={() => navigate('/')} className="back-button">
-          Back to Home
-        </button>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center bg-white p-8 rounded-lg shadow-md max-w-md">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">You don't have permission to access the admin area.</p>
+          <button 
+            onClick={() => navigate('/')} 
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Back to Home
+          </button>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="admin-sidebar-header">
-          <h2>Admin Panel</h2>
-          <div className="admin-user-info">
-            <span className="admin-user-name">{user.name}</span>
-            <span className="admin-badge">Administrator</span>
+    <div className="flex min-h-screen bg-gray-50">
+      <aside className="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:block">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-blue-600">Admin Panel</h2>
+          <div className="mt-2">
+            <span className="text-sm font-medium text-gray-700 block">{user.name}</span>
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Administrator</span>
           </div>
         </div>
         
-        <nav className="admin-nav">
-          <ul>
+        <nav className="p-4">
+          <ul className="space-y-1">
             {navItems.map(item => (
               <li key={item.id}>
                 <Link 
                   to={item.path} 
-                  className={currentPage === item.id ? 'active' : ''}
+                  className={`flex items-center px-4 py-3 rounded-md transition-colors ${
+                    currentPage === item.id 
+                      ? 'bg-blue-50 text-blue-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-text">{item.name}</span>
+                  <span className="mr-3">{item.icon}</span>
+                  <span>{item.name}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
         
-        <div className="admin-sidebar-footer">
-          <button onClick={() => navigate('/')} className="back-to-site">
-            <ChevronLeft size={16} />
+        <div className="mt-auto p-4 border-t border-gray-200">
+          <button 
+            onClick={() => navigate('/')} 
+            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md w-full mb-2"
+          >
+            <ChevronLeft size={18} className="mr-2" />
             Back to Site
           </button>
-          <Link to="/logout" className="admin-logout">
-            <LogOut size={16} />
+          <Link 
+            to="/logout" 
+            className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-md w-full"
+          >
+            <LogOut size={18} className="mr-2" />
             Logout
           </Link>
         </div>
       </aside>
       
-      <main className="admin-content">
-        <header className="admin-content-header">
-          <h1>{title}</h1>
+      {/* Mobile sidebar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
+        <div className="flex justify-around">
+          {navItems.map(item => (
+            <Link 
+              key={item.id}
+              to={item.path} 
+              className={`flex flex-col items-center py-2 px-3 ${
+                currentPage === item.id 
+                  ? 'text-blue-600' 
+                  : 'text-gray-600'
+              }`}
+            >
+              {item.icon}
+              <span className="text-xs mt-1">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+      
+      <main className="flex-1">
+        <header className="bg-white shadow-sm px-6 py-4 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
         </header>
         
-        <div className="admin-content-body">
+        <div className="p-6">
           {children}
         </div>
       </main>

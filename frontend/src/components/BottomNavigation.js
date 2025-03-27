@@ -30,7 +30,7 @@ const BottomNavigation = () => {
         icon: <Users size={20} />
       },
       {
-        name: 'Business',
+        name: 'Promote Bussiness',
         path: '/service-listings',
         icon: <Store size={20} />
       }
