@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import ServerStatus from './components/ServerStatus';
 import AccountStatusManager from './components/AccountStatusManager';
-import SidebarLayout from './components/SidebarLayout';
 import BottomNavigation from './components/BottomNavigation';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -21,12 +20,12 @@ import ListingDetails from './pages/ListingDetails';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
-import About from './pages/About'; // Import the new About component
+import About from './pages/About';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
 import ListingManagement from './pages/Admin/ListingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
-import AdminLogin from './pages/AdminLogin'; // Add this import
+import AdminLogin from './pages/AdminLogin';
 
 // This component will scroll the window to the top whenever the route changes
 // and implements navigation throttling protection
@@ -80,35 +79,27 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/about" element={<About />} />
-          <Route path="/admin-login" element={<AdminLogin />} /> {/* Add this route */}
+          <Route path="/admin-login" element={<AdminLogin />} />
           
-          {/* Protected routes with sidebar */}
+          {/* Protected routes without sidebar */}
           <Route path="/profile" element={
             <ProtectedRoute>
-              <SidebarLayout>
-                <Profile />
-              </SidebarLayout>
+              <Profile />
             </ProtectedRoute>
           } />
           <Route path="/directory" element={
             <ProtectedRoute>
-              <SidebarLayout>
-                <Directory />
-              </SidebarLayout>
+              <Directory />
             </ProtectedRoute>
           } />
           <Route path="/user-profile/:userId" element={
             <ProtectedRoute>
-              <SidebarLayout>
-                <UserProfilePage />
-              </SidebarLayout>
+              <UserProfilePage />
             </ProtectedRoute>
           } />
           <Route path="/create-listing" element={
             <ProtectedRoute>
-              <SidebarLayout>
-                <CreateListing />
-              </SidebarLayout>
+              <CreateListing />
             </ProtectedRoute>
           } />
           
