@@ -104,34 +104,6 @@ const ProfileSettings = ({ user }) => {
     });
   };
   
-  // Add share handler
-  const handleShare = async () => {
-    // Construct share content
-    const shareText = `Check out my profile on Bhavya Association!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nProfession: ${user.profession || 'Not specified'}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}`;
-    
-    // Create share data object
-    const shareData = {
-      title: `${user.name}'s Profile on Bhavya Association`,
-      text: shareText
-    };
-    
-    // Try to use the Web Share API if available
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error('Error sharing:', err);
-        // Fall back to WhatsApp if sharing fails
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-        window.open(whatsappUrl, '_blank');
-      }
-    } else {
-      // Fall back to WhatsApp if Web Share API is not available
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-      window.open(whatsappUrl, '_blank');
-    }
-  };
-  
   return (
     <Card>
       <Card.Header className="bg-gradient-to-r from-primary-100 to-primary-50">
@@ -231,23 +203,7 @@ const ProfileSettings = ({ user }) => {
               </div>
             </div>
             
-            {/* Section 2: Share Profile - Moved from ProfileCard */}
-            <div className="p-6 bg-white rounded-lg border border-neutral-200 mb-6">
-              <div className="flex items-center mb-4">
-                <Share2 size={20} className="text-primary-600 mr-2" />
-                <h3 className="text-lg font-medium text-neutral-800">Share Your Profile</h3>
-              </div>
-              <p className="text-neutral-600 mb-4">Share your profile information with others via WhatsApp or other platforms</p>
-              <button
-                onClick={handleShare}
-                className="flex items-center justify-center py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors w-full"
-              >
-                <Share2 size={18} className="mr-2" />
-                Share Profile
-              </button>
-            </div>
-            
-            {/* Section 3: Account Management - Moved from ProfileCard */}
+            {/* Section 2: Account Management - Moved from ProfileCard */}
             <div className="p-6 bg-white rounded-lg border border-neutral-200">
               <div className="flex items-center mb-4">
                 <Lock size={20} className="text-red-500 mr-2" />

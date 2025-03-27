@@ -40,6 +40,21 @@
   background-color: var(--color-background);
 }
 
+/* Replacement for content previously in sidebar layout */
+.main-content-container {
+  width: 100%;
+  padding: var(--spacing-md);
+  margin-top: 70px; /* Match navbar height */
+  min-height: calc(100vh - 70px);
+  background-color: var(--color-background);
+}
+
+@media (min-width: 768px) {
+  .main-content-container {
+    padding: var(--spacing-lg);
+  }
+}
+
 /* Text alignment utilities */
 .text-center {
   text-align: center;

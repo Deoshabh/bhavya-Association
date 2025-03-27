@@ -1,14 +1,16 @@
 import React, { useState, useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import ProfileForm from '../components/ProfileForm';
 import ProfileCard from '../components/ProfileCard';
 import ProfileSettings from '../components/ProfileSettings';
-import { User, Settings, AlertTriangle, Loader } from 'lucide-react';
+import { User, Settings, AlertTriangle, Loader, Share, Briefcase } from 'lucide-react';
 import Alert from '../components/Alert';
+import Button from '../components/Button';
 
 const Profile = () => {
   const { user, loading, serverStatus } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [profileCompleted, setProfileCompleted] = useState(() => !!user?.bio);
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
@@ -132,12 +134,76 @@ const Profile = () => {
       
       <div className="profile-content">
         {activeTab === 'profile' ? (
-          <ProfileCard 
-            user={user} 
-            setEditMode={setEditMode} 
-          />
+          <>
+            <ProfileCard 
+              user={user} 
+              setEditMode={setEditMode} 
+            />
+            
+            {/* Add Create Service Listing Button for newly completed profiles */}
+            <div className="mt-4 bg-white rounded-lg border border-neutral-200 p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium text-neutral-800">Create a Service Listing</h3>
+                  <p className="text-neutral-600 text-sm mt-1">Share your business or professional services with the community</p>
+                </div>
+                
+                <Button
+                  variant="success"
+                  leftIcon={<Briefcase size={16} />}
+                  onClick={() => {
+                    navigate('/create-listing');
+                  }}
+                >
+                  Create Listing
+                </Button>
+              </div>
+            </div>
+            
+            {/* Share Profile Button */}
+            <div className="mt-4 bg-white rounded-lg border border-neutral-200 p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium text-neutral-800">Share Your Profile</h3>
+                  <p className="text-neutral-600 text-sm mt-1">Make it easy for others to connect with you</p>
+                </div>
+                
+                <Button
+                  variant="primary"
+                  leftIcon={<Share size={16} />}
+                  onClick={() => {
+                    // Create shareable URL for the profile
+                    const shareUrl = `${window.location.origin}/profile/${user._id}`;
+                    
+                    // Use Web Share API if available
+                    if (navigator.share) {
+                      navigator.share({
+                        title: `${user.name}'s Profile`,
+                        text: 'Check out my profile on Bhavya Association',
+                        url: shareUrl,
+                      }).catch(err => {
+                        console.error('Error sharing:', err);
+                      });
+                    } else {
+                      // Fallback: copy to clipboard
+                      navigator.clipboard.writeText(shareUrl).then(() => {
+                        alert('Profile link copied to clipboard!');
+                      }).catch(err => {
+                        console.error('Failed to copy:', err);
+                      });
+                    }
+                  }}
+                >
+                  Share Profile
+                </Button>
+              </div>
+            </div>
+          </>
         ) : (
-          <ProfileSettings user={user} />
+          <ProfileSettings 
+            user={user} 
+            isPublic={user.isPublic}
+          />
         )}
       </div>
     </div>

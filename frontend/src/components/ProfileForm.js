@@ -109,9 +109,12 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
       // Show success message
       setSuccess(isEditing ? 'Profile updated successfully!' : 'Profile created successfully!');
       
-      // If setProfileCompleted exists, call it
-      if (setProfileCompleted) {
-        setProfileCompleted(true);
+      // If setProfileCompleted exists, call it but don't immediately redirect
+      if (setProfileCompleted && !isEditing) {
+        // Don't immediately complete the profile so user can see the service listing button
+        setTimeout(() => {
+          setProfileCompleted(true);
+        }, 5000); // Give user 5 seconds to see and potentially click the service listing button
       }
       
       // Only redirect in edit mode automatically
@@ -120,7 +123,6 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
           setEditMode(false);
         }, 2000);
       }
-      // No automatic redirect on initial profile creation to give time to see the service listing button
     } catch (err) {
       console.error('Profile update error:', err.response?.data || err.message);
       
@@ -364,56 +366,55 @@ const ProfileForm = ({ user, setProfileCompleted, isEditing = false, setEditMode
                     <Button
                       type="button"
                       onClick={handleCreateListing}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-green-600 hover:bg-green-700 text-white w-full py-3 text-base"
                       leftIcon={<Briefcase size={16} />}
                       fullWidth
                     >
-                      Create Service Listing
+                      Add Your Service Listing
                     </Button>
-                    <p className="text-sm text-green-600 mt-2 text-center">
-                      Share your services with our community
+                    <p className="text-sm text-green-600 mt-3 text-center">
+                      Share your services with our community and get discovered by potential clients
                     </p>
                   </div>
                 )}
 
                 {/* Form Actions */}
-          <div className="flex justify-end gap-3 mt-8">
-            {isEditing && (
-              <Button
-                type="button"
-                variant="subtle"
-                onClick={handleCancel}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-            )}
-            
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isSubmitting || !serverStatus}
-              leftIcon={isSubmitting ? <Loader className="animate-spin" size={16} /> : null}
-            >
-              {isSubmitting ? 'Saving...' : isEditing ? 'Update Profile' : 'Save Profile'}
-            </Button>
-          </div>
-        </div>
-      </form>
+                <div className="flex justify-end gap-3 mt-8">
+                  {isEditing && (
+                    <Button
+                      type="button"
+                      variant="subtle"
+                      onClick={handleCancel}
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting || !serverStatus}
+                    leftIcon={isSubmitting ? <Loader className="animate-spin" size={16} /> : null}
+                  >
+                    {isSubmitting ? 'Saving...' : isEditing ? 'Update Profile' : 'Save Profile'}
+                  </Button>
+                </div>
+              </div>
+            </form>
 
-      {/* Image Crop Modal */}
-      {showCropModal && (
-        <ImageCropper
-          image={originalImage}
-          onCancel={handleCropCancel}
-          onCrop={handleCropComplete}
-          aspectRatio={1}
-          cropShape="round"
-          title="Crop Profile Image"
-        />
-      )}
-    </Card>
-  );
+            {/* Image Crop Modal */}
+            {showCropModal && (
+              <ImageCropper
+                image={originalImage}
+                onCancel={handleCropCancel}
+                onCrop={handleCropComplete}
+                aspectRatio={1}
+                cropShape="round"
+                title="Crop Profile Image"
+              />
+            )}
+          </Card>
+        );
 };
 
 export default ProfileForm;
