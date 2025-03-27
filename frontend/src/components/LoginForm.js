@@ -1,5 +1,6 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { Lock, Phone } from 'lucide-react'; // Import icons from lucide-react
 
 const LoginForm = ({ onLoginSuccess, onLoginError }) => {
   const { login } = useContext(AuthContext);
@@ -137,34 +138,44 @@ const LoginForm = ({ onLoginSuccess, onLoginError }) => {
       <div className="space-y-4">
         <div className="form-group">
           <label htmlFor="phoneNumber" className="block text-neutral-700 font-medium mb-2">Phone Number</label>
-          <input
-            type="tel"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={phoneNumber}
-            onChange={e => setPhoneNumber(e.target.value)}
-            placeholder="Enter registered phone number"
-            autoComplete="tel"
-            required
-            disabled={isSubmitting}
-            className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Phone className="h-5 w-5 text-neutral-400" />
+            </div>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+              placeholder="Enter registered phone number"
+              autoComplete="tel"
+              required
+              disabled={isSubmitting}
+              className="w-full pl-10 pr-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
         </div>
         
         <div className="form-group">
           <label htmlFor="password" className="block text-neutral-700 font-medium mb-2">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            autoComplete="current-password"
-            required
-            disabled={isSubmitting}
-            className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Lock className="h-5 w-5 text-neutral-400" />
+            </div>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              required
+              disabled={isSubmitting}
+              className="w-full pl-10 pr-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
         </div>
         
         <button 
@@ -189,7 +200,7 @@ const LoginForm = ({ onLoginSuccess, onLoginError }) => {
       
       <div className="text-center mt-6 text-neutral-600">
         <p>
-          Don't have an account? <a href="/register" className="text-primary-600 hover:text-primary-800">Register here</a>
+          Don't have an account? <a href="/RegistrationForm" className="text-primary-600 hover:text-primary-800">Register here</a>
         </p>
       </div>
     </form>

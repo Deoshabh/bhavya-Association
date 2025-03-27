@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Shield, LogIn, AlertTriangle } from 'lucide-react';
+import { Shield, LogIn, AlertTriangle, Phone, Lock } from 'lucide-react';
 import '../styles/AdminLogin.css';
 
 const AdminLogin = () => {
@@ -117,31 +117,41 @@ const AdminLogin = () => {
         <form onSubmit={handleSubmit} className="admin-login-form">
           <div className="form-group">
             <label className="text-sm font-medium text-gray-700 mb-1 block" htmlFor="phoneNumber">Phone Number</label>
-            <input
-              type="text"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="Enter your registered phone number"
-              className={`w-full px-4 py-3 rounded-md border ${errors.phoneNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
-              disabled={loading}
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Phone size={16} className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="Enter your registered phone number"
+                className={`w-full pl-10 px-4 py-3 rounded-md border ${errors.phoneNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                disabled={loading}
+              />
+            </div>
             {errors.phoneNumber && <span className="text-sm text-red-500 mt-1 block">{errors.phoneNumber}</span>}
           </div>
           
           <div className="form-group">
             <label className="text-sm font-medium text-gray-700 mb-1 block" htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              className={`w-full px-4 py-3 rounded-md border ${errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
-              disabled={loading}
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Lock size={16} className="text-gray-400" />
+              </div>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className={`w-full pl-10 px-4 py-3 rounded-md border ${errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                disabled={loading}
+              />
+            </div>
             {errors.password && <span className="text-sm text-red-500 mt-1 block">{errors.password}</span>}
           </div>
           

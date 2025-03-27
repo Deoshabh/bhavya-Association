@@ -91,7 +91,7 @@ const RegistrationForm = () => {
             Full Name
           </label>
           <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <User className="h-5 w-5 text-neutral-400" aria-hidden="true" />
             </div>
             <input
@@ -101,7 +101,7 @@ const RegistrationForm = () => {
               onChange={e => setName(e.target.value)}
               required
               disabled={isSubmitting}
-              className="block w-full pl-12 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               placeholder="Enter your full name"
             />
           </div>
@@ -112,7 +112,7 @@ const RegistrationForm = () => {
             Phone Number
           </label>
           <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Phone className="h-5 w-5 text-neutral-400" aria-hidden="true" />
             </div>
             <input
@@ -122,7 +122,7 @@ const RegistrationForm = () => {
               onChange={e => setPhoneNumber(e.target.value)}
               required
               disabled={isSubmitting}
-              className={`block w-full pl-12 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm
+              className={`block w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm
                 ${duplicateUser ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-neutral-300'}`}
               placeholder="Enter your phone number"
             />
@@ -137,7 +137,7 @@ const RegistrationForm = () => {
             Occupation
           </label>
           <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Briefcase className="h-5 w-5 text-neutral-400" aria-hidden="true" />
             </div>
             <input
@@ -147,7 +147,7 @@ const RegistrationForm = () => {
               onChange={e => setOccupation(e.target.value)}
               required
               disabled={isSubmitting}
-              className="block w-full pl-12 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               placeholder="Enter your occupation"
             />
           </div>
@@ -158,7 +158,7 @@ const RegistrationForm = () => {
             Password
           </label>
           <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Lock className="h-5 w-5 text-neutral-400" aria-hidden="true" />
             </div>
             <input
@@ -168,7 +168,7 @@ const RegistrationForm = () => {
               onChange={e => setPassword(e.target.value)}
               required
               disabled={isSubmitting}
-              className="block w-full pl-12 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               placeholder="Create a password"
               minLength="6"
             />
