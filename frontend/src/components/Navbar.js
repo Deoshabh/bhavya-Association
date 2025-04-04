@@ -112,7 +112,7 @@ const Navbar = () => {
             ))}
             <li className="nav-item">
               <a
-                href="https://www.bhavya.org.in"
+                href="https://bhavya.org.in"
                 className="nav-link events"
                 target="_blank"
                 rel="noopener noreferrer"
