@@ -268,6 +268,7 @@ const Home = () => {
                         src={businessImage}
                         alt="Business Services"
                         className="w-full h-full object-cover rounded-lg shadow-md"
+                        href="/create-listing"
                         />
                         <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
                         Business
@@ -313,7 +314,7 @@ const Home = () => {
                   <section className="w-full px-0 py-6">
                     <div
                     className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] bg-cover bg-center overflow-hidden shadow-xl rounded-lg mb-8"
-                    style={{ backgroundImage: `url(${eventsImage})` }}
+                    style={{ backgroundImage: `url(${businessImage})` }}
                     >
                     {/* Overlay for better text visibility */}
                     <div className="absolute inset-0 bg-black bg-opacity-40"></div>
