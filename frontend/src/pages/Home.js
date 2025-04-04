@@ -1,40 +1,37 @@
-import React, { useRef, useContext, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useRef, useContext, useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  Store,
-  Menu,
-  X,
   Home as HomeIcon,
   User,
   Users,
   Briefcase,
-  ChevronDown
-} from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
+  ChevronDown,
+} from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 // Local assets
-import bannerImage from '../assets/banner for home.jpg';
-import eventsImage from '../assets/events.png';
-import businessImage from '../assets/business.webp';
-import jobImage from '../assets/Job.webp';
-import marriagesImage from '../assets/matra.webp';
-import trainingImage from '../assets/Traning.webp';
+import bannerImage from "../assets/banner for home.jpg";
+import eventsImage from "../assets/events.png";
+import businessImage from "../assets/business.webp";
+import jobImage from "../assets/Job.webp";
+import marriagesImage from "../assets/matra.webp";
+import trainingImage from "../assets/Traning.webp";
 
 // Define your categories here
 const categories = [
-  { name: 'TV Repairing', icon: '🔧' },
-  { name: 'Data Entry', icon: '💻' },
-  { name: 'Photographer', icon: '📸' },
-  { name: 'Carpenter', icon: '🪚' },
-  { name: 'Electrician', icon: '⚡' },
-  { name: 'Plumber', icon: '🚿' },
-  { name: 'Teacher', icon: '📚' },
-  { name: 'Doctor', icon: '🩺' },
-  { name: 'Web Developer', icon: '🌐' },
-  { name: 'Chef', icon: '👨‍🍳' },
-  { name: 'Designer', icon: '🎨' },
-  { name: 'Writer', icon: '✍️' },
-  { name: 'Consultant', icon: '💼' },
+  { name: "TV Repairing", icon: "🔧" },
+  { name: "Data Entry", icon: "💻" },
+  { name: "Photographer", icon: "📸" },
+  { name: "Carpenter", icon: "🪚" },
+  { name: "Electrician", icon: "⚡" },
+  { name: "Plumber", icon: "🚿" },
+  { name: "Teacher", icon: "📚" },
+  { name: "Doctor", icon: "🩺" },
+  { name: "Web Developer", icon: "🌐" },
+  { name: "Chef", icon: "👨‍🍳" },
+  { name: "Designer", icon: "🎨" },
+  { name: "Writer", icon: "✍️" },
+  { name: "Consultant", icon: "💼" },
 ];
 
 const Home = () => {
@@ -53,7 +50,10 @@ const Home = () => {
   // For potential mobile menu toggling
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Create blinking effect on the hero banner text
+  // For potential mobile menu toggling - keeping commented for future use
+  // const [menuOpen, setMenuOpen] = useState(false);
+  
+  // Effect for blinking animation
   useEffect(() => {
     const blinkInterval = setInterval(() => {
       setIsBlinking((prev) => !prev);
@@ -64,7 +64,7 @@ const Home = () => {
 
   // Scroll to Explanation and toggle benefits
   const scrollToExplanation = () => {
-    explanationRef.current?.scrollIntoView({ behavior: 'smooth' });
+    explanationRef.current?.scrollIntoView({ behavior: "smooth" });
     setShowBenefits((prev) => !prev);
   };
 
@@ -73,9 +73,9 @@ const Home = () => {
     if (loading) {
       scrollToExplanation();
     } else if (user) {
-      navigate('/directory');
+      navigate("/directory");
     } else {
-      navigate('/register');
+      navigate("/register");
     }
   };
 
@@ -96,7 +96,7 @@ const Home = () => {
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
             <div
               className={`bg-secondary text-white py-2 px-4 md:px-6 rounded-lg shadow-lg max-w-xs md:max-w-md text-center transform transition-transform ${
-                isBlinking ? 'scale-105' : 'scale-100'
+                isBlinking ? "scale-105" : "scale-100"
               }`}
             >
               <h2 className="text-lg md:text-2xl font-bold mb-0.5">
@@ -109,7 +109,7 @@ const Home = () => {
                 onClick={handleHeroButtonClick}
                 className="bg-white text-secondary hover:bg-gray-100 font-bold py-1 px-4 rounded-lg transition-colors text-sm md:text-base"
               >
-                {user ? 'Explore Directory' : 'Join Now'}
+                {user ? "Explore Directory" : "Join Now"}
               </button>
             </div>
           </div>
@@ -146,7 +146,7 @@ const Home = () => {
               <ChevronDown
                 size={24}
                 className={`ml-2 text-gray-600 group-hover:text-primary transition-transform ${
-                  showBenefits ? 'rotate-180' : 'rotate-0'
+                  showBenefits ? "rotate-180" : "rotate-0"
                 }`}
               />
             </button>
@@ -154,7 +154,7 @@ const Home = () => {
             {/* Dropdown content */}
             <div
               className={`transition-all duration-500 overflow-hidden ${
-                showBenefits ? 'max-h-[1000px]' : 'max-h-0'
+                showBenefits ? "max-h-[1000px]" : "max-h-0"
               }`}
             >
               <div className="grid md:grid-cols-2 gap-6">
@@ -182,7 +182,8 @@ const Home = () => {
                     Member Directory
                   </h3>
                   <p>
-                    Access the complete directory of members with full contact information.
+                    Access the complete directory of members with full contact
+                    information.
                   </p>
                 </div>
                 <div className="bg-white p-5 rounded-lg shadow-md">
@@ -198,10 +199,10 @@ const Home = () => {
 
               <div className="mt-6 text-center">
                 <button
-                  onClick={() => navigate(user ? '/directory' : '/register')}
+                  onClick={() => navigate(user ? "/directory" : "/register")}
                   className="bg-primary hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
                 >
-                  {user ? 'Explore Directory' : 'Register Now'}
+                  {user ? "Explore Directory" : "Register Now"}
                 </button>
               </div>
             </div>
@@ -210,7 +211,9 @@ const Home = () => {
 
         {/* Image Marquee Banner (fast on mobile, slower on bigger screens) */}
         <section className="py-4 px-4 bg-neutral-100">
-          <h3 className="text-center text-xl font-semibold mb-4">Our Services</h3>
+          <h3 className="text-center text-xl font-semibold mb-4">
+            Our Services
+          </h3>
           <div className="relative overflow-hidden w-full h-36">
             {/* Double track: .animate-marquee-fast on mobile, .animate-marquee on sm+ */}
             <div className="flex animate-marquee-fast sm:animate-marquee whitespace-nowrap">
@@ -259,73 +262,116 @@ const Home = () => {
               </div>
 
               {/* Second copy for seamless looping */}
-              <div className="inline-flex items-center mx-4">
-                <div className="w-40 h-28 relative mx-2">
-                  <img
-                    src={businessImage}
-                    alt="Business Services"
-                    className="w-full h-full object-cover rounded-lg shadow-md"
-                  />
-                  <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                    Business
-                  </div>
-                </div>
-                <div className="w-40 h-28 relative mx-2">
-                  <img
-                    src={jobImage}
-                    alt="Job Opportunities"
-                    className="w-full h-full object-cover rounded-lg shadow-md"
-                  />
-                  <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                    Jobs
-                  </div>
-                </div>
-                <div className="w-40 h-28 relative mx-2">
-                  <img
-                    src={marriagesImage}
-                    alt="Marriage Services"
-                    className="w-full h-full object-cover rounded-lg shadow-md"
-                  />
-                  <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                    Marriages
-                  </div>
-                </div>
-                <div className="w-40 h-28 relative mx-2">
-                  <img
-                    src={trainingImage}
-                    alt="Training Programs"
-                    className="w-full h-full object-cover rounded-lg shadow-md"
-                  />
-                  <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                    Training
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+                      <div className="inline-flex items-center mx-4">
+                      <div className="w-40 h-28 relative mx-2">
+                        <img
+                        src={businessImage}
+                        alt="Business Services"
+                        className="w-full h-full object-cover rounded-lg shadow-md"
+                        />
+                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                        Business
+                        </div>
+                      </div>
+                      <div className="w-40 h-28 relative mx-2">
+                        <img
+                        src={jobImage}
+                        alt="Job Opportunities"
+                        className="w-full h-full object-cover rounded-lg shadow-md"
+                        />
+                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                        Jobs
+                        </div>
+                      </div>
+                      <div className="w-40 h-28 relative mx-2">
+                        <img
+                        src={marriagesImage}
+                        alt="Marriage Services"
+                        className="w-full h-full object-cover rounded-lg shadow-md"
+                        />
+                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                        Marriages
+                        </div>
+                      </div>
+                      <div className="w-40 h-28 relative mx-2">
+                        <img
+                        src={trainingImage}
+                        alt="Training Programs"
+                        className="w-full h-full object-cover rounded-lg shadow-md"
+                        />
+                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                        Training
+                        </div>
+                      </div>
+                      </div>
+                    </div>
+                    </div>
+                  </section>
 
-        {/* Events Banner Section */}
+                  {/* Events Banner Section */}
+                  {/* Events Banner Section - Promote Business */}
+                  <section className="w-full px-0 py-6">
+                    <div
+                    className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] bg-cover bg-center overflow-hidden shadow-xl rounded-lg mb-8"
+                    style={{ backgroundImage: `url(${eventsImage})` }}
+                    >
+                    {/* Overlay for better text visibility */}
+                    <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                    
+                    {/* Content container with centered text */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <div className="max-w-3xl px-4">
+                      <h2
+                        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 px-6 py-3 bg-black bg-opacity-50 rounded-md inline-block text-yellow-300"
+                        style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}
+                      >
+                        Promote Your Business
+                      </h2>
+                      
+                      <p className="text-white text-lg md:text-xl mb-6 px-4 py-2 bg-black bg-opacity-40 rounded-md">
+                        Connect with potential clients and grow your network in our community
+                      </p>
+                      
+                      {user ? (
+                        <Link 
+                        to="/services/add-listing" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-block"
+                        >
+                        Add Your Listing
+                        </Link>
+                      ) : (
+                        <Link 
+                        to="/register" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-block"
+                        >
+                        Register to Get Started
+                        </Link>
+                      )}
+                      </div>
+                    </div>
+                    </div>
+                  </section>
+
+                  {/* Coming Events Section */}
         <section className="w-full px-0 py-6">
           <div
-            className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] bg-cover bg-center overflow-hidden shadow-md border border-gray-200 mb-8"
+            className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] bg-cover bg-center overflow-hidden shadow-xl rounded-lg mb-8"
             style={{ backgroundImage: `url(${eventsImage})` }}
           >
-            {/* Fallback background color */}
             <div className="absolute inset-0 bg-blue-600 z-[-1]"></div>
 
             {/* Dark overlay for better text visibility */}
             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 text-center text-white">
               <h2
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 px-3 py-2 bg-black bg-opacity-50 rounded-md max-w-[90%] md:max-w-[80%] shadow-lg text-yellow-300"
-                style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}
+                style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}
               >
                 Coming Events
               </h2>
 
               <p
                 className="text-sm sm:text-base md:text-lg mb-4 sm:mb-6 md:mb-8 max-w-[95%] sm:max-w-[90%] md:max-w-xl px-3 py-2 bg-black bg-opacity-50 rounded-md text-cyan-200"
-                style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}
+                style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.8)" }}
               >
                 Join our upcoming cultural, networking, Business events
               </p>
@@ -344,9 +390,9 @@ const Home = () => {
             </div>
           </div>
         </section>
-
-        {/* Categories Section */}
-        <section className="py-10 px-4">
+        
+        {/* Browse by Category Section */}
+        <section className="py-6">
           <div className="container mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
               Browse by Category
@@ -372,19 +418,31 @@ const Home = () => {
       {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-10">
         <div className="flex justify-around items-center py-2">
-          <Link to="/" className="flex flex-col items-center px-3 py-2 text-primary">
+          <Link
+            to="/"
+            className="flex flex-col items-center px-3 py-2 text-primary"
+          >
             <HomeIcon size={20} />
             <span className="text-xs mt-1">Home</span>
           </Link>
-          <Link to="/directory" className="flex flex-col items-center px-3 py-2 text-gray-600">
+          <Link
+            to="/directory"
+            className="flex flex-col items-center px-3 py-2 text-gray-600"
+          >
             <Users size={20} />
             <span className="text-xs mt-1">Directory</span>
           </Link>
-          <Link to="/services" className="flex flex-col items-center px-3 py-2 text-gray-600">
+          <Link
+            to="/services"
+            className="flex flex-col items-center px-3 py-2 text-gray-600"
+          >
             <Briefcase size={20} />
             <span className="text-xs mt-1">Business</span>
           </Link>
-          <Link to="/profile" className="flex flex-col items-center px-3 py-2 text-gray-600">
+          <Link
+            to="/profile"
+            className="flex flex-col items-center px-3 py-2 text-gray-600"
+          >
             <User size={20} />
             <span className="text-xs mt-1">Profile</span>
           </Link>
