@@ -262,54 +262,55 @@ const Home = () => {
               </div>
 
               {/* Second copy for seamless looping */}
-                      <div className="inline-flex items-center mx-4">
-                      <div className="w-40 h-28 relative mx-2">
-                        <img
-                        src={businessImage}
-                        alt="Business Services"
-                        className="w-full h-full object-cover rounded-lg shadow-md"
-                        href="/create-listing"
-                        />
-                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                        Business
+                          <div className="inline-flex items-center mx-4">
+                          <div className="w-40 h-28 relative mx-2">
+                          <Link to={user ? "/create-listing" : "/register"}>
+                            <img
+                            src={businessImage}
+                            alt="Business Services"
+                            className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
+                            />
+                            <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                            Business
+                            </div>
+                          </Link>
+                          </div>
+                          <div className="w-40 h-28 relative mx-2">
+                          <img
+                          src={jobImage}
+                          alt="Job Opportunities"
+                          className="w-full h-full object-cover rounded-lg shadow-md"
+                          />
+                          <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                          Jobs
+                          </div>
+                          </div>
+                          <div className="w-40 h-28 relative mx-2">
+                          <img
+                          src={marriagesImage}
+                          alt="Marriage Services"
+                          className="w-full h-full object-cover rounded-lg shadow-md"
+                          />
+                          <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                          Marriages
+                          </div>
+                          </div>
+                          <div className="w-40 h-28 relative mx-2">
+                          <img
+                          src={trainingImage}
+                          alt="Training Programs"
+                          className="w-full h-full object-cover rounded-lg shadow-md"
+                          />
+                          <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
+                          Training
+                          </div>
+                          </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="w-40 h-28 relative mx-2">
-                        <img
-                        src={jobImage}
-                        alt="Job Opportunities"
-                        className="w-full h-full object-cover rounded-lg shadow-md"
-                        />
-                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                        Jobs
                         </div>
-                      </div>
-                      <div className="w-40 h-28 relative mx-2">
-                        <img
-                        src={marriagesImage}
-                        alt="Marriage Services"
-                        className="w-full h-full object-cover rounded-lg shadow-md"
-                        />
-                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                        Marriages
-                        </div>
-                      </div>
-                      <div className="w-40 h-28 relative mx-2">
-                        <img
-                        src={trainingImage}
-                        alt="Training Programs"
-                        className="w-full h-full object-cover rounded-lg shadow-md"
-                        />
-                        <div className="absolute bottom-0 w-full bg-primary-600 bg-opacity-80 py-1 text-white text-center text-xs">
-                        Training
-                        </div>
-                      </div>
-                      </div>
-                    </div>
-                    </div>
-                  </section>
+                        </section>
 
-                  {/* Events Banner Section */}
+                        {/* Events Banner Section */}
                   {/* Events Banner Section - Promote Business */}
                   <section className="w-full px-0 py-6">
                     <div
