@@ -334,7 +334,7 @@ const Home = () => {
                       
                       {user ? (
                         <Link 
-                        to="/services/create-listing" 
+                        to="/create-listing" 
                         className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-block"
                         >
                         Add Your Listing
