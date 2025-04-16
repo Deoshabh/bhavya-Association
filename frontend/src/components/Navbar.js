@@ -210,7 +210,7 @@ const Navbar = () => {
             ))}
             <li className="mobile-nav-item">
               <a
-                href="https://www.bhavya.org.in"
+                href="https://bhavya.org.in"
                 className="mobile-nav-link events"
                 target="_blank"
                 rel="noopener noreferrer"
