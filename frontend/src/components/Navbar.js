@@ -221,17 +221,6 @@ const Navbar = () => {
               </a>
             </li>
             
-            {/* Add Clear Cache button to mobile nav */}
-            <li className="mobile-nav-item">
-              <button
-                onClick={handleClearCache}
-                className="mobile-nav-link clear-cache"
-              >
-                <RefreshCw size={18} />
-                <span>Clear Cache</span>
-              </button>
-            </li>
-
             {/* Mobile Auth items */}
             {!loading &&
               (user ? (
