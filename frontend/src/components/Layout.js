@@ -16,7 +16,7 @@ const Layout = ({ children }) => {
               <div className="w-16 h-16 mr-3 flex items-center justify-center">
                 <Store className="w-12 h-12 text-primary" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">Bhavya Association</h1>
+              <h1 className="text-2xl font-bold text-gray-800">BHAVYA</h1>
             </div>
             
             {/* Desktop Navigation */}

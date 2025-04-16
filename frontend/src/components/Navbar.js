@@ -12,13 +12,14 @@ import {
   LogIn,
   UserPlus,
   Calendar,
+  RefreshCw,
 } from "lucide-react";
 
 import "../styles/Navbar.css"; // Make sure this path is correct
 import logo from "../assets/logo4-1.png"; // Adjust to your logo path
 
 const Navbar = () => {
-  const { user, loading, logout } = useContext(AuthContext);
+  const { user, loading, logout, clearCacheAndResetCookies } = useContext(AuthContext);
   const [loadingTooLong, setLoadingTooLong] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -53,6 +54,11 @@ const Navbar = () => {
     };
   }, [loading]);
 
+  // Handle cache clearing
+  const handleClearCache = () => {
+    clearCacheAndResetCookies();
+  };
+
   // Define nav items
   const navItems = user
     ? [
@@ -86,10 +92,10 @@ const Navbar = () => {
             />
             <div className="logo-container">
               <div className="main-logo-text" style={{ fontSize: '0.9em' }}>
-                <span className="logo-text">Bhavya</span>
-                <span className="logo-accent">Association</span>
+                <span className="logo-text">BHAVYA</span>
+                
               </div>
-              <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>Bharat Vyapar Association</div>
+              <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>Bharat Vyapar Associates</div>
             </div>
           </Link>
           
@@ -120,6 +126,16 @@ const Navbar = () => {
                 <Calendar size={18} />
                 <span>Events</span>
               </a>
+            </li>
+            <li className="nav-item">
+              <button 
+                onClick={handleClearCache} 
+                className="nav-link clear-cache"
+                aria-label="Clear Cache"
+              >
+                <RefreshCw size={18} />
+                <span>Clear Cache</span>
+              </button>
             </li>
           </ul>
         </nav>
@@ -203,6 +219,17 @@ const Navbar = () => {
                 <Calendar size={18} />
                 <span>Events</span>
               </a>
+            </li>
+            
+            {/* Add Clear Cache button to mobile nav */}
+            <li className="mobile-nav-item">
+              <button
+                onClick={handleClearCache}
+                className="mobile-nav-link clear-cache"
+              >
+                <RefreshCw size={18} />
+                <span>Clear Cache</span>
+              </button>
             </li>
 
             {/* Mobile Auth items */}

@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useCallback, useRef } from '
 import api from '../services/api';
 import axios from 'axios';
 import { withRetry, checkServerStatus } from '../utils/serverUtils';
+import { resetAppState, hardRefresh } from '../utils/cacheUtils';
 
 export const AuthContext = createContext();
 
@@ -37,6 +38,24 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];
     setLoading(false);
+  }, []);
+
+  // Add a function to clear cache and reset cookies
+  const clearCacheAndResetCookies = useCallback(() => {
+    try {
+      resetAppState();
+      
+      // Provide feedback to the user (you could also use a toast notification here)
+      alert('Cache and cookies have been cleared. The page will now refresh.');
+      
+      // Hard refresh the page to ensure all assets are reloaded
+      hardRefresh();
+      
+      return true;
+    } catch (error) {
+      console.error('Error while clearing cache and cookies:', error);
+      return false;
+    }
   }, []);
 
   // Enhance refreshToken function to handle token verification errors
@@ -554,11 +573,11 @@ export const AuthProvider = ({ children }) => {
         serverStatus,
         isAuthenticated: isAuthenticated(), // Expose the result of the function
         checkAuth: isAuthenticated, // Expose the function itself for components to call
-        checkAuth: isAuthenticated, // Expose the function itself for components to call
         updateUser, 
         login, 
         register, 
-        logout: handleLogout, 
+        logout: handleLogout,
+        clearCacheAndResetCookies, // Add the new function to the context
         refreshToken,
         deactivateAccount,
         reactivateAccount,
