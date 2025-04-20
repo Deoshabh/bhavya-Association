@@ -96,7 +96,7 @@ const Navbar = () => {
                 
               </div>
               <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>
-                <span className="highlighted">B</span>harat <span className="highlighted">V</span>yapar <span className="highlighted">A</span>ssociates
+                <span className="highlighted">Bh</span>arat <span className="highlighted">V</span>yapar <span className="highlighted">A</span>ssociates
               </div>
             </div>
           </Link>
