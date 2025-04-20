@@ -120,14 +120,6 @@ const ProfileCard = ({ user, setEditMode }) => {
             </div>
             <h2 className="text-xl font-bold text-primary-900">My Profile</h2>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            leftIcon={<Edit size={16} />}
-            onClick={handleEditClick}
-          >
-            Edit
-          </Button>
         </div>
       </div>
       
@@ -204,6 +196,14 @@ const ProfileCard = ({ user, setEditMode }) => {
               <p className="text-neutral-600">{user.profession}</p>
             </div>
           )}
+          <Button 
+            variant="outline" 
+            size="sm"
+            leftIcon={<Edit size={16} />}
+            onClick={handleEditClick}
+          >
+            Edit
+          </Button>
         </div>
         
         {/* Removed Privacy Settings section */}
