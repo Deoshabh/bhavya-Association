@@ -145,7 +145,7 @@ const Profile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-medium text-neutral-800">Create a Service Listing</h3>
-                  <p className="text-neutral-600 text-sm mt-1">Share your business or professional services with the community</p>
+                  <p className="text-neutral-600 text-sm mt-1">Share your professional services and business with the community</p>
                 </div>
                 
                 <Button
