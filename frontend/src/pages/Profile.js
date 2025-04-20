@@ -89,7 +89,6 @@ const Profile = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-800 mb-2">Your Profile</h1>
-        <p className="text-neutral-600">View and manage your profile information and settings.</p>
       </div>
       
       {!serverStatus && (
