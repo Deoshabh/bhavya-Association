@@ -103,34 +103,6 @@ const Profile = () => {
         </Alert>
       )}
       
-      <div className="mb-6 border-b border-neutral-200">
-        <nav className="flex space-x-8">
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
-              activeTab === 'profile'
-                ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
-            }`}
-          >
-            <User size={16} className="mr-2" />
-            <span>Profile</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
-              activeTab === 'settings'
-                ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
-            }`}
-          >
-            <Settings size={16} className="mr-2" />
-            <span>Privacy Settings</span>
-          </button>
-        </nav>
-      </div>
-      
       <div className="profile-content">
         {activeTab === 'profile' ? (
           <>
@@ -158,6 +130,34 @@ const Profile = () => {
                 </Button>
               </div>
             </div>
+
+            <div className="mb-6 border-b border-neutral-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'profile'
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+            }`}
+          >
+            <User size={16} className="mr-2" />
+            <span>Profile</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'settings'
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+            }`}
+          >
+            <Settings size={16} className="mr-2" />
+            <span>Privacy Settings</span>
+          </button>
+        </nav>
+      </div>
             
             {/* Share Profile Button */}
             <div className="mt-4 bg-white rounded-lg border border-neutral-200 p-4 shadow-sm">
