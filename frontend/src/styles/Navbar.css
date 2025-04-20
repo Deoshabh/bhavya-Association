@@ -476,3 +476,27 @@
     padding: var(--spacing-sm);
   }
 }
+
+/* Logo container and text styling */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.main-logo-text {
+  font-weight: 700;
+  color: #333;
+}
+
+.sub-logo-text {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+/* Highlighted first letters in Bharat Vyapar Associates */
+.sub-logo-text .highlighted {
+  font-weight: 700;
+  color: #222;
+  font-size: 1.1em;
+}

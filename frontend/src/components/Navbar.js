@@ -95,7 +95,9 @@ const Navbar = () => {
                 <span className="logo-text">BHAVYA</span>
                 
               </div>
-              <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>Bharat Vyapar Associates</div>
+              <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>
+                <span className="highlighted">B</span>harat <span className="highlighted">V</span>yapar <span className="highlighted">A</span>ssociates
+              </div>
             </div>
           </Link>
           
