@@ -202,7 +202,7 @@ const Profile = () => {
                       navigator
                         .share({
                           title: `${user.name}'s Profile`,
-                          text: "Check out my profile on Bhavya Association",
+                          text: "Check out my profile on Bhavya Associates",
                           url: shareUrl,
                         })
                         .catch((err) => {

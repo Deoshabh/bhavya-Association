@@ -37,7 +37,7 @@ const Register = () => {
         <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
           <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
             <h1 className="text-2xl font-bold text-primary-900">Create an Account</h1>
-            <p className="text-primary-700 mt-1">Join the Bhavya Association community</p>
+            <p className="text-primary-700 mt-1">Join the Bhavya Associates community</p>
           </div>
           
           {!serverStatus && (

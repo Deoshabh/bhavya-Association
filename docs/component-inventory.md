@@ -1,4 +1,4 @@
-# Bhavya Association Component Inventory
+# Bhavya Associates Component Inventory
 
 ## Base Components (Refactored)
 - [x] Button

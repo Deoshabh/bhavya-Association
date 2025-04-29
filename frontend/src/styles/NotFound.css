@@ -1,0 +1,94 @@
+@import './variables.css';
+
+.not-found-container {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+}
+
+.not-found-content {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.not-found-icon {
+  margin-bottom: 1.5rem;
+  color: #dc3545;
+}
+
+.not-found-content h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  margin: 0;
+  color: #dc3545;
+  line-height: 1;
+}
+
+.not-found-content h2 {
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.not-found-content p {
+  margin-bottom: 2rem;
+  color: #6c757d;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 480px) {
+  .not-found-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.not-found-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  flex: 1;
+}
+
+.not-found-button.home {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.not-found-button.home:hover {
+  background-color: #0056b3; /* Darker primary */
+  transform: translateY(-2px);
+}
+
+.not-found-button.back {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.not-found-button.back:hover {
+  background-color: #dde2e6;
+  transform: translateY(-2px);
+}

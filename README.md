@@ -1,8 +1,8 @@
-# bhavya-association
+# bhavya-Associates
 
 ## Deployment Instructions
 
-This guide provides instructions for deploying the Bhavya Association application on Coolify. The application consists of two separate components - the frontend and backend - that need to be deployed individually.
+This guide provides instructions for deploying the Bhavya Associates application on Coolify. The application consists of two separate components - the frontend and backend - that need to be deployed individually.
 
 ### Frontend Deployment
 

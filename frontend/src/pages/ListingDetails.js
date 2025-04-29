@@ -85,7 +85,7 @@ const ListingDetails = () => {
     const shareText = `${listing.title}\nCategory: ${listing.category}\n${
       !listing.premiumRequired 
         ? `Contact: ${listing.contactPhone}${listing.contactEmail ? `\nEmail: ${listing.contactEmail}` : ''}` 
-        : 'Contact details available on Bhavya Association'
+        : 'Contact details available on Bhavya Associates'
     }\n${listing.description}`;
     
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
@@ -213,7 +213,7 @@ const ListingDetails = () => {
               <div className="bg-neutral-100 p-2 rounded-full mr-3">
                 <MapPin size={20} className="text-neutral-700" />
               </div>
-              <p className="text-neutral-700">Service available in Bhavya Association area</p>
+              <p className="text-neutral-700">Service available in Bhavya Associates area</p>
             </div>
             
             {/* Contact Section */}

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import UnderConstructionBanner from '../components/UnderConstructionBanner';
 
 const About = () => {
   const navigate = useNavigate();
@@ -58,14 +59,12 @@ const About = () => {
   
   return (
     <div className="about-container">
-      {/* Inactive page notice banner */}
-      <div className="inactive-notice">
-        <p>This page is currently inactive and in preview mode</p>
-      </div>
+      {/* Replace inactive page notice with UnderConstructionBanner */}
+      <UnderConstructionBanner message="This page is currently in preview mode and being updated." />
       
       <div className="about-header">
         <BackButton />
-        <h1>About Bhavya Association</h1>
+        <h1>About Bhavya Associates</h1>
       </div>
       
       {/* Hero section with background image and overlay */}
@@ -88,7 +87,7 @@ const About = () => {
           <div className="section-content">
             <h3>Our Mission</h3>
             <p>
-              At Bhavya Association, we are dedicated to connecting professionals and entrepreneurs from 
+              At Bhavya Associates, we are dedicated to connecting professionals and entrepreneurs from 
               the Bahujan Samaj community. Our mission is to create a collaborative platform where members 
               can network, share resources, and support each other's growth and development.
             </p>
@@ -150,7 +149,7 @@ const About = () => {
               <div className="timeline-marker"></div>
               <div className="timeline-content">
                 <h4>2020</h4>
-                <p>Bhavya Association was founded with a vision to connect Bahujan Samaj professionals</p>
+                <p>Bhavya Associates was founded with a vision to connect Bahujan Samaj professionals</p>
               </div>
             </div>
             <div className="timeline-item">

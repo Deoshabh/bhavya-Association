@@ -1,8 +1,8 @@
-# Bhavya Association Tailwind CSS Migration Plan
+# Bhavya Associates Tailwind CSS Migration Plan
 
 ## 1. Project Overview
 
-This document outlines the plan for migrating the Bhavya Association frontend to a centralized Tailwind CSS approach. The goal is to improve maintainability, consistency, and developer experience.
+This document outlines the plan for migrating the Bhavya Associates frontend to a centralized Tailwind CSS approach. The goal is to improve maintainability, consistency, and developer experience.
 
 ## 2. Current State
 

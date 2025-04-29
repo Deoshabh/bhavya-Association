@@ -1,6 +1,6 @@
-# Bhavya Association Tailwind CSS Migration Guide
+# Bhavya Associates Tailwind CSS Migration Guide
 
-This guide provides instructions for developers working on the Bhavya Association frontend project to adopt the new centralized Tailwind CSS approach.
+This guide provides instructions for developers working on the Bhavya Associates frontend project to adopt the new centralized Tailwind CSS approach.
 
 ## Table of Contents
 

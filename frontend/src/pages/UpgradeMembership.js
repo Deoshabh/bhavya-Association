@@ -72,7 +72,7 @@ const UpgradeMembership = () => {
         </div>
         
         <div className="support-info">
-          <p>Need help? Contact our support team at <strong>support@bhavya-association.org</strong></p>
+          <p>Need help? Contact our support team at <strong>support@bhavya-Associates.org</strong></p>
         </div>
       </div>
     </div>

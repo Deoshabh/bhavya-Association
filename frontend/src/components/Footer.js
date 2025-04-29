@@ -64,14 +64,14 @@ const Footer = () => {
             <div className="footer-about">
               {/* Updated footer logo section with image preceding text */}
               <Link to="/" className="flex items-center space-x-2 mb-4">
-                <img src={logo} alt="Bhavya Association Logo" className="w-10 h-10" />
+                <img src={logo} alt="Bhavya Associates Logo" className="w-10 h-10" />
                 <div>
                   <span className="text-xl font-bold">Bhavya</span>
-                  <span className="text-xl font-bold text-primary-500">Association</span>
+                  <span className="text-xl font-bold text-primary-500">Associates</span>
                 </div>
               </Link>
               <p className="text-neutral-300 mb-4">
-                Bhavya Association connects professionals and entrepreneurs from the Bahujan Samaj. 
+                Bhavya Associates connects professionals and entrepreneurs from the Bahujan Samaj. 
                 Join our community to collaborate and grow together with like-minded individuals.
               </p>
               <Link 
@@ -137,7 +137,7 @@ const Footer = () => {
                 <div className="bg-neutral-700 p-1.5 rounded-full">
                   <Mail size={16} />
                 </div>
-                <span className="text-neutral-300">contact@bhavyaassociation.org</span>
+                <span className="text-neutral-300">contact@bhavyaAssociates.org</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="bg-neutral-700 p-1.5 rounded-full">

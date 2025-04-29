@@ -255,3 +255,71 @@
 .table-cell-actions {
   @apply px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2;
 }
+
+/* Banner Components */
+.premium-banner {
+  @apply bg-white rounded-lg shadow border border-neutral-200 overflow-hidden p-4 md:p-6 mb-6;
+}
+
+.clickable-banner {
+  @apply cursor-pointer transition-all duration-300 hover:shadow-lg relative;
+  position: relative;
+}
+
+.clickable-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.clickable-banner:active {
+  transform: translateY(0);
+}
+
+.clickable-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.clickable-banner:hover::after {
+  opacity: 1;
+}
+
+.premium-banner-header {
+  @apply flex items-center gap-3 mb-4;
+}
+
+.premium-banner-icon {
+  @apply text-primary-600 p-2 bg-primary-50 rounded-full flex-shrink-0;
+}
+
+.premium-banner-content h3 {
+  @apply text-lg font-semibold text-neutral-900 mb-2;
+}
+
+.premium-banner-content p {
+  @apply text-neutral-600 mb-3;
+}
+
+.premium-features {
+  @apply flex flex-wrap gap-3 mb-4;
+}
+
+.premium-feature {
+  @apply flex items-center gap-2 text-sm text-neutral-700 bg-neutral-50 px-3 py-1.5 rounded-full;
+}
+
+.premium-upgrade-button {
+  @apply w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded transition-colors;
+}
+
+.premium-active {
+  @apply bg-green-50 border-green-100;
+}
+
+.premium-active .premium-banner-icon {
+  @apply text-green-600 bg-green-100;
+}

@@ -22,7 +22,7 @@ const ProfileCard = ({ user, setEditMode }) => {
   const navigate = useNavigate();
 
   // Construct share content - Keep this function to be passed to ProfileSettings
-  const shareText = `Check out my profile on Bhavya Association!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nProfession: ${user.profession || 'Not specified'}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}`;
+  const shareText = `Check out my profile on Bhavya Associates!\nName: ${user.name}\nPhone: ${user.phoneNumber}\nProfession: ${user.profession || 'Not specified'}${user.bio ? `\nBio: ${user.bio}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}`;
   // Keep WhatsApp URL as fallback
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   
@@ -30,7 +30,7 @@ const ProfileCard = ({ user, setEditMode }) => {
   const handleShare = async () => {
     // Create share data object
     const shareData = {
-      title: `${user.name}'s Profile on Bhavya Association`,
+      title: `${user.name}'s Profile on Bhavya Associates`,
       text: shareText
     };
     

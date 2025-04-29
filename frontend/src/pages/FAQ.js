@@ -169,14 +169,14 @@ const FAQ = () => {
             <h3>The website isn't working properly. What should I do?</h3>
             <p>
               Try refreshing the page or clearing your browser cache. If the issue persists, please contact our support 
-              team at support@bhavyaassociation.org.
+              team at support@bhavyaAssociates.org.
             </p>
           </div>
           
           <div className="faq-item">
             <h3>How do I report a bug or issue?</h3>
             <p>
-              You can report bugs or issues by emailing our support team at support@bhavyaassociation.org. Please include 
+              You can report bugs or issues by emailing our support team at support@bhavyaAssociates.org. Please include 
               details about the issue and steps to reproduce it if possible.
             </p>
           </div>
@@ -186,12 +186,12 @@ const FAQ = () => {
           <h2>Contact & Support</h2>
           
           <div className="faq-item">
-            <h3>How can I contact Bhavya Association?</h3>
+            <h3>How can I contact Bhavya Associates?</h3>
             <p>
               For general inquiries, you can reach us at:
             </p>
             <div className="contact-info">
-              <p><strong>Email:</strong> contact@bhavyaassociation.org</p>
+              <p><strong>Email:</strong> contact@bhavyaAssociates.org</p>
               <p><strong>Phone:</strong> +91 12345 67890</p>
             </div>
           </div>
@@ -199,7 +199,7 @@ const FAQ = () => {
           <div className="faq-item">
             <h3>How can I provide feedback or suggestions?</h3>
             <p>
-              We welcome your feedback and suggestions! Please email us at feedback@bhavyaassociation.org with your ideas.
+              We welcome your feedback and suggestions! Please email us at feedback@bhavyaAssociates.org with your ideas.
             </p>
           </div>
         </section>

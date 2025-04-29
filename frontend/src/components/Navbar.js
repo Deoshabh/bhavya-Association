@@ -87,7 +87,7 @@ const Navbar = () => {
           <Link to="/" className="navbar-logo">
             <img
               src={logo}
-              alt="Bhavya Association Logo"
+              alt="Bhavya Associates Logo"
               className="logo-image"
             />
             <div className="logo-container">

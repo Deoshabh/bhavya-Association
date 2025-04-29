@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         <section className="policy-section">
           <h2>Introduction</h2>
           <p>
-            Welcome to Bhavya Association's Privacy Policy. This Privacy Policy describes how your personal information 
+            Welcome to Bhavya Associates's Privacy Policy. This Privacy Policy describes how your personal information 
             is collected, used, and shared when you visit or make use of our website and services.
           </p>
           <p>
@@ -65,7 +65,7 @@ const PrivacyPolicy = () => {
         <section className="policy-section">
           <h2>Sharing Your Information</h2>
           <p>
-            We share your personal information with other members of Bhavya Association according to your privacy 
+            We share your personal information with other members of Bhavya Associates according to your privacy 
             settings and membership level. Premium members have access to more contact information than non-premium members.
           </p>
           <p>
@@ -140,7 +140,7 @@ const PrivacyPolicy = () => {
             If you have any questions about this Privacy Policy or our data practices, please contact us at:
           </p>
           <div className="contact-info">
-            <p><strong>Email:</strong> contact@bhavyaassociation.org</p>
+            <p><strong>Email:</strong> contact@bhavyaAssociates.org</p>
             <p><strong>Phone:</strong> +91 12345 67890</p>
           </div>
         </section>

@@ -21,6 +21,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
+import NotFound from './pages/NotFound';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
 import ListingManagement from './pages/Admin/ListingManagement';
@@ -124,6 +125,9 @@ function App() {
               <AdminSettings />
             </ProtectedRoute>
           } />
+          
+          {/* 404 - Page not found */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <BottomNavigation />
         <Footer />

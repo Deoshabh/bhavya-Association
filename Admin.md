@@ -1,5 +1,5 @@
-Understand the Bhavya Association Website:-
-this is a community website for the "Bhavya Association" with the following core features:
+Understand the Bhavya Associates Website:-
+this is a community website for the "Bhavya Associates" with the following core features:
 Current Website Structure & Logic
 User Management System
 
@@ -62,9 +62,9 @@ To create a comprehensive admin functionality for this website, you would need:
 •	Logging & Monitoring: Track admin actions and system performance
 •	The existing codebase already has some admin functionality (particularly in directory   management), but would need significant expansion to create a full-featured admin system.
 
-# Bhavya Association Admin Guide
+# Bhavya Associates Admin Guide
 
-This document provides instructions for creating and managing admin users in the Bhavya Association application.
+This document provides instructions for creating and managing admin users in the Bhavya Associates application.
 
 ## Creating an Admin User
 

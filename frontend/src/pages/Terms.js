@@ -13,8 +13,8 @@ const Terms = () => {
         <section className="terms-section">
           <h2>Introduction</h2>
           <p>
-            Welcome to Bhavya Association's Terms and Conditions. These terms govern your use of our website and services.
-            By accessing or using the Bhavya Association website and services, you agree to be bound by these Terms.
+            Welcome to Bhavya Associates's Terms and Conditions. These terms govern your use of our website and services.
+            By accessing or using the Bhavya Associates website and services, you agree to be bound by these Terms.
           </p>
           <p>
             Please read these Terms carefully before using our website. If you do not agree to these Terms, you must not use our website.
@@ -24,7 +24,7 @@ const Terms = () => {
         <section className="terms-section">
           <h2>Membership</h2>
           <p>
-            Membership in Bhavya Association is available to eligible individuals from the Bahujan Samaj community.
+            Membership in Bhavya Associates is available to eligible individuals from the Bahujan Samaj community.
             By registering for an account, you agree to:
           </p>
           <ul>
@@ -101,7 +101,7 @@ const Terms = () => {
           <h2>Intellectual Property</h2>
           <p>
             All content on our website, including text, graphics, logos, icons, images, and software, is the property of 
-            Bhavya Association or our licensors and is protected by copyright, trademark, and other intellectual property laws.
+            Bhavya Associates or our licensors and is protected by copyright, trademark, and other intellectual property laws.
           </p>
           <p>
             You may access, view, download, and print content from our website for your personal, non-commercial use, provided 
@@ -112,7 +112,7 @@ const Terms = () => {
         <section className="terms-section">
           <h2>Limitation of Liability</h2>
           <p>
-            To the maximum extent permitted by law, Bhavya Association and its officers, directors, employees, and agents 
+            To the maximum extent permitted by law, Bhavya Associates and its officers, directors, employees, and agents 
             shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not 
             limited to, loss of profits, data, use, goodwill, or other intangible losses.
           </p>
@@ -159,7 +159,7 @@ const Terms = () => {
             If you have any questions about these Terms, please contact us at:
           </p>
           <div className="contact-info">
-            <p><strong>Email:</strong> contact@bhavyaassociation.org</p>
+            <p><strong>Email:</strong> contact@bhavyaAssociates.org</p>
             <p><strong>Phone:</strong> +91 12345 67890</p>
           </div>
         </section>

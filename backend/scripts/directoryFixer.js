@@ -49,7 +49,7 @@ if (!mongoURI) {
   console.error('2. Provide it as a command line argument: --uri=mongodb://...');
   console.error('3. Create a config.json file in the backend directory with a mongoURI property');
   console.error('\nExample command:');
-  console.error('node scripts/directoryFixer.js --uri=mongodb://localhost:27017/bhavya-association\n');
+  console.error('node scripts/directoryFixer.js --uri=mongodb://localhost:27017/bhavya-Associates\n');
   process.exit(1);
 }
 

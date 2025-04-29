@@ -50,7 +50,7 @@ const makeRequest = (url, method = 'GET') => {
 
 // Main function to check Nginx config
 const checkNginxConfig = async () => {
-  console.log('===== Bhavya Association Nginx Configuration Check =====');
+  console.log('===== Bhavya Associates Nginx Configuration Check =====');
   console.log('Testing various endpoints to verify Nginx routing...\n');
   
   const testUrls = [

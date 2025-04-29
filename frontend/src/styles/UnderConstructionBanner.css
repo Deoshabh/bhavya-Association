@@ -1,0 +1,57 @@
+@import './variables.css';
+
+.under-construction-banner {
+  position: sticky;
+  top: 70px; /* Position below navbar */
+  left: 0;
+  right: 0;
+  z-index: var(--z-index-fixed);
+  background-color: #fff3cd;
+  border-bottom: 1px solid #ffeeba;
+  padding: 8px 16px;
+  animation: slideDown 0.3s ease-out forwards;
+  text-align: center;
+  width: 100%;
+}
+
+.under-construction-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.under-construction-content .icon {
+  color: #856404;
+  flex-shrink: 0;
+}
+
+.under-construction-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #856404;
+  font-weight: 500;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .under-construction-banner {
+    padding: 6px 10px;
+  }
+  
+  .under-construction-content p {
+    font-size: 12px;
+  }
+}

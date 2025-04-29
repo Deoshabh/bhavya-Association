@@ -137,7 +137,7 @@ const UserProfilePage = () => {
   };
   
   const handleShareProfile = () => {
-    const shareText = `Check out my profile on Bhavya Association!\nName: ${profileUser.name}\nPhone: ${profileUser.phoneNumber}\nOccupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.bio}` : ''}${profileUser.address ? `\nAddress: ${profileUser.address}` : ''}${profileUser.profession ? `\nProfession: ${profileUser.profession}` : ''}`;
+    const shareText = `Check out my profile on Bhavya Associates!\nName: ${profileUser.name}\nPhone: ${profileUser.phoneNumber}\nOccupation: ${profileUser.occupation}${profileUser.bio ? `\nBio: ${profileUser.bio}` : ''}${profileUser.address ? `\nAddress: ${profileUser.address}` : ''}${profileUser.profession ? `\nProfession: ${profileUser.profession}` : ''}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     window.open(whatsappUrl, '_blank');
   };
