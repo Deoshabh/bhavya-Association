@@ -14,7 +14,7 @@ const api = axios.create({
 // Enhanced debugging to print the baseURL
 console.log('API baseURL set to:', api.defaults.baseURL);
 
-// Completely rewrite the normalizeApiPath function to fix the URL duplication issue
+// Completely rewritten normalizeApiPath function to prevent URL duplication issues
 const normalizeApiPath = (url) => {
   // If url is undefined or null, return a safe default
   if (!url) {
@@ -41,27 +41,26 @@ const normalizeApiPath = (url) => {
     return '/health';
   }
   
-  // Remove leading slash if present
+  // Start fresh with a clean URL - remove any leading slashes
   let normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
   
-  // Check if baseURL exists before checking if it includes /api
+  // Check if the base URL already includes /api
   const baseUrlHasApi = api.defaults.baseURL ? 
     api.defaults.baseURL.includes('/api') : false;
-  
-  // If baseURL already has /api AND path includes api/, we need to remove the api/ prefix from the path
-  if (baseUrlHasApi && normalizedUrl.includes('api/')) {
-    normalizedUrl = normalizedUrl.replace(/^api\//, '');
-    normalizedUrl = normalizedUrl.replace(/\/api\//, '/');
-  } else if (!baseUrlHasApi) {
-    // If baseURL doesn't have /api, ensure path has it
-    if (!normalizedUrl.startsWith('api/')) {
-      normalizedUrl = 'api/' + normalizedUrl;
-    }
+    
+  // CRITICAL FIX: First remove any existing api/ prefix to avoid duplication
+  if (normalizedUrl.startsWith('api/')) {
+    normalizedUrl = normalizedUrl.substring(4); // Remove 'api/'
   }
   
-  // Final check to remove any remaining duplicate /api/api/
-  while (normalizedUrl.includes('/api/api/')) {
-    normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
+  // If the baseURL doesn't have /api, we need to add it to the path
+  if (!baseUrlHasApi) {
+    normalizedUrl = 'api/' + normalizedUrl;
+  }
+  
+  // Make sure there are no duplications that might have been missed
+  while (normalizedUrl.includes('api/api/')) {
+    normalizedUrl = normalizedUrl.replace('api/api/', 'api/');
   }
   
   // Add leading slash for consistency
@@ -100,7 +99,7 @@ api.interceptors.request.use(
       const fullUrlAfter = `${baseURL}${config.url || ''}`;
       console.log(`Full URL after normalization: ${fullUrlAfter}`);
       
-      // Emergency check - if we still see /api/api/ pattern, fix it immediately
+      // Final safety check - if we still see /api/api/ pattern, fix it immediately
       if (config.url.includes('/api/api/')) {
         console.error('⚠️ CRITICAL: Double API prefix still detected after normalization:', config.url);
         config.url = config.url.replace('/api/api/', '/api/');
