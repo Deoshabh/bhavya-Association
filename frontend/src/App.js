@@ -22,15 +22,15 @@ import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import MetaTags from './components/MetaTags';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
 import ListingManagement from './pages/Admin/ListingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
 import AdminLogin from './pages/AdminLogin';
 
-// This component will scroll the window to the top whenever the route changes
-// and implements navigation throttling protection
-function ScrollToTopAndGuard() {
+// ScrollToTopAndGuard component for navigation safety and scroll management
+const ScrollToTopAndGuard = () => {
   const { pathname } = useLocation();
   const prevPathnameRef = useRef(pathname);
   const lastNavigationTimeRef = useRef(Date.now());
@@ -57,12 +57,21 @@ function ScrollToTopAndGuard() {
   
   // This component doesn't render anything
   return null;
-}
+};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
+        {/* Add global default meta tags */}
+        <MetaTags 
+          title="BHAVYA - Bharat Vyapar Associates"
+          description="Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together."
+          url="https://bhavyasangh.com"
+          image="https://bhavyasangh.com/logo192.png"
+          type="website"
+        />
+      
         {/* Include ScrollToTopAndGuard component for navigation safety */}
         <ScrollToTopAndGuard />
         <ServerStatus />
