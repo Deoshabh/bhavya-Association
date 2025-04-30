@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Standard favicons with explicit webp type -->
+    <link rel="icon" href="%PUBLIC_URL%/favicon.webp" type="image/webp" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.webp" />
+    <link rel="alternate icon" href="%PUBLIC_URL%/favicon.ico" type="image/x-icon" /> <!-- Fallback for browsers that don't support webp -->
+    
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
@@ -15,18 +19,25 @@
     <!-- Open Graph / Facebook Meta Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://bhavyasangh.com" />
-    <meta property="og:title" content="BHAVYA - Bharat Vypar Associates" />
+    <meta property="og:title" content="BHAVYA – Bharat Vypar Associates" />
     <meta property="og:description" content="Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together." />
-    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+    <meta property="og:image" content="%PUBLIC_URL%/logo.webp" />
     <meta property="og:image:alt" content="BHAVYA Associates Logo" />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="BHAVYA Associates" />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="BHAVYA - Bharat Vypar Associates" />
+    <meta name="twitter:title" content="BHAVYA – Bharat Vypar Associates" />
     <meta name="twitter:description" content="Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together." />
-    <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo.webp" />
     <meta name="twitter:image:alt" content="BHAVYA Associates Logo" />
+    <meta name="twitter:image:type" content="image/webp" />
+    
+    <!-- Cache control headers -->
+    <meta http-equiv="Cache-Control" content="max-age=86400" />
     
     <title>BHAVYA</title>
   </head>
