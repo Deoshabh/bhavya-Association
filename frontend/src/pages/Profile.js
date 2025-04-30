@@ -195,7 +195,7 @@ const Profile = () => {
                   leftIcon={<Share size={16} />}
                   onClick={() => {
                     // Create shareable URL for the profile
-                    const shareUrl = `${window.location.origin}/profile/${user._id}`;
+                    const shareUrl = `${window.location.origin}/user-profile/${user._id}`;
 
                     // Use Web Share API if available
                     if (navigator.share) {
