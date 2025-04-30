@@ -14,9 +14,16 @@
 export const getProfileShareImage = (user) => {
   // Use user's profile image if available, otherwise use the default profile sharing image
   if (user && user.profileImage) {
+    // If profile image is a base64 data URL, it won't work for social media previews
+    // In this case, use the default image instead
+    if (user.profileImage.startsWith('data:')) {
+      // For social media sharing, we need an absolute URL not a data URL
+      return `${window.location.origin}/share-images/profile-share.png`;
+    }
     return user.profileImage;
   }
-  return '/share-images/profile-share.png';
+  // Default profile image for social sharing
+  return `${window.location.origin}/share-images/profile-share.png`;
 };
 
 /**
@@ -28,9 +35,13 @@ export const getProfileShareImage = (user) => {
 export const getListingShareImage = (listing) => {
   // Use listing's image if available, otherwise use the default listing sharing image
   if (listing && listing.image) {
+    // Handle data URLs similar to profile images
+    if (listing.image.startsWith('data:')) {
+      return `${window.location.origin}/share-images/listing-share.png`;
+    }
     return listing.image;
   }
-  return '/share-images/listing-share.png';
+  return `${window.location.origin}/share-images/listing-share.png`;
 };
 
 /**
