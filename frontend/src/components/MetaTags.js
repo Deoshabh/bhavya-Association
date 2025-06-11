@@ -18,10 +18,10 @@ const MetaTags = ({
 }) => {
   const config = SOCIAL_SHARE_CONFIG;
   
-  // Set defaults with fallbacks
+  // Set defaults with fallbacks - use the updated image from remote
   const metaTitle = title || config.defaultTitle;
   const metaDescription = description || (useCustomMessage ? config.defaultDescription : 'Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together.');
-  const metaImage = image || config.defaultImage;
+  const metaImage = image || 'https://bhavyasangh.com/share-images/bhavya-social-share.png' || config.defaultImage;
   const metaUrl = url || config.siteUrl;
   const metaKeywords = keywords || config.keywords.join(', ');
   

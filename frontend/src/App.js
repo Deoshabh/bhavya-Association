@@ -22,6 +22,7 @@ import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import BahujanDirectory from './pages/BahujanDirectory';
 import MetaTags from './components/MetaTags';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
@@ -84,10 +85,10 @@ function App() {
         <AccountStatusManager />
         <Navbar />
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
+          {/* Public routes */}          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/bahujan-directory" element={<BahujanDirectory />} />
           <Route path="/upgrade-membership" element={<UpgradeMembership />} />
           <Route path="/service-listings" element={<ServiceListings />} />
           <Route path="/service-listings/:id" element={<ListingDetails />} />

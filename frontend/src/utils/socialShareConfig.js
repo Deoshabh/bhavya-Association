@@ -51,9 +51,8 @@ export const SOCIAL_SHARE_CONFIG = {
 
 रजिस्टर्ड करें निशुल्क 
 ताकि और भी बहुजन आपसे बात संपर्क कर सकें।`,
-
   // Images
-  defaultImage: "https://bhavyasangh.com/share-images/social-banner.jpg",
+  defaultImage: "https://bhavyasangh.com/share-images/bhavya-social-share.png",
   logoImage: "https://bhavyasangh.com/logo192.png",
   faviconImage: "https://bhavyasangh.com/favicon.ico",
   
