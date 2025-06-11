@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://api.bhavyasangh.com';
+// Remove unused BASE_URL since we use environment variables
 
 // **Server Status Cache**
 let serverStatusCache = {
@@ -18,43 +18,15 @@ const ongoingUserFetches = new Map();
 const USER_PROFILE_CACHE_TTL = 300000; // 5 minutes
 const MAX_USER_PROFILE_CACHE_SIZE = 100;
 
-// **Directory Cache**
+// **Directory Cache - keeping for future use**
 const directoryCache = {
   data: null,
   timestamp: 0,
 };
-let ongoingDirectoryFetch = null;
-const DIRECTORY_CACHE_TTL = 300000; // 5 minutes
+// Note: ongoingDirectoryFetch and DIRECTORY_CACHE_TTL removed as unused
 
 // **API Response Cache**
 const apiCache = new Map();
-
-/**
- * Normalizes an API URL path to ensure consistent format
- * @param {string} url - The URL to normalize
- * @returns {string} The normalized URL
- */
-const normalizeApiPath = (url) => {
-  if (!url) return url;
-  
-  // If URL already has external protocol/domain, leave it alone
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  
-  // Strip duplicate /api prefixes
-  let normalizedUrl = url;
-  while (normalizedUrl.includes('/api/api/')) {
-    normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
-  }
-  
-  // Handle case where url doesn't start with /api
-  if (!normalizedUrl.startsWith('/api/') && !normalizedUrl.startsWith('/health')) {
-    normalizedUrl = '/api' + (normalizedUrl.startsWith('/') ? normalizedUrl : '/' + normalizedUrl);
-  }
-  
-  return normalizedUrl;
-};
 
 /**
  * Checks if the server is available by making a request to the health endpoint

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a centralized API instance
 const api = axios.create({
-  // IMPORTANT: Check if the URL already has /api in it, which could cause duplication
+  // FIXED: Remove /api from baseURL since it's added in normalizeApiPath
   baseURL: process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com',
   timeout: 15000,
   withCredentials: true,
@@ -14,12 +14,12 @@ const api = axios.create({
 // Enhanced debugging to print the baseURL
 console.log('API baseURL set to:', api.defaults.baseURL);
 
-// Completely rewritten normalizeApiPath function to prevent URL duplication issues
+// Fixed normalizeApiPath function to prevent URL duplication issues
 const normalizeApiPath = (url) => {
   // If url is undefined or null, return a safe default
   if (!url) {
     console.warn('Attempting to normalize undefined or null URL');
-    return '/api'; // Return a safe default
+    return '/api';
   }
   
   // Ensure url is a string
@@ -41,31 +41,27 @@ const normalizeApiPath = (url) => {
     return '/health';
   }
   
-  // Start fresh with a clean URL - remove any leading slashes
-  let normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
+  // Start with the raw URL and normalize it
+  let normalizedUrl = url;
   
-  // Check if the base URL already includes /api
-  const baseUrlHasApi = api.defaults.baseURL ? 
-    api.defaults.baseURL.includes('/api') : false;
-    
-  // CRITICAL FIX: First remove any existing api/ prefix to avoid duplication
-  if (normalizedUrl.startsWith('api/')) {
-    normalizedUrl = normalizedUrl.substring(4); // Remove 'api/'
+  // Remove leading slash if present
+  if (normalizedUrl.startsWith('/')) {
+    normalizedUrl = normalizedUrl.substring(1);
   }
   
-  // If the baseURL doesn't have /api, we need to add it to the path
-  if (!baseUrlHasApi) {
-    normalizedUrl = 'api/' + normalizedUrl;
+  // CRITICAL FIX: Remove any existing 'api/' prefix to prevent duplication
+  while (normalizedUrl.startsWith('api/')) {
+    normalizedUrl = normalizedUrl.substring(4);
   }
   
-  // Make sure there are no duplications that might have been missed
-  while (normalizedUrl.includes('api/api/')) {
-    normalizedUrl = normalizedUrl.replace('api/api/', 'api/');
+  // Only add /api/ prefix if it's not already there
+  if (!normalizedUrl.startsWith('/api/')) {
+    normalizedUrl = '/api/' + normalizedUrl;
   }
   
-  // Add leading slash for consistency
-  if (!normalizedUrl.startsWith('/')) {
-    normalizedUrl = '/' + normalizedUrl;
+  // Final cleanup for any remaining duplications
+  while (normalizedUrl.includes('/api/api/')) {
+    normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
   }
   
   console.log('Normalized URL:', normalizedUrl);
