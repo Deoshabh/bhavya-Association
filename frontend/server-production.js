@@ -66,17 +66,18 @@ app.use(express.static(buildPath, {
   index: false // We'll handle index.html manually
 }));
 
-// Handle all routes - SPA fallback
+// Handle all routes - SPA fallback with proper meta tag serving
 app.get('*', (req, res) => {
-  // Set no-cache for HTML
+  // Set proper headers for social media crawlers
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   
-  res.sendFile(indexPath, (err) => {
+  // Read the index.html file and serve it
+  fs.readFile(indexPath, 'utf8', (err, data) => {
     if (err) {
-      console.error(`❌ Error serving ${req.path}:`, err.message);
-      res.status(500).send(`
+      console.error(`❌ Error reading index.html for ${req.path}:`, err.message);
+      return res.status(500).send(`
         <h1>BHAVYA - Server Error</h1>
         <p>Could not serve the requested page</p>
         <p>Error: ${err.message}</p>
@@ -84,6 +85,20 @@ app.get('*', (req, res) => {
         <p>Timestamp: ${new Date().toISOString()}</p>
       `);
     }
+    
+    // For social media crawlers, ensure they get the full HTML
+    const userAgent = req.get('User-Agent') || '';
+    const isSocialCrawler = /facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|TelegramBot|SkypeUriPreview|GoogleBot|bingbot|Slackbot|developers\.google\.com/i.test(userAgent);
+    
+    if (isSocialCrawler) {
+      console.log(`🤖 Social crawler detected: ${userAgent.substring(0, 50)}... for ${req.path}`);
+      
+      // Add cache headers for crawlers
+      res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minutes cache for crawlers
+    }
+    
+    // Send the HTML content
+    res.send(data);
   });
 });
 
