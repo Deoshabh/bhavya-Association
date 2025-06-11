@@ -16,10 +16,10 @@ import { Helmet } from 'react-helmet';
  * @param {Object} props.structuredData - Additional structured data for JSON-LD
  */
 const MetaTags = ({
-  title = 'BHAVYA - Bharat Vyapar Associates',
-  description = 'Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together.',
+  title = 'बहुजन व्यापार एसोसिएशन - BHAVYA Associates',
+  description = 'लिंक पर क्लिक करके बहुजन व्यापार एसोसिएशन कम्युनिटी की सदस्यता निशुल्क प्राप्त करे | Get the free membership of Bahujan Vyapar Association by clicking on the given Link',
   url = 'https://bhavyasangh.com',
-  image = 'https://bhavyasangh.com/share-images/default-share.png',
+  image = 'https://bhavyasangh.com/share-images/bhavya-social-share.png',
   type = 'website',
   schemaType,
   structuredData = {}

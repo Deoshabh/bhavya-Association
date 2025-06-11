@@ -1,0 +1,41 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Main container -->
+  <rect x="60" y="60" width="1080" height="510" rx="20" fill="white" stroke="#e2e8f0" stroke-width="2" filter="drop-shadow(0 10px 25px rgba(0,0,0,0.1))"/>
+  
+  <!-- Logo circle -->
+  <circle cx="600" cy="160" r="60" fill="#1a56db"/>
+  <text x="600" y="175" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="bold">भ</text>
+  
+  <!-- Hindi text -->
+  <text x="600" y="280" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="28" font-weight="600">
+    <tspan x="600" dy="0">लिंक पर क्लिक करके बहुजन व्यापार एसोसिएशन कम्युनिटी की</tspan>
+    <tspan x="600" dy="35">सदस्यता निशुल्क प्राप्त करे</tspan>
+  </text>
+  
+  <!-- English text -->
+  <text x="600" y="360" text-anchor="middle" fill="#4b5563" font-family="Arial, sans-serif" font-size="24">
+    <tspan x="600" dy="0">Get the free membership of Bahujan Vyapar Association</tspan>
+    <tspan x="600" dy="30">by clicking on the given Link</tspan>
+  </text>
+  
+  <!-- URL box -->
+  <rect x="350" y="430" width="500" height="50" rx="8" fill="#f0f7ff" stroke="#1a56db" stroke-width="2"/>
+  <text x="600" y="460" text-anchor="middle" fill="#1a56db" font-family="Arial, sans-serif" font-size="20" font-weight="600">
+    https://bhavyasangh.com/
+  </text>
+  
+  <!-- Watermark -->
+  <text x="1050" y="590" text-anchor="end" fill="#9ca3af" font-family="Arial, sans-serif" font-size="14">
+    BHAVYA Associates
+  </text>
+</svg>
