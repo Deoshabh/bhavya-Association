@@ -1,0 +1,14 @@
+# Multi-page app configuration - No SPA redirects
+# Cache static assets aggressively
+/static/*    Cache-Control: max-age=31536000,immutable
+
+# Prevent HTML caching to avoid 404 route issues
+/*.html    Cache-Control: no-cache,no-store,must-revalidate
+/    Cache-Control: no-cache,no-store,must-revalidate
+
+# Don't cache service worker
+/service-worker.js    Cache-Control: no-cache
+
+# Don't cache manifest or dynamic content
+/manifest.json    Cache-Control: no-cache
+/api/*    Cache-Control: no-cache

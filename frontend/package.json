@@ -18,10 +18,11 @@
     "react-router-dom": "^7.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
-  },
-  "scripts": {
+  },  "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run postbuild",
+    "build:win": "set GENERATE_SOURCEMAP=false && react-scripts build && npm run postbuild",
+    "postbuild": "echo Cache busting build completed at $(date)",
     "test": "react-scripts test"
   },
   "eslintConfig": {

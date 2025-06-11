@@ -34,18 +34,38 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://bhavyasangh.com" />
     <meta name="twitter:title" content="BHAVYA – Bharat Vypar Associates" />
-    <meta name="twitter:description" content="Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together." />
-    <meta name="twitter:image" content="https://bhavyasangh.com/logo192.png" />
+    <meta name="twitter:description" content="Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together." />    <meta name="twitter:image" content="https://bhavyasangh.com/logo192.png" />
     <meta name="twitter:image:alt" content="BHAVYA Associates Logo" />
+      <!-- Enhanced cache control headers to prevent 404 routing issues -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     
-    <!-- Cache control headers -->
-    <meta http-equiv="Cache-Control" content="max-age=86400" />
+    <!-- Additional headers for multi-page app navigation -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="robots" content="index, follow" />
     
     <title>BHAVYA</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- Multi-page app cache busting script -->
+    <script>
+      // Clear any stale route caches on page load
+      if (performance.navigation.type === 1) {
+        // Page was refreshed - clear route-specific storage
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('route_') || key.includes('page_')) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+      
+      // Add timestamp to prevent cache issues
+      window.pageLoadTime = Date.now();
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

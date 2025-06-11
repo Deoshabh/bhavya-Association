@@ -28,6 +28,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import ListingManagement from './pages/Admin/ListingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
 import AdminLogin from './pages/AdminLogin';
+import RouteCacheDebugger from './components/RouteCacheDebugger';
 
 // ScrollToTopAndGuard component for navigation safety and scroll management
 const ScrollToTopAndGuard = () => {
@@ -134,12 +135,13 @@ function App() {
               <AdminSettings />
             </ProtectedRoute>
           } />
-          
-          {/* 404 - Page not found */}
+            {/* 404 - Page not found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <BottomNavigation />
         <Footer />
+        {/* Add the route cache debugger for development */}
+        <RouteCacheDebugger />
       </Router>
     </AuthProvider>
   );
