@@ -8,8 +8,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
-import { getDefaultShareImage } from "../utils/sharingImageUtil";
 import MetaTags from "../components/MetaTags";
+import { generatePageMeta } from "../utils/socialShareConfig";
 
 // Local assets
 import bannerImage from "../assets/banner for home.jpg";
@@ -45,51 +45,8 @@ const Home = () => {
 
   // State for toggling the “Why Join Bhavya Associates?” content
   const [showBenefits, setShowBenefits] = useState(false);
-
   // State for blinking hero text effect
   const [isBlinking, setIsBlinking] = useState(false);
-
-  // For potential mobile menu toggling
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // Structured data for organization
-  const organizationStructuredData = {
-    "@type": "Organization",
-    "name": "BHAVYA - Bharat Vyapar Associates",
-    "url": "https://bhavyasangh.com",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://bhavyasangh.com/logo192.png",
-      "width": "192",
-      "height": "192"
-    },
-    "sameAs": [
-      "https://www.facebook.com/bhavyasangh",
-      "https://twitter.com/bhavyasangh",
-      "https://www.linkedin.com/company/bhavyasangh"
-    ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+91-XXXXXXXXXX",
-      "contactType": "customer service",
-      "availableLanguage": ["English", "Hindi"]
-    },
-    "description": "Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together."
-  };
-  
-  // Website structured data
-  const websiteStructuredData = {
-    "@type": "WebSite",
-    "url": "https://bhavyasangh.com",
-    "name": "BHAVYA - Bharat Vyapar Associates",
-    "description": "Join Bharat Vyapar Associates (BHAVYA) - Connect with Bahujan community professionals & entrepreneurs worldwide. Expand your business network & discover opportunities.",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://bhavyasangh.com/directory?search={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  };
-
   // Effect for blinking animation
   useEffect(() => {
     const blinkInterval = setInterval(() => {
@@ -115,21 +72,13 @@ const Home = () => {
       navigate("/register");
     }
   };
-
   return (
     <>
-      {/* Enhanced meta tags for the home page with comprehensive structured data */}
+      {/* Enhanced meta tags for the home page with comprehensive social sharing */}
       <MetaTags 
-        title="BHAVYA - Bharat Vyapar Associates | Community Network"
-        description="Join Bharat Vyapar Associates (BHAVYA) - Connect with Bahujan community professionals & entrepreneurs worldwide. Expand your business network & discover opportunities."
-        url="https://bhavyasangh.com"
-        image={getDefaultShareImage()}
+        {...generatePageMeta('home')}
         type="website"
-        schemaType="Organization"
-        structuredData={{
-          ...organizationStructuredData,
-          "mainEntity": websiteStructuredData
-        }}
+        useCustomMessage={true}
       />
       
       <div className="flex flex-col min-h-screen">

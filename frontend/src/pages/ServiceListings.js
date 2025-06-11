@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { withRetry } from '../utils/serverUtils';
 import { Search, ExternalLink, PlusCircle, X, RefreshCw, MessageCircle, Tag, Phone, Mail, Star } from 'lucide-react';
 import api from '../services/api';
+import MetaTags from '../components/MetaTags';
+import { generatePageMeta } from '../utils/socialShareConfig';
 
 const ServiceListings = () => {
   const navigate = useNavigate();
@@ -160,9 +162,15 @@ const ServiceListings = () => {
       setLoading(false);
     }
   }, [token, user, serverStatus]);
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      {/* Meta tags for services page */}
+      <MetaTags 
+        {...generatePageMeta('services')}
+        type="website"
+      />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Page Header */}
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
@@ -394,9 +402,9 @@ const ServiceListings = () => {
               </button>
             </div>
           )}
-        </>
-      )}
+        </>      )}
     </div>
+    </>
   );
 };
 

@@ -105,6 +105,48 @@ app.get('/robots.txt', (req, res) => {
   });
 });
 
+// Handle social sharing images
+app.get('/share-images/:imageName', (req, res) => {
+  const { imageName } = req.params;
+  
+  // Security: Only allow specific image files to prevent directory traversal
+  const allowedImages = [
+    'social-banner.jpg',
+    'social-banner-twitter.jpg', 
+    'social-banner-square.jpg',
+    'default-share.png'
+  ];
+  
+  if (!allowedImages.includes(imageName)) {
+    return res.status(404).send('Image not found');
+  }
+  
+  const imagePath = path.join(__dirname, 'public', 'share-images', imageName);
+  
+  // Set appropriate content type based on extension
+  const ext = path.extname(imageName).toLowerCase();
+  const contentTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg', 
+    '.png': 'image/png',
+    '.webp': 'image/webp'
+  };
+  
+  if (contentTypes[ext]) {
+    res.setHeader('Content-Type', contentTypes[ext]);
+  }
+  
+  // Cache social images for 1 week
+  res.setHeader('Cache-Control', 'public, max-age=604800');
+  
+  res.sendFile(imagePath, (err) => {
+    if (err) {
+      console.error(`Error serving ${imageName}:`, err);
+      res.status(404).send('Image not found');
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
