@@ -17,7 +17,7 @@ import { Helmet } from 'react-helmet';
  */
 const MetaTags = ({
   title = 'बहुजन व्यापार एसोसिएशन - BHAVYA Associates',
-  description = 'लिंक पर क्लिक करके बहुजन व्यापार एसोसिएशन कम्युनिटी की सदस्यता निशुल्क प्राप्त करे | Get the free membership of Bahujan Vyapar Association by clicking on the given Link',
+  description = 'लिंक पर क्लिक करके बहुजन व्यापार एसोसिएशन कम्युनिटी की सदस्यता निशुल्क प्राप्त करे     Get the free membership of Bahujan Vyapar Association by clicking on the given Link https://bhavyasangh.com/bahujan-directory/',
   url = 'https://bhavyasangh.com',
   image = 'https://bhavyasangh.com/share-images/bhavya-social-share.png',
   type = 'website',
