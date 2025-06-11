@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
-import axios from 'axios';
 import { withRetry, checkServerStatus } from '../utils/serverUtils';
 import { resetAppState, hardRefresh } from '../utils/cacheUtils';
 
@@ -65,11 +64,10 @@ export const AuthProvider = ({ children }) => {
         console.log('No token to refresh');
         return false;
       }
-      
-      // First verify the current token status
+        // First verify the current token status
       try {
         console.log('Verifying token before refresh attempt...');
-        const verifyResponse = await api.post('/api/auth/verify-token', { token });
+        const verifyResponse = await api.post('auth/verify-token', { token });
         
         if (verifyResponse.data.valid) {
           console.log('Current token is still valid, no need to refresh');
@@ -82,7 +80,7 @@ export const AuthProvider = ({ children }) => {
       
       // Attempt to refresh token
       console.log('Attempting to refresh token...');
-      const refreshRes = await api.post('/api/auth/refresh', {
+      const refreshRes = await api.post('auth/refresh', {
         token: token
       });
       
@@ -114,11 +112,10 @@ export const AuthProvider = ({ children }) => {
         return true; // Continue using current token
       }
       
-      // For other errors, log out
-      handleLogout();
+      // For other errors, log out      handleLogout();
       return false;
     }
-  }, [api, token, handleLogout]);
+  }, [token, handleLogout]);
 
   // useEffect for token validation and auto-refresh
   useEffect(() => {
@@ -243,11 +240,10 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
-      throw err;
-    } finally {
+      throw err;    } finally {
       pendingRequest.current = false;
     }
-  }, [token, api, handleLogout, user, refreshToken]);
+  }, [token, handleLogout, user, refreshToken]);
 
   useEffect(() => {
     if (!token) {
@@ -256,7 +252,6 @@ export const AuthProvider = ({ children }) => {
     }
     fetchUserProfile();
   }, [token, fetchUserProfile]);
-
   // Fix login method to eliminate URL path issues
   const login = async (phoneNumber, password, isAdminLogin = false) => {
     setLoading(true);
@@ -269,18 +264,11 @@ export const AuthProvider = ({ children }) => {
       const endpoint = isAdminLogin ? 'auth/admin-login' : 'auth/login';
       console.log(`Making login request to endpoint: "${endpoint}"`);
       
-      // Ensure baseURL exists before using it
-      const baseURL = api.defaults.baseURL || 'https://api.bhavyasangh.com';
-      
-      // IMPORTANT FIX: The issue is with the URL, so we'll manually construct the correct URL
-      // instead of relying on the interceptor which might be adding the duplicate /api
-      const response = await axios({
-        method: 'post',
-        url: `${baseURL}/api/${endpoint}`,
-        data: { phoneNumber, password },
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      // FIXED: Use the api instance instead of manual URL construction
+      // The api instance has the proper normalizeApiPath logic to prevent duplicates
+      const response = await api.post(endpoint, { 
+        phoneNumber, 
+        password 
       });
       
       if (response.data && response.data.token) {
@@ -329,12 +317,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, phoneNumber, occupation, password) => {
-    try {
+  const register = async (name, phoneNumber, occupation, password) => {    try {
       // Sanitize phone number to ensure consistent format
       const sanitizedPhoneNumber = phoneNumber.replace(/\s+/g, '');
       
-      const res = await api.post('/api/auth/register', { 
+      const res = await api.post('auth/register', { 
         name, 
         phoneNumber: sanitizedPhoneNumber, 
         occupation, 
@@ -414,25 +401,24 @@ export const AuthProvider = ({ children }) => {
       clearInterval(intervalId);
     };
   }, []);
-
   const updateUser = useCallback((updates) => setUser((prev) => ({ ...prev, ...updates })), []);
 
   // Add account deactivation and reactivation functions
   const deactivateAccount = useCallback(async () => {
     try {
-      await api.put('/api/profile/deactivate');
+      await api.put('profile/deactivate');
       handleLogout();
       return true;
     } catch (err) {
       console.error('Error deactivating account:', err);
       throw err;
     }
-  }, [api, handleLogout]);
+  }, [handleLogout]);
 
   const reactivateAccount = useCallback(async () => {
     setIsReactivating(true);
     try {
-      const res = await api.put('/api/profile/reactivate');
+      const res = await api.put('profile/reactivate');
       
       if (res.data && res.data.user) {
         // Update the user object with the new account status
@@ -453,17 +439,16 @@ export const AuthProvider = ({ children }) => {
       setIsReactivating(false);
     }
   }, [api]);
-
   const deleteAccount = useCallback(async () => {
     try {
-      await api.delete('/api/profile/me');
+      await api.delete('profile/me');
       handleLogout();
       return true;
     } catch (err) {
       console.error('Error deleting account:', err);
       throw err;
     }
-  }, [api, handleLogout]);
+  }, [handleLogout]);
 
   // Handle cancel reactivation
   const cancelReactivation = () => {

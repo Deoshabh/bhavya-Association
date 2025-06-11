@@ -49,17 +49,20 @@ const normalizeApiPath = (url) => {
     normalizedUrl = normalizedUrl.substring(1);
   }
   
-  // CRITICAL FIX: Remove any existing 'api/' prefix to prevent duplication
-  while (normalizedUrl.startsWith('api/')) {
-    normalizedUrl = normalizedUrl.substring(4);
+  // CRITICAL FIX: Remove any existing 'api/' or '/api/' prefix to prevent duplication
+  // Handle both cases: 'api/something' and '/api/something'
+  while (normalizedUrl.startsWith('api/') || normalizedUrl.startsWith('/api/')) {
+    if (normalizedUrl.startsWith('/api/')) {
+      normalizedUrl = normalizedUrl.substring(5); // Remove '/api/'
+    } else if (normalizedUrl.startsWith('api/')) {
+      normalizedUrl = normalizedUrl.substring(4); // Remove 'api/'
+    }
   }
   
-  // Only add /api/ prefix if it's not already there
-  if (!normalizedUrl.startsWith('/api/')) {
-    normalizedUrl = '/api/' + normalizedUrl;
-  }
+  // Now add the /api/ prefix to the clean URL
+  normalizedUrl = '/api/' + normalizedUrl;
   
-  // Final cleanup for any remaining duplications
+  // Final safety check - remove any duplicate /api/api/ patterns that might still exist
   while (normalizedUrl.includes('/api/api/')) {
     normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
   }
