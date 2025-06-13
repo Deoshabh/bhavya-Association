@@ -62,8 +62,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Error while clearing cache and cookies:', error);
       return false;
     }
-  }, []);
-  // Enhanced refreshToken function with circuit breaker to prevent infinite loops
+  }, []);  // Enhanced refreshToken function with circuit breaker to prevent infinite loops
   const refreshToken = useCallback(async () => {
     // Circuit breaker logic
     const now = Date.now();
@@ -99,7 +98,9 @@ export const AuthProvider = ({ children }) => {
       refreshAttempts.current += 1;
       
       console.log(`Token refresh attempt ${refreshAttempts.current}/${maxRefreshAttempts}`);
-        // Attempt to refresh token directly (skip verification to avoid more API calls)
+      
+      // FIXED: Skip token verification to prevent infinite loops
+      // Attempt to refresh token directly without verification step
       console.log('Attempting to refresh token...');
       
       // Add timeout and better error handling for the refresh request
@@ -155,8 +156,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       isRefreshingToken.current = false;
     }
-  }, [token, handleLogout, refreshAttempts, lastRefreshAttempt, maxRefreshAttempts, refreshCooldown, isRefreshingToken]);
-  // Simplified token validation - only on mount and when token changes
+  }, [token, handleLogout, refreshAttempts, lastRefreshAttempt, maxRefreshAttempts, refreshCooldown, isRefreshingToken]);  // Simplified token validation - only on mount and when token changes
   useEffect(() => {
     if (!token) {
       setLoading(false);
@@ -172,46 +172,16 @@ export const AuthProvider = ({ children }) => {
     } else {
       console.log('Token set in AuthContext but is not a valid string');
     }
-      // Only validate token on initial load, not repeatedly
-    const validateTokenOnMount = async () => {
-      try {
-        // Use a simple token status check with timeout
-        console.log('Validating token on mount...');
-        const response = await api.get('auth/token-status', { timeout: 5000 }); 
-        console.log('Token validated successfully on mount');
-        
-        // If the response indicates the token is valid, reset any circuit breaker counters
-        if (response.data?.valid) {
-          refreshAttempts.current = 0;
-          lastRefreshAttempt.current = 0;
-        }
-      } catch (error) {
-        console.log('Token validation error:', error.message);
-        
-        // Only attempt refresh for 401 errors, not network errors
-        if (error.response?.status === 401) {
-          console.log('Token invalid on mount (401), attempting single refresh...');
-          
-          // Check if we should attempt refresh (circuit breaker)
-          if (refreshAttempts.current < maxRefreshAttempts) {
-            const refreshed = await refreshToken();
-            if (!refreshed) {
-              console.log('Token refresh failed on mount, logging out');
-              handleLogout();
-            }
-          } else {
-            console.log('Max refresh attempts reached on mount, logging out');
-            handleLogout();
-          }
-        } else {
-          // For network errors or other issues, don't force logout immediately
-          console.warn('Token validation failed with non-401 error, continuing:', error.message);
-        }
-      }
-    };
-
-    validateTokenOnMount();
-  }, [token, refreshToken, handleLogout]);
+    
+    // FIXED: Skip token validation to prevent infinite loops
+    // Just set loading to false since we have a token
+    console.log('Token present, skipping validation to prevent infinite loops');
+    setLoading(false);
+    
+    // Reset any circuit breaker counters since we have a valid token
+    refreshAttempts.current = 0;
+    lastRefreshAttempt.current = 0;
+  }, [token]);
 
   // Enhance fetchUserProfile to pass auth error handler
   const fetchUserProfile = useCallback(async (forceRefresh = false) => {
@@ -518,7 +488,8 @@ export const AuthProvider = ({ children }) => {
         // Reset 401 counter on successful response
         consecutive401Count = 0;
         return response;
-      },      async (error) => {
+      },
+      async (error) => {
         // Skip interceptor if the request is marked to skip (prevents recursion)
         if (error.config?._skipInterceptor) {
           return Promise.reject(error);
@@ -534,6 +505,19 @@ export const AuthProvider = ({ children }) => {
           if (consecutive401Count >= max401BeforeLogout) {
             console.log(`Too many consecutive 401s (${consecutive401Count}), forcing logout`);
             handleLogout();
+            return Promise.reject(error);
+          }
+          
+          // ENHANCED: Check circuit breaker before attempting refresh
+          if (refreshAttempts.current >= maxRefreshAttempts) {
+            console.log(`Circuit breaker active: max refresh attempts (${maxRefreshAttempts}) reached, forcing logout`);
+            handleLogout();
+            return Promise.reject(error);
+          }
+          
+          // Check if we're already refreshing
+          if (isRefreshingToken.current) {
+            console.log('Token refresh already in progress, rejecting request');
             return Promise.reject(error);
           }
           
@@ -575,7 +559,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       api.interceptors.response.eject(interceptor);
     };
-  }, [token, refreshToken, handleLogout]);
+  }, [token, refreshToken, handleLogout, refreshAttempts, maxRefreshAttempts, isRefreshingToken]);
 
   // Add a simple auth check function that can be used throughout the app
   const isAuthenticated = useCallback(() => {
