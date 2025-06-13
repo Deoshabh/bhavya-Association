@@ -298,14 +298,22 @@ export const AuthProvider = ({ children }) => {
       pendingRequest.current = false;
     }
   }, [token, handleLogout, user, refreshToken]);
-
   useEffect(() => {
     if (!token) {
       setLoading(false);
       return;
     }
-    fetchUserProfile();
-  }, [token, fetchUserProfile]);  // Fix login method to eliminate URL path issues
+    
+    // Only fetch user profile if we don't already have user data
+    // This prevents unnecessary fetches during login process
+    if (!user) {
+      console.log('Token set but no user data - fetching profile');
+      fetchUserProfile();
+    } else {
+      console.log('Token set and user data exists - skipping profile fetch');
+      setLoading(false);
+    }
+  }, [token, fetchUserProfile, user]);  // Fix login method to eliminate URL path issues
   const login = async (phoneNumber, password, isAdminLogin = false) => {
     console.log(`🔑 Starting ${isAdminLogin ? 'admin ' : ''}login for:`, phoneNumber);
     
@@ -344,27 +352,41 @@ export const AuthProvider = ({ children }) => {
         // Update localStorage first
         localStorage.setItem('token', newToken);
         
-        // Then update state
-        setToken(newToken);
-        
         // Set the header explicitly for subsequent requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         
+        // Set token in state - this will trigger useEffect but won't fetch profile since we'll have user data
+        setToken(newToken);
+        
         try {
-          // Get user data
-          await fetchUserProfile(true).catch(err => {
-            console.warn('Profile fetch error (non-fatal):', err.message);
-          });
+          // Get user data directly without relying on useEffect
+          console.log('Fetching user profile after successful login...');
+          const profileResult = await fetchUserProfile(true);
           
-          return { success: true };
+          if (profileResult) {
+            console.log('✅ Login successful - user profile loaded');
+            // Set user data first, then loading to false
+            setUser(profileResult);
+            setLoading(false);
+            return { success: true };
+          } else {
+            console.warn('Login successful but profile fetch returned no data');
+            setLoading(false);
+            return { 
+              success: false, 
+              message: 'Login successful but could not load user data'
+            };
+          }
         } catch (profileErr) {
-          console.warn('Login successful but profile fetch failed:', profileErr);
+          console.error('Login successful but profile fetch failed:', profileErr);
+          setLoading(false);
           return { 
-            success: true, 
-            warning: 'Profile fetch failed, data may be incomplete'
+            success: false, 
+            message: 'Login successful but could not load user data'
           };
         }
       } else {
+        setLoading(false);
         setError('Invalid response from server. Please try again.');
         return { success: false, message: 'Invalid response from server' };
       }
@@ -378,8 +400,6 @@ export const AuthProvider = ({ children }) => {
         field: err.response?.data?.field,
         error: err
       };
-    } finally {
-      setLoading(false);
     }
   };
 
