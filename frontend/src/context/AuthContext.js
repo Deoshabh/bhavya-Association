@@ -16,6 +16,13 @@ export const AuthProvider = ({ children }) => {
 
   const lastFetchTime = useRef(0);
   const pendingRequest = useRef(null);
+  
+  // Circuit breaker to prevent infinite refresh loops
+  const refreshAttempts = useRef(0);
+  const lastRefreshAttempt = useRef(0);
+  const maxRefreshAttempts = 3;
+  const refreshCooldown = 30000; // 30 seconds
+  const isRefreshingToken = useRef(false);
 
   // Initialize token in api headers on mount and when token changes
   useEffect(() => {
@@ -56,32 +63,52 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
   }, []);
-
-  // Enhance refreshToken function to handle token verification errors
+  // Enhanced refreshToken function with circuit breaker to prevent infinite loops
   const refreshToken = useCallback(async () => {
+    // Circuit breaker logic
+    const now = Date.now();
+    
+    // Check if we're already refreshing
+    if (isRefreshingToken.current) {
+      console.log('Token refresh already in progress, skipping...');
+      return false;
+    }
+    
+    // Check if we've hit the retry limit
+    if (refreshAttempts.current >= maxRefreshAttempts) {
+      console.log(`Max refresh attempts (${maxRefreshAttempts}) reached, forcing logout`);
+      handleLogout();
+      return false;
+    }
+    
+    // Check cooldown period
+    if (now - lastRefreshAttempt.current < refreshCooldown) {
+      console.log(`Refresh cooldown active (${refreshCooldown}ms), skipping attempt`);
+      return false;
+    }
+    
     try {
       if (!token) {
         console.log('No token to refresh');
         return false;
       }
-        // First verify the current token status
-      try {
-        console.log('Verifying token before refresh attempt...');
-        const verifyResponse = await api.post('auth/verify-token', { token });
-        
-        if (verifyResponse.data.valid) {
-          console.log('Current token is still valid, no need to refresh');
-          return true;
-        }
-      } catch (verifyErr) {
-        // Token validation failed, but continue with refresh attempt
-        console.log('Token validation failed:', verifyErr.response?.data?.msg || verifyErr.message);
-      }
       
-      // Attempt to refresh token
+      // Set flags to prevent concurrent refresh attempts
+      isRefreshingToken.current = true;
+      lastRefreshAttempt.current = now;
+      refreshAttempts.current += 1;
+      
+      console.log(`Token refresh attempt ${refreshAttempts.current}/${maxRefreshAttempts}`);
+        // Attempt to refresh token directly (skip verification to avoid more API calls)
       console.log('Attempting to refresh token...');
+      
+      // Add timeout and better error handling for the refresh request
       const refreshRes = await api.post('auth/refresh', {
         token: token
+      }, {
+        timeout: 10000, // 10 second timeout
+        // Don't trigger interceptors for this request to avoid recursion
+        _skipInterceptor: true
       });
       
       if (refreshRes.data?.token) {
@@ -92,6 +119,10 @@ export const AuthProvider = ({ children }) => {
         
         // Update auth headers for future requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        
+        // Reset circuit breaker on success
+        refreshAttempts.current = 0;
+        lastRefreshAttempt.current = 0;
         
         console.log('Token refreshed successfully');
         return true;
@@ -109,53 +140,78 @@ export const AuthProvider = ({ children }) => {
       // If the refresh endpoint doesn't exist (404), don't log out immediately
       if (err.response && err.response.status === 404) {
         console.log('Token refresh endpoint not available. Using current token.');
+        // Reset attempts since this is a server issue, not a token issue
+        refreshAttempts.current = 0;
         return true; // Continue using current token
       }
       
-      // For other errors, log out      handleLogout();
+      // For other errors, check if we should log out
+      if (refreshAttempts.current >= maxRefreshAttempts) {
+        console.log('Max refresh attempts reached, logging out');
+        handleLogout();
+      }
+      
       return false;
+    } finally {
+      isRefreshingToken.current = false;
     }
-  }, [token, handleLogout]);
-
-  // useEffect for token validation and auto-refresh
+  }, [token, handleLogout, refreshAttempts, lastRefreshAttempt, maxRefreshAttempts, refreshCooldown, isRefreshingToken]);
+  // Simplified token validation - only on mount and when token changes
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-    // Function to check token validity
-    const validateToken = async () => {
+    // Set the token in the API instance when it changes
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    // Safe logging to prevent undefined errors
+    if (token && typeof token === 'string') {
+      console.log('Token set in AuthContext:', token.substring(0, 10) + '...');
+    } else {
+      console.log('Token set in AuthContext but is not a valid string');
+    }
+      // Only validate token on initial load, not repeatedly
+    const validateTokenOnMount = async () => {
       try {
-        // Try to make a request using the token
-        await api.get('/profile/me'); // Without the /api prefix - interceptor will add it
-        // If successful, token is still valid
-        return true;
-      } catch (error) {
-        // If we get a 401, token is invalid/expired
-        if (error.response?.status === 401) {
-          console.log('Token validation failed - attempting token refresh');
-          try {
-            // Try to refresh the token
-            const refreshed = await refreshToken();
-            return refreshed;
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-            // If refresh fails, logout
-            handleLogout();
-            return false;
-          }
+        // Use a simple token status check with timeout
+        console.log('Validating token on mount...');
+        const response = await api.get('auth/token-status', { timeout: 5000 }); 
+        console.log('Token validated successfully on mount');
+        
+        // If the response indicates the token is valid, reset any circuit breaker counters
+        if (response.data?.valid) {
+          refreshAttempts.current = 0;
+          lastRefreshAttempt.current = 0;
         }
-        // Other errors (like network) shouldn't cause logout
-        return true;
+      } catch (error) {
+        console.log('Token validation error:', error.message);
+        
+        // Only attempt refresh for 401 errors, not network errors
+        if (error.response?.status === 401) {
+          console.log('Token invalid on mount (401), attempting single refresh...');
+          
+          // Check if we should attempt refresh (circuit breaker)
+          if (refreshAttempts.current < maxRefreshAttempts) {
+            const refreshed = await refreshToken();
+            if (!refreshed) {
+              console.log('Token refresh failed on mount, logging out');
+              handleLogout();
+            }
+          } else {
+            console.log('Max refresh attempts reached on mount, logging out');
+            handleLogout();
+          }
+        } else {
+          // For network errors or other issues, don't force logout immediately
+          console.warn('Token validation failed with non-401 error, continuing:', error.message);
+        }
       }
     };
 
-    // Validate token initially
-    validateToken();
-
-    // Set up periodic validation (every 10 minutes)
-    const intervalId = setInterval(validateToken, 10 * 60 * 1000);
-
-    return () => clearInterval(intervalId);
-  }, [token]);
+    validateTokenOnMount();
+  }, [token, refreshToken, handleLogout]);
 
   // Enhance fetchUserProfile to pass auth error handler
   const fetchUserProfile = useCallback(async (forceRefresh = false) => {
@@ -394,13 +450,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkServer();
-    const intervalId = setInterval(checkServer, interval);
-
-    return () => {
+    const intervalId = setInterval(checkServer, interval);    return () => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, []);
+  }, [serverStatus]);
   const updateUser = useCallback((updates) => setUser((prev) => ({ ...prev, ...updates })), []);
 
   // Add account deactivation and reactivation functions
@@ -434,11 +488,10 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Error reactivating account:', err);
-      throw err;
-    } finally {
+      throw err;    } finally {
       setIsReactivating(false);
     }
-  }, [api]);
+  }, []);
   const deleteAccount = useCallback(async () => {
     try {
       await api.delete('profile/me');
@@ -453,77 +506,58 @@ export const AuthProvider = ({ children }) => {
   // Handle cancel reactivation
   const cancelReactivation = () => {
     setShowReactivatePrompt(false);
-  };
-
-  // Update useEffect for token validation and auto-refresh
+  };  // Update axios interceptor to handle token errors with circuit breaker
   useEffect(() => {
-    if (!token) return;
-
-    // Set the token in the API instance when it changes
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // Track consecutive 401 errors to prevent infinite loops
+    let consecutive401Count = 0;
+    const max401BeforeLogout = 3;
     
-    // Safe logging to prevent undefined errors
-    if (token && typeof token === 'string') {
-      console.log('Token set in AuthContext:', token.substring(0, 10) + '...');
-    } else {
-      console.log('Token set in AuthContext but is not a valid string');
-    }
-    
-    // Verify token validity on mount
-    const validateTokenOnMount = async () => {
-      try {
-        // Use 'auth/token-status' directly
-        console.log('Making token status request to endpoint: "auth/token-status"');
-        await api.get('auth/token-status'); 
-        console.log('Token validated successfully on mount');
-      } catch (error) {
-        if (error.response?.status === 401) {
-          console.log('Token invalid on mount, attempting refresh...');
-          try {
-            const refreshed = await refreshToken();
-            if (!refreshed) {
-              console.log('Token refresh failed, logging out');
-              handleLogout();
-            }
-          } catch (refreshError) {
-            console.error('Error during token refresh on mount:', refreshError);
-            handleLogout();
-          }
-        }
-      }
-    };
-    
-    validateTokenOnMount();
-  }, [token]);
-
-  // Update axios interceptor to handle token errors
-  useEffect(() => {
     // Set up response interceptor for handling token-related errors
     const interceptor = api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
+      (response) => {
+        // Reset 401 counter on successful response
+        consecutive401Count = 0;
+        return response;
+      },      async (error) => {
+        // Skip interceptor if the request is marked to skip (prevents recursion)
+        if (error.config?._skipInterceptor) {
+          return Promise.reject(error);
+        }
+        
         // If error is 401 Unauthorized and we have a token
         if (error.response?.status === 401 && token) {
+          consecutive401Count++;
+          
+          console.log(`401 error #${consecutive401Count} detected`);
+          
+          // If we've had too many consecutive 401s, force logout
+          if (consecutive401Count >= max401BeforeLogout) {
+            console.log(`Too many consecutive 401s (${consecutive401Count}), forcing logout`);
+            handleLogout();
+            return Promise.reject(error);
+          }
+          
           // Check if we've already tried to refresh for this request
           if (error.config && !error.config._isRetry) {
-            try {
-              console.log('Token expired, attempting refresh...');
-              const success = await refreshToken();
+            console.log('Attempting token refresh via interceptor...');
+            
+            const success = await refreshToken();
+            
+            if (success) {
+              // Mark this request as retried
+              error.config._isRetry = true;
               
-              if (success) {
-                // Mark this request as retried
-                error.config._isRetry = true;
-                
-                // Update the auth header with the fresh token
-                const freshToken = localStorage.getItem('token');
-                error.config.headers['Authorization'] = `Bearer ${freshToken}`;
-                
-                // Retry the original request with the new token
-                return api.request(error.config);
-              }
-            } catch (refreshError) {
-              console.error('Error during token refresh:', refreshError);
-              // Force logout on refresh failure
+              // Update the auth header with the fresh token
+              const freshToken = localStorage.getItem('token');
+              error.config.headers['Authorization'] = `Bearer ${freshToken}`;
+              
+              // Reset 401 counter after successful refresh
+              consecutive401Count = 0;
+              
+              // Retry the original request with the new token
+              return api.request(error.config);
+            } else {
+              console.log('Token refresh failed in interceptor, logging out');
               handleLogout();
             }
           } else if (error.config?._isRetry) {
@@ -541,7 +575,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       api.interceptors.response.eject(interceptor);
     };
-  }, [token, refreshToken, handleLogout, api]);
+  }, [token, refreshToken, handleLogout]);
 
   // Add a simple auth check function that can be used throughout the app
   const isAuthenticated = useCallback(() => {
