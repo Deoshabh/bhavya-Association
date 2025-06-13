@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
-import api from '../services/api';
+import api, { resetApiState } from '../services/api';
 import { withRetry, checkServerStatus } from '../utils/serverUtils';
 import { resetAppState, hardRefresh } from '../utils/cacheUtils';
 
@@ -36,14 +36,42 @@ export const AuthProvider = ({ children }) => {
       console.log('Clearing Authorization header (no token)');
       delete api.defaults.headers.common['Authorization'];
     }
-  }, [token]);
-
-  const handleLogout = useCallback(() => {
+  }, [token]);  const handleLogout = useCallback(() => {
+    console.log('🚪 Starting comprehensive logout...');
+    
+    // Reset all user state
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    setError(null);
     setLoading(false);
+    
+    // Clear all authentication tokens from storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('refreshToken');
+    
+    // Reset API state including headers and any cached data
+    resetApiState();
+    
+    // Reset all circuit breaker and tracking variables
+    refreshAttempts.current = 0;
+    lastRefreshAttempt.current = 0;
+    isRefreshingToken.current = false;
+    lastFetchTime.current = 0;
+    pendingRequest.current = null;
+    
+    // Clear any authentication-related localStorage items
+    const keysToRemove = [];
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('auth') || key.includes('user') || key.includes('session'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    console.log('✅ Logout completed - all auth state cleared');
   }, []);
 
   // Add a function to clear cache and reset cookies
@@ -277,15 +305,27 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     fetchUserProfile();
-  }, [token, fetchUserProfile]);
-  // Fix login method to eliminate URL path issues
+  }, [token, fetchUserProfile]);  // Fix login method to eliminate URL path issues
   const login = async (phoneNumber, password, isAdminLogin = false) => {
-    setLoading(true);
+    console.log(`🔑 Starting ${isAdminLogin ? 'admin ' : ''}login for:`, phoneNumber);
+    
+    // Clear any existing state before login
     setError(null);
+    setLoading(true);
+    
+    // Reset circuit breaker variables to ensure fresh start
+    refreshAttempts.current = 0;
+    lastRefreshAttempt.current = 0;
+    isRefreshingToken.current = false;
+    lastFetchTime.current = 0;
+    pendingRequest.current = null;
+    
+    // Clear any lingering tokens from previous sessions
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    delete api.defaults.headers.common['Authorization'];
     
     try {
-      console.log(`Attempting ${isAdminLogin ? 'admin ' : ''}login with phone:`, phoneNumber);
-      
       // Use the correct endpoint without any prefix - let the interceptor handle it
       const endpoint = isAdminLogin ? 'auth/admin-login' : 'auth/login';
       console.log(`Making login request to endpoint: "${endpoint}"`);

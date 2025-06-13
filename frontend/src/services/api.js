@@ -180,4 +180,20 @@ api.interceptors.response.use(
   }
 );
 
+// Function to reset API state for clean logout
+export const resetApiState = () => {
+  console.log('🔄 Resetting API state...');
+  
+  // Clear any pending requests
+  // Note: We can't easily cancel ongoing requests but we can clear headers
+  
+  // Remove authorization header
+  delete api.defaults.headers.common['Authorization'];
+  
+  // Clear any cached response data if needed
+  // (This would be implementation-specific if you have caching)
+  
+  console.log('✅ API state reset completed');
+};
+
 export default api;

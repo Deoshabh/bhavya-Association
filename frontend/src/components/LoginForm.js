@@ -12,8 +12,7 @@ const LoginForm = ({ onLoginSuccess, onLoginError }) => {
   
   // Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useRef(true);
-  
-  // Timeout reference for cleanup
+    // Timeout reference for cleanup
   const redirectTimeoutRef = useRef(null);
   
   // Add mount/unmount effect
@@ -21,15 +20,23 @@ const LoginForm = ({ onLoginSuccess, onLoginError }) => {
     isMountedRef.current = true;
     console.log('LoginForm mounted');
     
-    // Check if user is already authenticated on mount
-    const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        console.log('Token found in storage, user should be redirected');
+    // Clear any lingering authentication state to ensure fresh login
+    const clearAuthState = () => {
+      // Clear potential leftover tokens that might interfere
+      const tokenInStorage = localStorage.getItem('token');
+      if (tokenInStorage) {
+        console.log('Found leftover token in storage - clearing for fresh login');
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
       }
+      
+      // Clear any error states
+      setError('');
+      setSuccess('');
+      setDebugInfo(null);
     };
     
-    checkAuth();
+    clearAuthState();
     
     return () => {
       isMountedRef.current = false;
