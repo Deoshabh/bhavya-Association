@@ -106,7 +106,7 @@ router.get('/:slug', async (req, res) => {
 });
 
 // Create news (admin only)
-router.post('/', adminAuth, async (req, res) => {
+router.post('/', auth, adminAuth, async (req, res) => {
   try {
     const {
       title,
@@ -162,7 +162,7 @@ router.post('/', adminAuth, async (req, res) => {
 });
 
 // Update news (admin only)
-router.put('/:id', adminAuth, async (req, res) => {
+router.put('/:id', auth, adminAuth, async (req, res) => {
   try {
     const {
       title,
@@ -213,7 +213,7 @@ router.put('/:id', adminAuth, async (req, res) => {
 });
 
 // Delete news (admin only)
-router.delete('/:id', adminAuth, async (req, res) => {
+router.delete('/:id', auth, adminAuth, async (req, res) => {
   try {
     const news = await News.findByIdAndDelete(req.params.id);
     
@@ -296,7 +296,7 @@ router.post('/:id/comments', auth, async (req, res) => {
 });
 
 // Get all news for admin (admin only)
-router.get('/admin/all', adminAuth, async (req, res) => {
+router.get('/admin/all', auth, adminAuth, async (req, res) => {
   try {
     const { 
       status,
