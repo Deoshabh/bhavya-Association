@@ -93,8 +93,11 @@ const NewsManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Clear any previous errors
+    setError('');
+    
     // Client-side validation
-    if (!formData.title || !formData.content || !formData.excerpt || !formData.category) {
+    if (!formData || !formData.title || !formData.content || !formData.excerpt || !formData.category) {
       setError('Please fill in all required fields');
       return;
     }
@@ -108,13 +111,13 @@ const NewsManagement = () => {
     try {
       const formDataToSend = new FormData();
       
-      // Add all form fields with explicit handling
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('content', formData.content);
-      formDataToSend.append('excerpt', formData.excerpt);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('status', formData.status);
-      formDataToSend.append('featured', formData.featured);
+      // Add all form fields with explicit handling and null checks
+      formDataToSend.append('title', formData.title || '');
+      formDataToSend.append('content', formData.content || '');
+      formDataToSend.append('excerpt', formData.excerpt || '');
+      formDataToSend.append('category', formData.category || 'news');
+      formDataToSend.append('status', formData.status || 'draft');
+      formDataToSend.append('featured', String(formData.featured || false));
       
       if (formData.eventDate) {
         formDataToSend.append('eventDate', formData.eventDate);
@@ -126,19 +129,19 @@ const NewsManagement = () => {
         formDataToSend.append('tags', formData.tags);
       }
 
-      // Add image file if selected
-      if (selectedImage) {
+      // Add image file if selected (with safety checks)
+      if (selectedImage && selectedImage instanceof File) {
         formDataToSend.append('image', selectedImage);
       }
 
       console.log('📝 Submitting form data:', {
         title: formData.title,
-        content: formData.content.substring(0, 100) + '...',
+        content: formData.content ? formData.content.substring(0, 100) + '...' : '',
         excerpt: formData.excerpt,
         category: formData.category,
         status: formData.status,
         featured: formData.featured,
-        hasImage: !!selectedImage
+        hasImage: !!(selectedImage && selectedImage instanceof File)
       });
 
       if (editingNews) {
@@ -166,21 +169,26 @@ const NewsManagement = () => {
   };
 
   const handleEdit = (newsItem) => {
+    if (!newsItem) {
+      console.error('No news item provided for editing');
+      return;
+    }
+    
     setEditingNews(newsItem);
     setFormData({
-      title: newsItem.title,
-      content: newsItem.content,
-      excerpt: newsItem.excerpt,
-      category: newsItem.category,
-      status: newsItem.status,
-      featured: newsItem.featured,
+      title: newsItem.title || '',
+      content: newsItem.content || '',
+      excerpt: newsItem.excerpt || '',
+      category: newsItem.category || 'news',
+      status: newsItem.status || 'draft',
+      featured: newsItem.featured || false,
       eventDate: newsItem.eventDate ? new Date(newsItem.eventDate).toISOString().split('T')[0] : '',
       eventLocation: newsItem.eventLocation || '',
-      tags: newsItem.tags ? newsItem.tags.join(', ') : ''
+      tags: newsItem.tags && Array.isArray(newsItem.tags) ? newsItem.tags.join(', ') : ''
     });
     
-    // Set existing image preview
-    if (newsItem.image) {
+    // Set existing image preview with safety checks
+    if (newsItem.image && typeof newsItem.image === 'string') {
       const baseUrl = process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com';
       setImagePreview(`${baseUrl}${newsItem.image}`);
     } else {
@@ -192,28 +200,46 @@ const NewsManagement = () => {
   };
 
   const handleImageChange = (e) => {
+    if (!e || !e.target || !e.target.files) {
+      console.error('Invalid event object in handleImageChange');
+      return;
+    }
+    
     const file = e.target.files[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type || !file.type.startsWith('image/')) {
         alert('Please select an image file');
+        e.target.value = ''; // Clear the input
         return;
       }
       
       // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
         alert('Image size should be less than 10MB');
+        e.target.value = ''; // Clear the input
         return;
       }
       
       setSelectedImage(file);
       
-      // Create preview
+      // Create preview with error handling
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target.result);
+      reader.onload = (readerEvent) => {
+        if (readerEvent && readerEvent.target && readerEvent.target.result) {
+          setImagePreview(readerEvent.target.result);
+        }
+      };
+      reader.onerror = () => {
+        console.error('Error reading file');
+        setSelectedImage(null);
+        setImagePreview(null);
       };
       reader.readAsDataURL(file);
+    } else {
+      // No file selected, clear state
+      setSelectedImage(null);
+      setImagePreview(null);
     }
   };
 
