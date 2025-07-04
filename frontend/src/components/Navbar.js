@@ -69,6 +69,7 @@ const Navbar = () => {
           path: "/service-listings",
           icon: <Briefcase size={18} />,
         },
+        { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> },
         { label: "Profile", path: "/profile", icon: <User size={18} /> },
         user.planType === "admin" && {
           label: "Admin Panel",
@@ -76,7 +77,10 @@ const Navbar = () => {
           icon: <User size={18} />,
         },
       ].filter(Boolean)
-    : [{ label: "Home", path: "/", icon: <Home size={18} /> }];
+    : [
+        { label: "Home", path: "/", icon: <Home size={18} /> },
+        { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> }
+      ];
 
   // Toggle the mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);

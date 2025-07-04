@@ -410,9 +410,6 @@ const Home = () => {
             </a>
           </section>
           
-          {/* Latest News & Events Section */}
-          <LatestNews />
-          
           {/* Browse by Category Section */}
           <section className="py-6">
             <div className="container mx-auto">

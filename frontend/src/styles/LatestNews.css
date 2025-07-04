@@ -1,6 +1,13 @@
 /* Latest News & Events Component Styles */
 .latest-news-events {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem 0;
+}
+
+.latest-news-events .region {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .latest-news-events .view-header {
@@ -11,6 +18,10 @@
 .latest-news-events .latest1 h4 {
   position: relative;
   display: inline-block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
 }
 
 .latest-news-events .latest1 h4:after {
@@ -25,29 +36,89 @@
   border-radius: 2px;
 }
 
+.latest-news-events .item-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
 .latest-news-events .views-row {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   border: 1px solid transparent;
 }
 
 .latest-news-events .views-row:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-color: #e5e7eb;
 }
 
-.latest-news-events .what_new_title h5 {
+.latest-news-events .what_new_title {
+  margin: 0;
+}
+
+.latest-news-events .what_new_title a {
+  color: #1e40af;
+  text-decoration: none;
   font-weight: 600;
+  font-size: 1.1rem;
   line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.latest-news-events .what_new_title a:hover {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.latest-news-events .view-footer {
+  text-align: center;
+  margin-top: 2rem;
 }
 
 .latest-news-events .custom-view-more a {
+  display: inline-block;
+  background: #3b82f6;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .latest-news-events .custom-view-more a:hover {
+  background: #2563eb;
   transform: translateY(-1px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+  .latest-news-events .item-list ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .latest-news-events {
+    padding: 1rem 0;
+  }
+  
+  .latest-news-events .latest1 h4 {
+    font-size: 1.5rem;
+  }
+  
+  .latest-news-events .views-row {
+    padding: 1rem;
+  }
 }
 
 /* Line clamp utilities */

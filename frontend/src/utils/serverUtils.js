@@ -23,7 +23,9 @@ const directoryCache = {
   data: null,
   timestamp: 0,
 };
-// Note: ongoingDirectoryFetch and DIRECTORY_CACHE_TTL removed as unused
+// eslint-disable-next-line no-unused-vars
+let ongoingDirectoryFetch = null;
+// Note: DIRECTORY_CACHE_TTL removed as unused
 
 // **API Response Cache**
 const apiCache = new Map();
