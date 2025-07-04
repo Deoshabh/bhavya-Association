@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
-import api from '../services/api';
-import axios from 'axios';
+import api, { resetApiState } from '../services/api';
 import { withRetry, checkServerStatus } from '../utils/serverUtils';
 import { resetAppState, hardRefresh } from '../utils/cacheUtils';
 
@@ -17,6 +16,13 @@ export const AuthProvider = ({ children }) => {
 
   const lastFetchTime = useRef(0);
   const pendingRequest = useRef(null);
+  
+  // Circuit breaker to prevent infinite refresh loops
+  const refreshAttempts = useRef(0);
+  const lastRefreshAttempt = useRef(0);
+  const maxRefreshAttempts = 3;
+  const refreshCooldown = 30000; // 30 seconds
+  const isRefreshingToken = useRef(false);
 
   // Initialize token in api headers on mount and when token changes
   useEffect(() => {
@@ -30,14 +36,42 @@ export const AuthProvider = ({ children }) => {
       console.log('Clearing Authorization header (no token)');
       delete api.defaults.headers.common['Authorization'];
     }
-  }, [token]);
-
-  const handleLogout = useCallback(() => {
+  }, [token]);  const handleLogout = useCallback(() => {
+    console.log('🚪 Starting comprehensive logout...');
+    
+    // Reset all user state
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    setError(null);
     setLoading(false);
+    
+    // Clear all authentication tokens from storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('refreshToken');
+    
+    // Reset API state including headers and any cached data
+    resetApiState();
+    
+    // Reset all circuit breaker and tracking variables
+    refreshAttempts.current = 0;
+    lastRefreshAttempt.current = 0;
+    isRefreshingToken.current = false;
+    lastFetchTime.current = 0;
+    pendingRequest.current = null;
+    
+    // Clear any authentication-related localStorage items
+    const keysToRemove = [];
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('auth') || key.includes('user') || key.includes('session'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    console.log('✅ Logout completed - all auth state cleared');
   }, []);
 
   // Add a function to clear cache and reset cookies
@@ -56,34 +90,54 @@ export const AuthProvider = ({ children }) => {
       console.error('Error while clearing cache and cookies:', error);
       return false;
     }
-  }, []);
-
-  // Enhance refreshToken function to handle token verification errors
+  }, []);  // Enhanced refreshToken function with circuit breaker to prevent infinite loops
   const refreshToken = useCallback(async () => {
+    // Circuit breaker logic
+    const now = Date.now();
+    
+    // Check if we're already refreshing
+    if (isRefreshingToken.current) {
+      console.log('Token refresh already in progress, skipping...');
+      return false;
+    }
+    
+    // Check if we've hit the retry limit
+    if (refreshAttempts.current >= maxRefreshAttempts) {
+      console.log(`Max refresh attempts (${maxRefreshAttempts}) reached, forcing logout`);
+      handleLogout();
+      return false;
+    }
+    
+    // Check cooldown period
+    if (now - lastRefreshAttempt.current < refreshCooldown) {
+      console.log(`Refresh cooldown active (${refreshCooldown}ms), skipping attempt`);
+      return false;
+    }
+    
     try {
       if (!token) {
         console.log('No token to refresh');
         return false;
       }
       
-      // First verify the current token status
-      try {
-        console.log('Verifying token before refresh attempt...');
-        const verifyResponse = await api.post('/api/auth/verify-token', { token });
-        
-        if (verifyResponse.data.valid) {
-          console.log('Current token is still valid, no need to refresh');
-          return true;
-        }
-      } catch (verifyErr) {
-        // Token validation failed, but continue with refresh attempt
-        console.log('Token validation failed:', verifyErr.response?.data?.msg || verifyErr.message);
-      }
+      // Set flags to prevent concurrent refresh attempts
+      isRefreshingToken.current = true;
+      lastRefreshAttempt.current = now;
+      refreshAttempts.current += 1;
       
-      // Attempt to refresh token
+      console.log(`Token refresh attempt ${refreshAttempts.current}/${maxRefreshAttempts}`);
+      
+      // FIXED: Skip token verification to prevent infinite loops
+      // Attempt to refresh token directly without verification step
       console.log('Attempting to refresh token...');
-      const refreshRes = await api.post('/api/auth/refresh', {
+      
+      // Add timeout and better error handling for the refresh request
+      const refreshRes = await api.post('auth/refresh', {
         token: token
+      }, {
+        timeout: 10000, // 10 second timeout
+        // Don't trigger interceptors for this request to avoid recursion
+        _skipInterceptor: true
       });
       
       if (refreshRes.data?.token) {
@@ -94,6 +148,10 @@ export const AuthProvider = ({ children }) => {
         
         // Update auth headers for future requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        
+        // Reset circuit breaker on success
+        refreshAttempts.current = 0;
+        lastRefreshAttempt.current = 0;
         
         console.log('Token refreshed successfully');
         return true;
@@ -111,53 +169,46 @@ export const AuthProvider = ({ children }) => {
       // If the refresh endpoint doesn't exist (404), don't log out immediately
       if (err.response && err.response.status === 404) {
         console.log('Token refresh endpoint not available. Using current token.');
+        // Reset attempts since this is a server issue, not a token issue
+        refreshAttempts.current = 0;
         return true; // Continue using current token
       }
       
-      // For other errors, log out
-      handleLogout();
-      return false;
-    }
-  }, [api, token, handleLogout]);
-
-  // useEffect for token validation and auto-refresh
-  useEffect(() => {
-    if (!token) return;
-
-    // Function to check token validity
-    const validateToken = async () => {
-      try {
-        // Try to make a request using the token
-        await api.get('/profile/me'); // Without the /api prefix - interceptor will add it
-        // If successful, token is still valid
-        return true;
-      } catch (error) {
-        // If we get a 401, token is invalid/expired
-        if (error.response?.status === 401) {
-          console.log('Token validation failed - attempting token refresh');
-          try {
-            // Try to refresh the token
-            const refreshed = await refreshToken();
-            return refreshed;
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-            // If refresh fails, logout
-            handleLogout();
-            return false;
-          }
-        }
-        // Other errors (like network) shouldn't cause logout
-        return true;
+      // For other errors, check if we should log out
+      if (refreshAttempts.current >= maxRefreshAttempts) {
+        console.log('Max refresh attempts reached, logging out');
+        handleLogout();
       }
-    };
+      
+      return false;
+    } finally {
+      isRefreshingToken.current = false;
+    }
+  }, [token, handleLogout, refreshAttempts, lastRefreshAttempt, maxRefreshAttempts, refreshCooldown, isRefreshingToken]);  // Simplified token validation - only on mount and when token changes
+  useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-    // Validate token initially
-    validateToken();
-
-    // Set up periodic validation (every 10 minutes)
-    const intervalId = setInterval(validateToken, 10 * 60 * 1000);
-
-    return () => clearInterval(intervalId);
+    // Set the token in the API instance when it changes
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    // Safe logging to prevent undefined errors
+    if (token && typeof token === 'string') {
+      console.log('Token set in AuthContext:', token.substring(0, 10) + '...');
+    } else {
+      console.log('Token set in AuthContext but is not a valid string');
+    }
+    
+    // FIXED: Skip token validation to prevent infinite loops
+    // Just set loading to false since we have a token
+    console.log('Token present, skipping validation to prevent infinite loops');
+    setLoading(false);
+    
+    // Reset any circuit breaker counters since we have a valid token
+    refreshAttempts.current = 0;
+    lastRefreshAttempt.current = 0;
   }, [token]);
 
   // Enhance fetchUserProfile to pass auth error handler
@@ -243,44 +294,55 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
-      throw err;
-    } finally {
+      throw err;    } finally {
       pendingRequest.current = false;
     }
-  }, [token, api, handleLogout, user, refreshToken]);
-
+  }, [token, handleLogout, user, refreshToken]);
   useEffect(() => {
     if (!token) {
       setLoading(false);
       return;
     }
-    fetchUserProfile();
-  }, [token, fetchUserProfile]);
-
-  // Fix login method to eliminate URL path issues
+    
+    // Only fetch user profile if we don't already have user data
+    // This prevents unnecessary fetches during login process
+    if (!user) {
+      console.log('Token set but no user data - fetching profile');
+      fetchUserProfile();
+    } else {
+      console.log('Token set and user data exists - skipping profile fetch');
+      setLoading(false);
+    }
+  }, [token, fetchUserProfile, user]);  // Fix login method to eliminate URL path issues
   const login = async (phoneNumber, password, isAdminLogin = false) => {
-    setLoading(true);
+    console.log(`🔑 Starting ${isAdminLogin ? 'admin ' : ''}login for:`, phoneNumber);
+    
+    // Clear any existing state before login
     setError(null);
+    setLoading(true);
+    
+    // Reset circuit breaker variables to ensure fresh start
+    refreshAttempts.current = 0;
+    lastRefreshAttempt.current = 0;
+    isRefreshingToken.current = false;
+    lastFetchTime.current = 0;
+    pendingRequest.current = null;
+    
+    // Clear any lingering tokens from previous sessions
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    delete api.defaults.headers.common['Authorization'];
     
     try {
-      console.log(`Attempting ${isAdminLogin ? 'admin ' : ''}login with phone:`, phoneNumber);
-      
       // Use the correct endpoint without any prefix - let the interceptor handle it
       const endpoint = isAdminLogin ? 'auth/admin-login' : 'auth/login';
       console.log(`Making login request to endpoint: "${endpoint}"`);
       
-      // Ensure baseURL exists before using it
-      const baseURL = api.defaults.baseURL || 'https://api.bhavyasangh.com';
-      
-      // IMPORTANT FIX: The issue is with the URL, so we'll manually construct the correct URL
-      // instead of relying on the interceptor which might be adding the duplicate /api
-      const response = await axios({
-        method: 'post',
-        url: `${baseURL}/api/${endpoint}`,
-        data: { phoneNumber, password },
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      // FIXED: Use the api instance instead of manual URL construction
+      // The api instance has the proper normalizeApiPath logic to prevent duplicates
+      const response = await api.post(endpoint, { 
+        phoneNumber, 
+        password 
       });
       
       if (response.data && response.data.token) {
@@ -290,27 +352,41 @@ export const AuthProvider = ({ children }) => {
         // Update localStorage first
         localStorage.setItem('token', newToken);
         
-        // Then update state
-        setToken(newToken);
-        
         // Set the header explicitly for subsequent requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         
+        // Set token in state - this will trigger useEffect but won't fetch profile since we'll have user data
+        setToken(newToken);
+        
         try {
-          // Get user data
-          await fetchUserProfile(true).catch(err => {
-            console.warn('Profile fetch error (non-fatal):', err.message);
-          });
+          // Get user data directly without relying on useEffect
+          console.log('Fetching user profile after successful login...');
+          const profileResult = await fetchUserProfile(true);
           
-          return { success: true };
+          if (profileResult) {
+            console.log('✅ Login successful - user profile loaded');
+            // Set user data first, then loading to false
+            setUser(profileResult);
+            setLoading(false);
+            return { success: true };
+          } else {
+            console.warn('Login successful but profile fetch returned no data');
+            setLoading(false);
+            return { 
+              success: false, 
+              message: 'Login successful but could not load user data'
+            };
+          }
         } catch (profileErr) {
-          console.warn('Login successful but profile fetch failed:', profileErr);
+          console.error('Login successful but profile fetch failed:', profileErr);
+          setLoading(false);
           return { 
-            success: true, 
-            warning: 'Profile fetch failed, data may be incomplete'
+            success: false, 
+            message: 'Login successful but could not load user data'
           };
         }
       } else {
+        setLoading(false);
         setError('Invalid response from server. Please try again.');
         return { success: false, message: 'Invalid response from server' };
       }
@@ -324,17 +400,14 @@ export const AuthProvider = ({ children }) => {
         field: err.response?.data?.field,
         error: err
       };
-    } finally {
-      setLoading(false);
     }
   };
 
-  const register = async (name, phoneNumber, occupation, password) => {
-    try {
+  const register = async (name, phoneNumber, occupation, password) => {    try {
       // Sanitize phone number to ensure consistent format
       const sanitizedPhoneNumber = phoneNumber.replace(/\s+/g, '');
       
-      const res = await api.post('/api/auth/register', { 
+      const res = await api.post('auth/register', { 
         name, 
         phoneNumber: sanitizedPhoneNumber, 
         occupation, 
@@ -407,32 +480,29 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkServer();
-    const intervalId = setInterval(checkServer, interval);
-
-    return () => {
+    const intervalId = setInterval(checkServer, interval);    return () => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, []);
-
+  }, [serverStatus]);
   const updateUser = useCallback((updates) => setUser((prev) => ({ ...prev, ...updates })), []);
 
   // Add account deactivation and reactivation functions
   const deactivateAccount = useCallback(async () => {
     try {
-      await api.put('/api/profile/deactivate');
+      await api.put('profile/deactivate');
       handleLogout();
       return true;
     } catch (err) {
       console.error('Error deactivating account:', err);
       throw err;
     }
-  }, [api, handleLogout]);
+  }, [handleLogout]);
 
   const reactivateAccount = useCallback(async () => {
     setIsReactivating(true);
     try {
-      const res = await api.put('/api/profile/reactivate');
+      const res = await api.put('profile/reactivate');
       
       if (res.data && res.data.user) {
         // Update the user object with the new account status
@@ -448,97 +518,90 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Error reactivating account:', err);
-      throw err;
-    } finally {
+      throw err;    } finally {
       setIsReactivating(false);
     }
-  }, [api]);
-
+  }, []);
   const deleteAccount = useCallback(async () => {
     try {
-      await api.delete('/api/profile/me');
+      await api.delete('profile/me');
       handleLogout();
       return true;
     } catch (err) {
       console.error('Error deleting account:', err);
       throw err;
     }
-  }, [api, handleLogout]);
+  }, [handleLogout]);
 
   // Handle cancel reactivation
   const cancelReactivation = () => {
     setShowReactivatePrompt(false);
-  };
-
-  // Update useEffect for token validation and auto-refresh
+  };  // Update axios interceptor to handle token errors with circuit breaker
   useEffect(() => {
-    if (!token) return;
-
-    // Set the token in the API instance when it changes
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // Track consecutive 401 errors to prevent infinite loops
+    let consecutive401Count = 0;
+    const max401BeforeLogout = 3;
     
-    // Safe logging to prevent undefined errors
-    if (token && typeof token === 'string') {
-      console.log('Token set in AuthContext:', token.substring(0, 10) + '...');
-    } else {
-      console.log('Token set in AuthContext but is not a valid string');
-    }
-    
-    // Verify token validity on mount
-    const validateTokenOnMount = async () => {
-      try {
-        // Use 'auth/token-status' directly
-        console.log('Making token status request to endpoint: "auth/token-status"');
-        await api.get('auth/token-status'); 
-        console.log('Token validated successfully on mount');
-      } catch (error) {
-        if (error.response?.status === 401) {
-          console.log('Token invalid on mount, attempting refresh...');
-          try {
-            const refreshed = await refreshToken();
-            if (!refreshed) {
-              console.log('Token refresh failed, logging out');
-              handleLogout();
-            }
-          } catch (refreshError) {
-            console.error('Error during token refresh on mount:', refreshError);
-            handleLogout();
-          }
-        }
-      }
-    };
-    
-    validateTokenOnMount();
-  }, [token]);
-
-  // Update axios interceptor to handle token errors
-  useEffect(() => {
     // Set up response interceptor for handling token-related errors
     const interceptor = api.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Reset 401 counter on successful response
+        consecutive401Count = 0;
+        return response;
+      },
       async (error) => {
+        // Skip interceptor if the request is marked to skip (prevents recursion)
+        if (error.config?._skipInterceptor) {
+          return Promise.reject(error);
+        }
+        
         // If error is 401 Unauthorized and we have a token
         if (error.response?.status === 401 && token) {
+          consecutive401Count++;
+          
+          console.log(`401 error #${consecutive401Count} detected`);
+          
+          // If we've had too many consecutive 401s, force logout
+          if (consecutive401Count >= max401BeforeLogout) {
+            console.log(`Too many consecutive 401s (${consecutive401Count}), forcing logout`);
+            handleLogout();
+            return Promise.reject(error);
+          }
+          
+          // ENHANCED: Check circuit breaker before attempting refresh
+          if (refreshAttempts.current >= maxRefreshAttempts) {
+            console.log(`Circuit breaker active: max refresh attempts (${maxRefreshAttempts}) reached, forcing logout`);
+            handleLogout();
+            return Promise.reject(error);
+          }
+          
+          // Check if we're already refreshing
+          if (isRefreshingToken.current) {
+            console.log('Token refresh already in progress, rejecting request');
+            return Promise.reject(error);
+          }
+          
           // Check if we've already tried to refresh for this request
           if (error.config && !error.config._isRetry) {
-            try {
-              console.log('Token expired, attempting refresh...');
-              const success = await refreshToken();
+            console.log('Attempting token refresh via interceptor...');
+            
+            const success = await refreshToken();
+            
+            if (success) {
+              // Mark this request as retried
+              error.config._isRetry = true;
               
-              if (success) {
-                // Mark this request as retried
-                error.config._isRetry = true;
-                
-                // Update the auth header with the fresh token
-                const freshToken = localStorage.getItem('token');
-                error.config.headers['Authorization'] = `Bearer ${freshToken}`;
-                
-                // Retry the original request with the new token
-                return api.request(error.config);
-              }
-            } catch (refreshError) {
-              console.error('Error during token refresh:', refreshError);
-              // Force logout on refresh failure
+              // Update the auth header with the fresh token
+              const freshToken = localStorage.getItem('token');
+              error.config.headers['Authorization'] = `Bearer ${freshToken}`;
+              
+              // Reset 401 counter after successful refresh
+              consecutive401Count = 0;
+              
+              // Retry the original request with the new token
+              return api.request(error.config);
+            } else {
+              console.log('Token refresh failed in interceptor, logging out');
               handleLogout();
             }
           } else if (error.config?._isRetry) {
@@ -556,7 +619,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       api.interceptors.response.eject(interceptor);
     };
-  }, [token, refreshToken, handleLogout, api]);
+  }, [token, refreshToken, handleLogout, refreshAttempts, maxRefreshAttempts, isRefreshingToken]);
 
   // Add a simple auth check function that can be used throughout the app
   const isAuthenticated = useCallback(() => {

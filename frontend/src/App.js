@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -33,6 +33,7 @@ import AdminLogin from './pages/AdminLogin';
 import LatestEvents from './pages/LatestEvents';
 import NewsDetail from './pages/NewsDetail';
 import RouteCacheDebugger from './components/RouteCacheDebugger';
+import { generatePageMeta } from './utils/socialShareConfig';
 
 // ScrollToTopAndGuard component for navigation safety and scroll management
 const ScrollToTopAndGuard = () => {
@@ -65,15 +66,19 @@ const ScrollToTopAndGuard = () => {
 };
 
 function App() {
+  // Generate default meta configuration for home page
+  const defaultMeta = generatePageMeta('home');
+  
   return (
     <AuthProvider>
       <Router>
-        {/* Add global default meta tags */}
+        {/* Add global default meta tags for home page */}
         <MetaTags 
-          title="BHAVYA - Bharat Vyapar Associates"
-          description="Connect with professionals and entrepreneurs from the Bahujan Samaj. Join our community to collaborate and grow together."
-          url="https://bhavyasangh.com"
-          image="https://bhavyasangh.com/logo192.png"
+          title={defaultMeta.title}
+          description={defaultMeta.description}
+          url={defaultMeta.url}
+          image={defaultMeta.image}
+          keywords={defaultMeta.keywords}
           type="website"
         />
       

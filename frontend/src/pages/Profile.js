@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import Alert from "../components/Alert";
 import Button from "../components/Button";
+import MetaTags from "../components/MetaTags";
+import { generatePageMeta } from "../utils/socialShareConfig";
 
 const Profile = () => {
   const { user, loading, serverStatus } = useContext(AuthContext);
@@ -126,10 +128,16 @@ const Profile = () => {
       </div>
     );
   }
-
   // Otherwise, show the profile or settings based on active tab
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <>
+      {/* Meta tags for profile page */}
+      <MetaTags 
+        {...generatePageMeta('profile')}
+        type="website"
+      />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-800 mb-2">
           Your Profile
@@ -227,10 +235,10 @@ const Profile = () => {
             </div>
           </>
         ) : (
-          <ProfileSettings user={user} isPublic={user.isPublic} />
-        )}
+          <ProfileSettings user={user} isPublic={user.isPublic} />        )}
       </div>
     </div>
+    </>
   );
 };
 

@@ -44,25 +44,27 @@ const normalizeApiPath = (url) => {
   // Start with the raw URL and normalize it
   let normalizedUrl = url;
   
-  // Remove leading slash if present
+  // Remove leading slash if present to work with clean path
   if (normalizedUrl.startsWith('/')) {
     normalizedUrl = normalizedUrl.substring(1);
   }
   
-  // CRITICAL FIX: Remove any existing 'api/' prefix to prevent duplication
+  // CRITICAL FIX: Remove any existing 'api/' or '/api/' prefix to prevent duplication
   while (normalizedUrl.startsWith('api/')) {
-    normalizedUrl = normalizedUrl.substring(4);
+    normalizedUrl = normalizedUrl.substring(4); // Remove 'api/'
   }
   
-  // Only add /api/ prefix if it's not already there
-  if (!normalizedUrl.startsWith('/api/')) {
-    normalizedUrl = '/api/' + normalizedUrl;
-  }
+  // Now add the /api/ prefix to the clean URL - ENSURE proper slash handling
+  // The leading slash is crucial for proper URL construction with baseURL
+  normalizedUrl = '/api/' + normalizedUrl;
   
-  // Final cleanup for any remaining duplications
+  // Final safety check - remove any duplicate /api/api/ patterns
   while (normalizedUrl.includes('/api/api/')) {
     normalizedUrl = normalizedUrl.replace('/api/api/', '/api/');
   }
+  
+  // Ensure no double slashes except after protocol
+  normalizedUrl = normalizedUrl.replace(/([^:]\/)\/+/g, '$1');
   
   console.log('Normalized URL:', normalizedUrl);
   return normalizedUrl;
@@ -83,17 +85,26 @@ api.interceptors.request.use(
     // Safe full URL construction
     const baseURL = config.baseURL || '';
     const fullUrlBefore = `${baseURL}${config.url || ''}`;
-    
-    // IMPROVED URL LOGGING - Log the full URL being requested
-    console.log(`Full URL before normalization: ${fullUrlBefore}`);
+      // IMPROVED URL LOGGING - Log the full URL being requested
+    console.log(`🌐 Request URL before normalization: ${fullUrlBefore}`);
     
     // Fix URL duplication issue by normalizing the URL
     if (config.url) {
+      const originalUrl = config.url;
       config.url = normalizeApiPath(config.url);
       
       // Log the full fixed URL for debugging
       const fullUrlAfter = `${baseURL}${config.url || ''}`;
-      console.log(`Full URL after normalization: ${fullUrlAfter}`);
+      console.log(`🔧 Original path: "${originalUrl}" → Normalized path: "${config.url}"`);
+      console.log(`✅ Final request URL: ${fullUrlAfter}`);
+      
+      // Validate the final URL doesn't have malformed patterns
+      if (fullUrlAfter.includes('comauth') || fullUrlAfter.includes('com/api/apiauth')) {
+        console.error('🚨 MALFORMED URL DETECTED:', fullUrlAfter);
+        console.error('🚨 Original config.url:', originalUrl);
+        console.error('🚨 BaseURL:', baseURL);
+        console.error('🚨 Normalized path:', config.url);
+      }
       
       // Final safety check - if we still see /api/api/ pattern, fix it immediately
       if (config.url.includes('/api/api/')) {
@@ -168,5 +179,21 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Function to reset API state for clean logout
+export const resetApiState = () => {
+  console.log('🔄 Resetting API state...');
+  
+  // Clear any pending requests
+  // Note: We can't easily cancel ongoing requests but we can clear headers
+  
+  // Remove authorization header
+  delete api.defaults.headers.common['Authorization'];
+  
+  // Clear any cached response data if needed
+  // (This would be implementation-specific if you have caching)
+  
+  console.log('✅ API state reset completed');
+};
 
 export default api;

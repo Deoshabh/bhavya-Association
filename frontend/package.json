@@ -19,9 +19,9 @@
     "react-router-dom": "^7.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "node server.js",
+  },  "scripts": {
+    "start": "node server-production.js",
+    "start:dev": "node server.js",
     "dev": "BROWSER=none react-scripts start",
     "dev:win": "set BROWSER=none && react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run postbuild",

@@ -3,7 +3,6 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import LoginForm from '../components/LoginForm';
-import { AUTH } from '../utils/apiConfig';
 
 const Login = () => {
   const { user, loading, serverStatus } = useContext(AuthContext);
@@ -29,7 +28,7 @@ const Login = () => {
   }
 
   // If user is authenticated, render redirect component
-  if (user) {
+  if (user && !loading) {
     return <Navigate to="/profile" replace />;
   }
 

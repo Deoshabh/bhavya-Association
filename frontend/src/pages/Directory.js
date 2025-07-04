@@ -6,6 +6,8 @@ import useAuthenticatedRequest from '../hooks/useAuthenticatedRequest';
 import { Search, RefreshCw, Filter, ChevronDown, Users, X, Star, Shield, Mail, Phone, MapPin, Briefcase, Heart } from 'lucide-react';
 import api from '../services/api';
 import Alert from '../components/Alert';
+import MetaTags from '../components/MetaTags';
+import { generatePageMeta } from '../utils/socialShareConfig';
 
 // Default profile image as SVG
 const DEFAULT_PROFILE_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='150' height='150'%3E%3Cpath fill='%23d1d5db' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
@@ -168,9 +170,15 @@ const Directory = () => {
 
   // Unique occupations for filter
   const occupations = [...new Set(users.map((user) => user.occupation || '').filter(Boolean))].sort();
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      {/* Meta tags for directory page */}
+      <MetaTags 
+        {...generatePageMeta('directory')}
+        type="website"
+      />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Page Header */}
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
@@ -441,10 +449,10 @@ const Directory = () => {
                 </button>
               )}
             </div>
-          )}
-        </>
+          )}        </>
       )}
     </div>
+    </>
   );
 };
 

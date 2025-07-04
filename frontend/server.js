@@ -1,8 +1,40 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
+
+// Add process error handling to prevent crashes
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  console.error('Stack:', error.stack);
+  // Don't exit immediately in production, let container orchestrator handle it
+  setTimeout(() => process.exit(1), 1000);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit immediately in production, let container orchestrator handle it
+  setTimeout(() => process.exit(1), 1000);
+});
+
+// Add SIGTERM and SIGINT handlers for graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('📛 SIGTERM received, shutting down gracefully');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('📛 SIGINT received, shutting down gracefully');
+  process.exit(0);
+});
+
 const app = express();
 
 const port = process.env.PORT || 3000;
+
+console.log('🚀 Starting BHAVYA Frontend Server...');
+console.log('📂 Build directory:', path.join(__dirname, 'build'));
+console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+console.log('🔗 Port:', port);
 
 // Set proper security headers
 app.use((req, res, next) => {
@@ -105,6 +137,49 @@ app.get('/robots.txt', (req, res) => {
   });
 });
 
+// Handle social sharing images
+app.get('/share-images/:imageName', (req, res) => {
+  const { imageName } = req.params;
+    // Security: Only allow specific image files to prevent directory traversal
+  const allowedImages = [
+    'social-banner.jpg',
+    'social-banner-twitter.jpg', 
+    'social-banner-square.jpg',
+    'default-share.png',
+    'bhavya-social-share.png',
+    'bhavya-social-share.svg'
+  ];
+  
+  if (!allowedImages.includes(imageName)) {
+    return res.status(404).send('Image not found');
+  }
+  
+  const imagePath = path.join(__dirname, 'public', 'share-images', imageName);
+  
+  // Set appropriate content type based on extension
+  const ext = path.extname(imageName).toLowerCase();
+  const contentTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg', 
+    '.png': 'image/png',
+    '.webp': 'image/webp'
+  };
+  
+  if (contentTypes[ext]) {
+    res.setHeader('Content-Type', contentTypes[ext]);
+  }
+  
+  // Cache social images for 1 week
+  res.setHeader('Cache-Control', 'public, max-age=604800');
+  
+  res.sendFile(imagePath, (err) => {
+    if (err) {
+      console.error(`Error serving ${imageName}:`, err);
+      res.status(404).send('Image not found');
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
@@ -141,8 +216,70 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Frontend server running on port ${port}`);
-  console.log(`Build directory: ${path.join(__dirname, 'build')}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
+
+// Graceful server startup with retries
+const startServer = (retries = 3) => {
+  const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`✅ Frontend server running on port ${port}`);
+    console.log(`📂 Build directory: ${path.join(__dirname, 'build')}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    
+    // Check if build directory exists
+    const buildPath = path.join(__dirname, 'build');
+    const indexPath = path.join(buildPath, 'index.html');
+    
+    if (!fs.existsSync(buildPath)) {
+      console.error('❌ ERROR: Build directory does not exist:', buildPath);
+      process.exit(1);
+    }
+    
+    if (!fs.existsSync(indexPath)) {
+      console.error('❌ ERROR: index.html not found:', indexPath);
+      process.exit(1);
+    }
+    
+    console.log('✅ All required files found. Server is ready.');
+    console.log(`🔗 Access the application at: http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    console.error('❌ Server failed to start:', err);
+    
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use.`);
+      if (retries > 0) {
+        console.log(`🔄 Retrying in 2 seconds... (${retries} attempts left)`);
+        setTimeout(() => {
+          startServer(retries - 1);
+        }, 2000);
+        return;
+      }
+    }
+    
+    console.error('💀 Failed to start server after retries. Exiting...');
+    process.exit(1);
+  });
+
+  // Handle server shutdown gracefully
+  const gracefulShutdown = () => {
+    console.log('📛 Shutting down server gracefully...');
+    server.close(() => {
+      console.log('✅ Server closed successfully');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
+};
+
+// Start the server
+startServer();
