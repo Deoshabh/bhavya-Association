@@ -61,10 +61,6 @@ const NewsManagement = () => {
     { value: 'archived', label: 'Archived' }
   ];
 
-  useEffect(() => {
-    fetchNews();
-  }, [filters, pagination.page, fetchNews]);
-
   const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
@@ -88,6 +84,11 @@ const NewsManagement = () => {
       setLoading(false);
     }
   }, [api, pagination.page, pagination.limit, filters]);
+
+  // Fetch news data on component mount and when dependencies change
+  useEffect(() => {
+    fetchNews();
+  }, [fetchNews]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -651,22 +652,6 @@ const NewsManagement = () => {
                   </div>
                 </div>
               )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.image.url}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    image: { ...prev.image, url: e.target.value }
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
