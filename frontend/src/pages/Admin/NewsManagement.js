@@ -41,11 +41,13 @@ const NewsManagement = () => {
     category: 'news',
     status: 'draft',
     featured: false,
-    image: { url: '', alt: '' },
     eventDate: '',
     eventLocation: '',
     tags: ''
   });
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const categories = [
     { value: 'news', label: 'News' },
@@ -93,17 +95,32 @@ const NewsManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const submitData = {
-        ...formData,
-        eventDate: formData.eventDate || undefined,
-        eventLocation: formData.eventLocation || undefined,
-        image: formData.image.url ? formData.image : undefined
-      };
+      const formDataToSend = new FormData();
+      
+      // Add all form fields
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== '' && formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      // Add image file if selected
+      if (selectedImage) {
+        formDataToSend.append('image', selectedImage);
+      }
 
       if (editingNews) {
-        await api.put(`/news/${editingNews._id}`, submitData);
+        await api.put(`/news/${editingNews._id}`, formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
       } else {
-        await api.post('/news', submitData);
+        await api.post('/news', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
       }
 
       setShowModal(false);
@@ -125,12 +142,57 @@ const NewsManagement = () => {
       category: newsItem.category,
       status: newsItem.status,
       featured: newsItem.featured,
-      image: newsItem.image || { url: '', alt: '' },
       eventDate: newsItem.eventDate ? new Date(newsItem.eventDate).toISOString().split('T')[0] : '',
       eventLocation: newsItem.eventLocation || '',
       tags: newsItem.tags ? newsItem.tags.join(', ') : ''
     });
+    
+    // Set existing image preview
+    if (newsItem.image) {
+      const baseUrl = process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com';
+      setImagePreview(`${baseUrl}${newsItem.image}`);
+    } else {
+      setImagePreview(null);
+    }
+    
+    setSelectedImage(null);
     setShowModal(true);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Image size should be less than 10MB');
+        return;
+      }
+      
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    // Reset file input
+    const fileInput = document.getElementById('image-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   const handleDelete = async (id) => {
@@ -153,11 +215,16 @@ const NewsManagement = () => {
       category: 'news',
       status: 'draft',
       featured: false,
-      image: { url: '', alt: '' },
       eventDate: '',
       eventLocation: '',
       tags: ''
     });
+    setSelectedImage(null);
+    setImagePreview(null);
+    const fileInput = document.getElementById('image-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   const formatDate = (dateString) => {
@@ -298,12 +365,26 @@ const NewsManagement = () => {
                     <tr key={item._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
+                          {item.image && (
+                            <div className="w-10 h-10 mr-3 flex-shrink-0">
+                              <img
+                                src={`${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${item.image}`}
+                                alt={item.title}
+                                className="w-10 h-10 object-cover rounded"
+                              />
+                            </div>
+                          )}
                           <div>
                             <div className="text-sm font-medium text-gray-900">
                               {item.title}
                               {item.featured && (
                                 <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
                                   Featured
+                                </span>
+                              )}
+                              {item.image && (
+                                <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+                                  📷 Image
                                 </span>
                               )}
                             </div>
@@ -472,6 +553,43 @@ const NewsManagement = () => {
                   rows="8"
                   required
                 />
+              </div>
+
+              {/* Image Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Upload Image
+                </label>
+                <div className="space-y-3">
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  
+                  {imagePreview && (
+                    <div className="relative inline-block">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg border"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-500">
+                    Supported formats: JPG, PNG, GIF. Max size: 10MB
+                  </p>
+                </div>
               </div>
 
               {formData.category === 'event' && (

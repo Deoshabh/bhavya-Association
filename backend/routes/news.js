@@ -3,6 +3,9 @@ const router = express.Router();
 const News = require('../models/News');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
+const { upload } = require('../middleware/upload');
+const path = require('path');
+const fs = require('fs');
 
 // Get all published news/events (public route)
 router.get('/', async (req, res) => {
@@ -106,7 +109,7 @@ router.get('/:slug', async (req, res) => {
 });
 
 // Create news (admin only)
-router.post('/', auth, adminAuth, async (req, res) => {
+router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
   try {
     const {
       title,
@@ -115,7 +118,6 @@ router.post('/', auth, adminAuth, async (req, res) => {
       category,
       status,
       featured,
-      image,
       eventDate,
       eventLocation,
       tags
@@ -135,6 +137,12 @@ router.post('/', auth, adminAuth, async (req, res) => {
       });
     }
 
+    // Handle uploaded image
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `/uploads/news/${req.file.filename}`;
+    }
+
     const news = new News({
       title,
       content,
@@ -142,7 +150,7 @@ router.post('/', auth, adminAuth, async (req, res) => {
       category,
       status: status || 'draft',
       featured: featured || false,
-      image,
+      image: imageUrl,
       eventDate,
       eventLocation,
       author: req.user.id,
@@ -157,12 +165,21 @@ router.post('/', auth, adminAuth, async (req, res) => {
     res.status(201).json(populatedNews);
   } catch (error) {
     console.error('Error creating news:', error);
+    
+    // Clean up uploaded file if there was an error
+    if (req.file) {
+      const filePath = req.file.path;
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+    
     res.status(500).json({ message: 'Error creating news article' });
   }
 });
 
 // Update news (admin only)
-router.put('/:id', auth, adminAuth, async (req, res) => {
+router.put('/:id', auth, adminAuth, upload.single('image'), async (req, res) => {
   try {
     const {
       title,
@@ -171,7 +188,6 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
       category,
       status,
       featured,
-      image,
       eventDate,
       eventLocation,
       tags
@@ -184,11 +200,24 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
       category,
       status,
       featured,
-      image,
       eventDate,
       eventLocation,
       tags: tags ? tags.split(',').map(tag => tag.trim()) : []
     };
+
+    // Handle image update
+    if (req.file) {
+      // Get the existing news to delete old image
+      const existingNews = await News.findById(req.params.id);
+      if (existingNews && existingNews.image) {
+        const oldImagePath = path.join(__dirname, '../', existingNews.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      
+      updateData.image = `/uploads/news/${req.file.filename}`;
+    }
 
     // Remove undefined values
     Object.keys(updateData).forEach(key => 
@@ -208,6 +237,15 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
     res.json(news);
   } catch (error) {
     console.error('Error updating news:', error);
+    
+    // Clean up uploaded file if there was an error
+    if (req.file) {
+      const filePath = req.file.path;
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+    
     res.status(500).json({ message: 'Error updating news article' });
   }
 });
@@ -215,11 +253,21 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
 // Delete news (admin only)
 router.delete('/:id', auth, adminAuth, async (req, res) => {
   try {
-    const news = await News.findByIdAndDelete(req.params.id);
+    const news = await News.findById(req.params.id);
     
     if (!news) {
       return res.status(404).json({ message: 'News article not found' });
     }
+
+    // Delete associated image file
+    if (news.image) {
+      const imagePath = path.join(__dirname, '../', news.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    await News.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'News article deleted successfully' });
   } catch (error) {

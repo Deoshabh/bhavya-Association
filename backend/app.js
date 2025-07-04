@@ -58,6 +58,9 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Serve uploaded files statically
+app.use('/uploads', express.static('uploads'));
+
 // Simple health check endpoint for deployment monitoring
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
