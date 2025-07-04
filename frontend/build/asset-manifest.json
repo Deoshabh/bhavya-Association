@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/static/css/main.5f1b351c.css",
-    "main.js": "/static/js/main.3c57d9a0.js",
-    "static/js/206.8ac086ca.chunk.js": "/static/js/206.8ac086ca.chunk.js",
+    "main.css": "/static/css/main.6863fe7a.css",
+    "main.js": "/static/js/main.cbcd8e62.js",
+    "static/js/453.8ab44547.chunk.js": "/static/js/453.8ab44547.chunk.js",
     "static/media/logo4-1.png": "/static/media/logo4-1.c8d4fd1f706f8df2838a.png",
     "static/media/banner for home.jpg": "/static/media/banner for home.d70cd273be5b86aebf50.jpg",
     "static/media/Job.webp": "/static/media/Job.7796a8e1831e3cb39cbb.webp",
@@ -10,10 +10,13 @@
     "static/media/Traning.webp": "/static/media/Traning.3c243a6def5971db3ef8.webp",
     "static/media/business.webp": "/static/media/business.2d41122419521f050204.webp",
     "static/media/matra.webp": "/static/media/matra.7f28f038be99934c02af.webp",
-    "index.html": "/index.html"
+    "index.html": "/index.html",
+    "main.6863fe7a.css.map": "/static/css/main.6863fe7a.css.map",
+    "main.cbcd8e62.js.map": "/static/js/main.cbcd8e62.js.map",
+    "453.8ab44547.chunk.js.map": "/static/js/453.8ab44547.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5f1b351c.css",
-    "static/js/main.3c57d9a0.js"
+    "static/css/main.6863fe7a.css",
+    "static/js/main.cbcd8e62.js"
   ]
 }

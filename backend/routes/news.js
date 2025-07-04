@@ -111,6 +111,10 @@ router.get('/:slug', async (req, res) => {
 // Create news (admin only)
 router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
   try {
+    console.log('📝 Creating news - Request body:', req.body);
+    console.log('📷 Uploaded file:', req.file);
+    console.log('👤 User:', req.user ? req.user.id : 'No user');
+    
     const {
       title,
       content,
@@ -149,10 +153,10 @@ router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
       excerpt,
       category,
       status: status || 'draft',
-      featured: featured || false,
+      featured: featured === 'true' || featured === true,
       image: imageUrl,
-      eventDate,
-      eventLocation,
+      eventDate: eventDate || null,
+      eventLocation: eventLocation || null,
       author: req.user.id,
       tags: tags ? tags.split(',').map(tag => tag.trim()) : []
     });
@@ -164,7 +168,10 @@ router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
 
     res.status(201).json(populatedNews);
   } catch (error) {
-    console.error('Error creating news:', error);
+    console.error('❌ Error creating news:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Request body:', req.body);
+    console.error('Request file:', req.file);
     
     // Clean up uploaded file if there was an error
     if (req.file) {
@@ -174,7 +181,10 @@ router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
       }
     }
     
-    res.status(500).json({ message: 'Error creating news article' });
+    res.status(500).json({ 
+      message: 'Error creating news article',
+      error: error.message 
+    });
   }
 });
 

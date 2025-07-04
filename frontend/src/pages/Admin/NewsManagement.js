@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import AdminLayout from '../../components/Admin/AdminLayout';
 import { 
@@ -6,17 +6,14 @@ import {
   Edit, 
   Trash2, 
   Eye, 
-  Calendar, 
-  Tag, 
   Search,
-  Filter,
   RefreshCw,
   Save,
   X
 } from 'lucide-react';
 
 const NewsManagement = () => {
-  const { api, user } = useContext(AuthContext);
+  const { api } = useContext(AuthContext);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -66,9 +63,9 @@ const NewsManagement = () => {
 
   useEffect(() => {
     fetchNews();
-  }, [filters, pagination.page]);
+  }, [filters, pagination.page, fetchNews]);
 
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -90,24 +87,58 @@ const NewsManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, pagination.page, pagination.limit, filters]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!formData.title || !formData.content || !formData.excerpt || !formData.category) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    // Event validation
+    if (formData.category === 'event' && (!formData.eventDate || !formData.eventLocation)) {
+      setError('Event date and location are required for events');
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
       
-      // Add all form fields
-      Object.keys(formData).forEach(key => {
-        if (formData[key] !== '' && formData[key] !== undefined) {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
+      // Add all form fields with explicit handling
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('content', formData.content);
+      formDataToSend.append('excerpt', formData.excerpt);
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('status', formData.status);
+      formDataToSend.append('featured', formData.featured);
+      
+      if (formData.eventDate) {
+        formDataToSend.append('eventDate', formData.eventDate);
+      }
+      if (formData.eventLocation) {
+        formDataToSend.append('eventLocation', formData.eventLocation);
+      }
+      if (formData.tags) {
+        formDataToSend.append('tags', formData.tags);
+      }
 
       // Add image file if selected
       if (selectedImage) {
         formDataToSend.append('image', selectedImage);
       }
+
+      console.log('📝 Submitting form data:', {
+        title: formData.title,
+        content: formData.content.substring(0, 100) + '...',
+        excerpt: formData.excerpt,
+        category: formData.category,
+        status: formData.status,
+        featured: formData.featured,
+        hasImage: !!selectedImage
+      });
 
       if (editingNews) {
         await api.put(`/news/${editingNews._id}`, formDataToSend, {
