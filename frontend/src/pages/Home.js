@@ -19,6 +19,18 @@ import jobImage from "../assets/Job.webp";
 import marriagesImage from "../assets/matra.webp";
 import trainingImage from "../assets/Traning.webp";
 
+// Function to generate page metadata
+const generatePageMeta = (page) => {
+  const metaData = {
+    title: "Bhavya Associates - International Bahujan Directory",
+    description: "Connect with Bahujan community worldwide, expand your business network, discover new opportunities, and find community members globally.",
+    keywords: "Bahujan, community, directory, network, business, opportunities, cultural events",
+    imageUrl: "https://bhavya.org.in/logo.png", // Replace with actual image URL
+    url: "https://bhavya.org.in",
+  };
+  return metaData;
+};
+
 // Define your categories here
 const categories = [
   { name: "TV Repairing", icon: "🔧" },
@@ -324,6 +336,9 @@ const Home = () => {
               </div>
             </div>
           </section>
+
+          {/* Latest News & Events Section */}
+          <LatestNews />
 
           {/* Promote Business Banner Section - Clickable */}
           <section className="w-full px-0 py-6">
