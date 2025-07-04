@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import MetaTags from "../components/MetaTags";
+import LatestNews from "../components/LatestNews";
 
 // Local assets
 import bannerImage from "../assets/banner for home.jpg";
