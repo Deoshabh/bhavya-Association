@@ -42,6 +42,18 @@ export const LISTINGS = {
   DELETE: (id) => `listings/${id}`
 };
 
+export const NEWS = {
+  LIST: 'news',
+  LATEST: 'news/latest',
+  DETAIL: (slug) => `news/${slug}`,
+  CREATE: 'news',
+  UPDATE: (id) => `news/${id}`,
+  DELETE: (id) => `news/${id}`,
+  LIKE: (id) => `news/${id}/like`,
+  COMMENT: (id) => `news/${id}/comments`,
+  ADMIN_ALL: 'news/admin/all'
+};
+
 // Helper function to ensure API paths are correctly formatted
 export const getApiPath = (path) => {
   // Check for null/undefined path

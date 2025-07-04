@@ -1,0 +1,126 @@
+/* Latest News & Events Component Styles */
+.latest-news-events {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.latest-news-events .view-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.latest-news-events .latest1 h4 {
+  position: relative;
+  display: inline-block;
+}
+
+.latest-news-events .latest1 h4:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 2px;
+}
+
+.latest-news-events .views-row {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.latest-news-events .views-row:hover {
+  transform: translateY(-2px);
+  border-color: #e5e7eb;
+}
+
+.latest-news-events .what_new_title h5 {
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.latest-news-events .custom-view-more a {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.latest-news-events .custom-view-more a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .latest-news-events .latest1 h4 {
+    font-size: 1.5rem;
+  }
+  
+  .latest-news-events .grid {
+    gap: 1rem;
+  }
+}
+
+/* Animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.animate-pulse {
+  animation: shimmer 1.5s infinite;
+  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+  background-size: 800px 104px;
+}
+
+/* Category-specific colors */
+.category-news {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.category-event {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.category-announcement {
+  background-color: #fed7aa;
+  color: #c2410c;
+}
+
+.category-press-release {
+  background-color: #e9d5ff;
+  color: #7c3aed;
+}
+
+.category-photo-gallery {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.category-notice {
+  background-color: #fee2e2;
+  color: #dc2626;
+}

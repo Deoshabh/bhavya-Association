@@ -7,7 +7,8 @@ const profileRoutes = require('./routes/profile');
 const directoryRoutes = require('./routes/directory');
 const usersRoutes = require('./routes/users');
 const listingsRoutes = require('./routes/listings'); 
-const adminRoutes = require('./routes/admin'); 
+const adminRoutes = require('./routes/admin');
+const newsRoutes = require('./routes/news'); 
 const validateUserSchema = require('./utils/validateUserSchema');
 const requireDbConnection = require('./middleware/dbConnection');
 const { verifyModels } = require('./utils/modelUtil');
@@ -112,6 +113,7 @@ app.use('/api/directory', requireDbConnection, directoryRoutes);
 app.use('/api/users', requireDbConnection, usersRoutes);
 app.use('/api/listings', requireDbConnection, listingsRoutes);
 app.use('/api/admin', requireDbConnection, adminRoutes);
+app.use('/api/news', requireDbConnection, newsRoutes);
 
 // Initialize database connection before setting up routes
 async function startServer() {

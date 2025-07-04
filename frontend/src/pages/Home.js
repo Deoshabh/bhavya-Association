@@ -10,6 +10,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { getDefaultShareImage } from "../utils/sharingImageUtil";
 import MetaTags from "../components/MetaTags";
+import LatestNews from "../components/LatestNews";
 
 // Local assets
 import bannerImage from "../assets/banner for home.jpg";
@@ -445,6 +446,9 @@ const Home = () => {
               </div>
             </a>
           </section>
+          
+          {/* Latest News & Events Section */}
+          <LatestNews />
           
           {/* Browse by Category Section */}
           <section className="py-6">

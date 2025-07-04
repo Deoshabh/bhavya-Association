@@ -8,6 +8,7 @@ import {
   DollarSign, 
   Settings, 
   LogOut, 
+  FileText, 
   ChevronLeft
 } from 'lucide-react';
 
@@ -20,6 +21,7 @@ const AdminLayout = ({ children, title, currentPage }) => {
     { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
     { id: 'users', name: 'User Management', icon: <Users size={20} />, path: '/admin/users' },
     { id: 'listings', name: 'Listings', icon: <Briefcase size={20} />, path: '/admin/listings' },
+    { id: 'news', name: 'News & Events', icon: <FileText size={20} />, path: '/admin/news' },
     { id: 'payments', name: 'Payments', icon: <DollarSign size={20} />, path: '/admin/payments' },
     { id: 'settings', name: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' }
   ];

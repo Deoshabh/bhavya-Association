@@ -28,7 +28,10 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
 import ListingManagement from './pages/Admin/ListingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
+import NewsManagement from './pages/Admin/NewsManagement';
 import AdminLogin from './pages/AdminLogin';
+import LatestEvents from './pages/LatestEvents';
+import NewsDetail from './pages/NewsDetail';
 import RouteCacheDebugger from './components/RouteCacheDebugger';
 
 // ScrollToTopAndGuard component for navigation safety and scroll management
@@ -91,6 +94,8 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/about" element={<About />} />
+          <Route path="/latest-events" element={<LatestEvents />} />
+          <Route path="/news/:slug" element={<NewsDetail />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           
           {/* Protected routes without sidebar */}
@@ -129,6 +134,11 @@ function App() {
           <Route path="/admin/listings" element={
             <ProtectedRoute>
               <ListingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/news" element={
+            <ProtectedRoute>
+              <NewsManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/settings" element={
