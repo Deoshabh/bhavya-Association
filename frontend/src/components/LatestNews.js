@@ -102,10 +102,19 @@ const LatestNews = () => {
                 {[...news, ...news].map((item, index) => (
                   <div key={`${item._id}-${index}`} className="marquee-item">
                     <Link to={`/news/${item._id}`} className="news-link">
-                      <span className="news-category">{item.category === 'event' ? '🎉' : '📰'}</span>
-                      <span className="news-title">{item.title}</span>
-                      <span className="news-date">• {formatDate(item.createdAt)}</span>
-                      {item.featured && <span className="featured-badge">★ Featured</span>}
+                      {item.image && (
+                        <img 
+                          src={`${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${item.image}`} 
+                          alt={item.title}
+                          className="news-image"
+                        />
+                      )}
+                      <div className="news-content">
+                        <span className="news-category">{item.category === 'event' ? '🎉' : '📰'}</span>
+                        <span className="news-title">{item.title}</span>
+                        <span className="news-date">• {formatDate(item.createdAt)}</span>
+                        {item.featured && <span className="featured-badge">★ Featured</span>}
+                      </div>
                     </Link>
                   </div>
                 ))}

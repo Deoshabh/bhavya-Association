@@ -7,6 +7,17 @@ import './utils/devConfig'; // Import dev configuration
 import './utils/prodFixes'; // Import production fixes
 import ErrorBoundary from './components/ErrorBoundary';
 
+// Add global error handlers to prevent default browser error dialogs
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+  event.preventDefault();
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  event.preventDefault();
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
