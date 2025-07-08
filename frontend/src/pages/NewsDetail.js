@@ -10,7 +10,8 @@ import {
   Tag, 
   Share2,
   User,
-  ArrowLeft
+  ArrowLeft,
+  Image as ImageIcon
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
@@ -27,6 +28,8 @@ const NewsDetail = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -138,6 +141,33 @@ const NewsDetail = () => {
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
     }
+  };
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // If it starts with '/uploads' or similar, prepend the base URL
+    if (imagePath.startsWith('/')) {
+      return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${imagePath}`;
+    }
+    
+    // Otherwise, construct the full URL
+    return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${imagePath}`;
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    setImageLoading(false);
+    setImageError(true);
   };
 
   if (loading) {
@@ -253,13 +283,31 @@ const NewsDetail = () => {
             </div>
             
             {/* Featured Image */}
-            {news.image?.url && (
+            {news.image && (news.image.url || news.image) && (
               <div className="relative">
-                <img
-                  src={news.image.url}
-                  alt={news.image.alt || news.title}
-                  className="w-full h-64 md:h-96 object-cover"
-                />
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 h-64 md:h-96">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+                
+                {imageError ? (
+                  <div className="flex items-center justify-center bg-gray-100 h-64 md:h-96">
+                    <div className="text-center text-gray-500">
+                      <ImageIcon size={48} className="mx-auto mb-2" />
+                      <p>Image could not be loaded</p>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={getImageUrl(news.image.url || news.image)}
+                    alt={news.image.alt || news.title}
+                    className="w-full h-64 md:h-96 object-cover"
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                    style={{ display: imageLoading ? 'none' : 'block' }}
+                  />
+                )}
               </div>
             )}
             
