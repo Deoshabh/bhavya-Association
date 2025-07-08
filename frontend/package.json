@@ -19,14 +19,15 @@
     "react-router-dom": "^7.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
-  },  "scripts": {
+  },
+  "scripts": {
     "start": "node server-production.js",
     "start:dev": "node server.js",
     "dev": "BROWSER=none react-scripts start",
     "dev:win": "set BROWSER=none && react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run postbuild",
     "build:win": "set GENERATE_SOURCEMAP=false && react-scripts build && npm run postbuild",
-    "postbuild": "echo Cache busting build completed at $(date)",
+    "postbuild": "echo Cache busting build completed",
     "test": "react-scripts test"
   },
   "eslintConfig": {
