@@ -195,7 +195,11 @@ const NewsManagement = () => {
     // Set existing image preview with safety checks
     if (newsItem.image && typeof newsItem.image === 'string') {
       const baseUrl = process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com';
-      setImagePreview(`${baseUrl}${newsItem.image}`);
+      // Ensure the image URL is constructed properly
+      const imageUrl = newsItem.image.startsWith('/') 
+        ? `${baseUrl}${newsItem.image}`
+        : `${baseUrl}/uploads/news/${newsItem.image}`;
+      setImagePreview(imageUrl);
     } else {
       setImagePreview(null);
     }
@@ -431,9 +435,16 @@ const NewsManagement = () => {
                           {item.image && (
                             <div className="w-10 h-10 mr-3 flex-shrink-0">
                               <img
-                                src={`${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${item.image}`}
+                                src={item.image.startsWith('/') 
+                                  ? `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${item.image}`
+                                  : `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}/uploads/news/${item.image}`
+                                }
                                 alt={item.title}
                                 className="w-10 h-10 object-cover rounded"
+                                onError={(e) => {
+                                  console.error('Image failed to load:', item.image);
+                                  e.target.style.display = 'none';
+                                }}
                               />
                             </div>
                           )}

@@ -40,6 +40,23 @@ const LatestNews = () => {
     });
   };
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // If it starts with '/uploads' or similar, prepend the base URL
+    if (imagePath.startsWith('/')) {
+      return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${imagePath}`;
+    }
+    
+    // Otherwise, construct the full URL
+    return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}/uploads/${imagePath}`;
+  };
+
   if (loading) {
     return (
       <div className="latest-news-events">
@@ -104,9 +121,13 @@ const LatestNews = () => {
                     <Link to={`/news/${item._id}`} className="news-link">
                       {item.image && (
                         <img 
-                          src={`${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${item.image}`} 
+                          src={getImageUrl(item.image)} 
                           alt={item.title}
                           className="news-image"
+                          onError={(e) => {
+                            console.error('Image failed to load:', item.image);
+                            e.target.style.display = 'none';
+                          }}
                         />
                       )}
                       <div className="news-content">

@@ -153,11 +153,11 @@ const NewsDetail = () => {
     
     // If it starts with '/uploads' or similar, prepend the base URL
     if (imagePath.startsWith('/')) {
-      return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${imagePath}`;
+      return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${imagePath}`;
     }
     
     // Otherwise, construct the full URL
-    return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${imagePath}`;
+    return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}/uploads/${imagePath}`;
   };
 
   const handleImageLoad = () => {
