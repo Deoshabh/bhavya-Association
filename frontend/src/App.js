@@ -32,7 +32,6 @@ import NewsManagement from './pages/Admin/NewsManagement';
 import AdminLogin from './pages/AdminLogin';
 import LatestEvents from './pages/LatestEvents';
 import NewsDetail from './pages/NewsDetail';
-import RouteCacheDebugger from './components/RouteCacheDebugger';
 import { generatePageMeta } from './utils/socialShareConfig';
 
 // ScrollToTopAndGuard component for navigation safety and scroll management
@@ -156,8 +155,6 @@ function App() {
         </Routes>
         <BottomNavigation />
         <Footer />
-        {/* Add the route cache debugger for development */}
-        <RouteCacheDebugger />
       </Router>
     </AuthProvider>
   );

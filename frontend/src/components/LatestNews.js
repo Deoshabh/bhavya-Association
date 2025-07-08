@@ -15,12 +15,12 @@ const LatestNews = () => {
   const fetchLatestNews = async () => {
     try {
       setLoading(true);
+      // Use the correct endpoint that matches the backend routes
       const response = await api.get('/news', {
         params: {
-          limit: 10, // Fetch more items for better marquee effect
-          status: 'published',
-          sortBy: 'createdAt',
-          order: 'desc'
+          limit: 10,
+          page: 1,
+          sort: '-createdAt' // Backend expects sort format like this
         }
       });
       setNews(response.data.news || []);
