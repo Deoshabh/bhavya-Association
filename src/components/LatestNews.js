@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LatestNews.css';
 
 const LatestNews = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -57,68 +59,149 @@ const LatestNews = () => {
     return null;
   };
 
+  // Handle click on news item
+  const handleNewsClick = (newsItem) => {
+    // Navigate to the Latest News page with the specific post ID and complete data
+    navigate(`/latest-events/${newsItem._id || newsItem.id}`, { 
+      state: { 
+        newsItem: {
+          ...newsItem,
+          postType: newsItem.type || newsItem.category || 'news' // Handle different type field names
+        }
+      } 
+    });
+  };
+
+  // Handle "View All" click
+  const handleViewAllClick = (e) => {
+    e.preventDefault();
+    navigate('/latest-events');
+  };
+
   if (loading) {
-    return <div className="news-loading">Loading news...</div>;
+    return (
+      <div className="latest-news-events">
+        <div className="region region-home-latestnews">
+          <div className="view-header">
+            <div className="latest1">
+              <h4>Latest News & Events</h4>
+            </div>
+          </div>
+          <div className="marquee-container">
+            <div className="marquee-content">
+              <div className="marquee-item">
+                <span className="news-title">Loading latest updates...</span>
+                <span className="news-date">• Loading</span>
+              </div>
+            </div>
+          </div>
+          <div className="view-footer">
+            <div className="custom-view-more">
+              <a href="/latest-events" data-discover="true">View All</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="news-error">Error loading news: {error}</div>;
+    return (
+      <div className="latest-news-events">
+        <div className="region region-home-latestnews">
+          <div className="view-header">
+            <div className="latest1">
+              <h4>Latest News & Events</h4>
+            </div>
+          </div>
+          <div className="marquee-container">
+            <div className="marquee-content">
+              <div className="marquee-item">
+                <span className="news-title">Error loading news: {error}</span>
+                <span className="news-date">• Error</span>
+              </div>
+            </div>
+          </div>
+          <div className="view-footer">
+            <div className="custom-view-more">
+              <a href="/latest-events" data-discover="true">View All</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="latest-news">
-      <h2>Latest News</h2>
-      <div className="news-marquee-container">
-        <div className="news-marquee">
-          {news.map((item, index) => (
-            <div key={index} className="news-item">
-              <div className="news-content">
-                {getImageUrl(item) && (
-                  <div className="news-image">
-                    <img 
-                      src={getImageUrl(item)} 
-                      alt={item.title}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+    <div className="latest-news-events">
+      <div className="region region-home-latestnews">
+        <div className="view-header">
+          <div className="latest1">
+            <h4>Latest News & Events</h4>
+          </div>
+        </div>
+        <div className="marquee-container">
+          <div className="marquee-content">
+            {news.length > 0 ? (
+              <>
+                {news.map((item, index) => (
+                  <div 
+                    key={index} 
+                    className="marquee-item clickable-news-item"
+                    onClick={() => handleNewsClick(item)}
+                    role="button"
+                    tabIndex="0"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleNewsClick(item);
+                      }
+                    }}
+                  >
+                    <span className="news-title">{item.title}</span>
+                    <span className="news-date">
+                      • {new Date(item.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                )}
-                <div className="news-text">
-                  <h3>{item.title}</h3>
-                  <p>{item.excerpt || item.description}</p>
-                  <span className="news-date">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-          {/* Duplicate items for seamless loop */}
-          {news.map((item, index) => (
-            <div key={`duplicate-${index}`} className="news-item">
-              <div className="news-content">
-                {getImageUrl(item) && (
-                  <div className="news-image">
-                    <img 
-                      src={getImageUrl(item)} 
-                      alt={item.title}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+                ))}
+                {/* Duplicate items for seamless loop */}
+                {news.map((item, index) => (
+                  <div 
+                    key={`duplicate-${index}`} 
+                    className="marquee-item clickable-news-item"
+                    onClick={() => handleNewsClick(item)}
+                    role="button"
+                    tabIndex="0"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleNewsClick(item);
+                      }
+                    }}
+                  >
+                    <span className="news-title">{item.title}</span>
+                    <span className="news-date">
+                      • {new Date(item.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                )}
-                <div className="news-text">
-                  <h3>{item.title}</h3>
-                  <p>{item.excerpt || item.description}</p>
-                  <span className="news-date">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
+                ))}
+              </>
+            ) : (
+              <div className="marquee-item">
+                <span className="news-title">Stay tuned for the latest updates from BHAVYA Association!</span>
+                <span className="news-date">• Recent</span>
               </div>
-            </div>
-          ))}
+            )}
+          </div>
+        </div>
+        <div className="view-footer">
+          <div className="custom-view-more">
+            <a 
+              href="/latest-events" 
+              onClick={handleViewAllClick}
+              data-discover="true"
+            >
+              View All
+            </a>
+          </div>
         </div>
       </div>
     </div>

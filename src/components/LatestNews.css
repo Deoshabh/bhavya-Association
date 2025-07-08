@@ -98,6 +98,7 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -119,6 +120,121 @@
   background-color: #fadbd8;
   border: 1px solid #e74c3c;
   border-radius: 4px;
+}
+
+/* New styles for latest news events section */
+.latest-news-events {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.region-home-latestnews {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.view-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.latest1 h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.marquee-container {
+  height: 80px;
+  overflow: hidden;
+  position: relative;
+  background: white;
+}
+
+.marquee-content {
+  display: flex;
+  animation: marqueeHorizontal 30s linear infinite;
+  white-space: nowrap;
+}
+
+.marquee-content:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marqueeHorizontal {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 30px;
+  min-width: 300px;
+  height: 80px;
+  border-right: 1px solid #eee;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.clickable-news-item {
+  cursor: pointer;
+}
+
+.clickable-news-item:hover {
+  background-color: #f8f9fa;
+}
+
+.clickable-news-item:focus {
+  outline: 2px solid #007bff;
+  outline-offset: -2px;
+}
+
+.news-title {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-right: 10px;
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.news-date {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.view-footer {
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #eee;
+}
+
+.custom-view-more {
+  text-align: right;
+}
+
+.custom-view-more a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.custom-view-more a:hover {
+  color: #0056b3;
+  text-decoration: underline;
 }
 
 /* Responsive design */
@@ -143,6 +259,54 @@
   .news-text p {
     font-size: 12px;
   }
+  
+  .latest-news-events {
+    padding: 15px;
+  }
+  
+  .view-header {
+    padding: 15px;
+  }
+  
+  .marquee-container {
+    height: 60px;
+  }
+  
+  .marquee-item {
+    height: 60px;
+    min-width: 250px;
+    padding: 0 20px;
+  }
+  
+  .news-title {
+    max-width: 150px;
+    font-size: 0.9rem;
+  }
+  
+  .news-date {
+    font-size: 0.8rem;
+  }
+}
+
+/* Additional animations for better UX */
+.marquee-item {
+  position: relative;
+}
+
+.marquee-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #007bff;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.clickable-news-item:hover::after {
+  width: 80%;
 }
 
 /* Additional styles for items without images */
