@@ -40,29 +40,7 @@ const LatestNews = () => {
     });
   };
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-    
-    // If it's already a full URL, return as is
-    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-      return imagePath;
-    }
-    
-    // Handle case where image might be an object with url property (for backward compatibility)
-    if (typeof imagePath === 'object' && imagePath !== null && imagePath.url) {
-      return getImageUrl(imagePath.url);
-    }
-    
-    const baseUrl = process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com';
-    
-    // If it starts with '/uploads' or similar, prepend the base URL
-    if (imagePath.startsWith('/')) {
-      return `${baseUrl}${imagePath}`;
-    }
-    
-    // Otherwise, assume it's just the filename and construct the full URL
-    return `${baseUrl}/uploads/news/${imagePath}`;
-  };
+  // Format date function is already defined above
 
   if (loading) {
     return (
@@ -119,55 +97,30 @@ const LatestNews = () => {
         
         <div className="marquee-container">
           <div className="marquee-content">
-            {/* Duplicate content for seamless loop */}
-            {[...news, ...news].map((item, index) => (
-              <div key={`${item._id}-${index}`} className="marquee-item">
-                <Link to={`/news/${item.slug || item._id}`} className="news-link">
-                  <div className="news-thumbnail">
-                    {item.image ? (
-                      <img 
-                        src={getImageUrl(item.image)} 
-                        alt={item.title}
-                        className="news-image"
-                        onError={(e) => {
-                          e.target.src = '/share-images/bhavya-social-share.png';
-                          console.error('Image failed to load:', item.image);
-                        }}
-                      />
-                    ) : (
-                      <div className="news-image-placeholder">
-                        {item.category === 'event' ? '🎉' : 
-                         item.category === 'announcement' ? '📢' :
-                         item.category === 'press-release' ? '📝' :
-                         item.category === 'photo-gallery' ? '📸' :
-                         item.category === 'notice' ? '⚠️' : '📰'}
-                      </div>
-                    )}
-                    <div className="category-indicator" style={{
-                      backgroundColor: item.category === 'event' ? '#10b981' : 
-                                      item.category === 'announcement' ? '#f59e0b' :
-                                      item.category === 'press-release' ? '#8b5cf6' :
-                                      item.category === 'photo-gallery' ? '#ec4899' :
-                                      item.category === 'notice' ? '#ef4444' : '#3b82f6'
-                    }}></div>
-                  </div>
-                  <div className="news-content">
-                    <div className="news-header">
-                      <span className="news-category-tag">
-                        {item.category === 'event' ? '🎉 Event' : 
-                         item.category === 'announcement' ? '📢 Announcement' :
-                         item.category === 'press-release' ? '📝 Press Release' :
-                         item.category === 'photo-gallery' ? '📸 Gallery' :
-                         item.category === 'notice' ? '⚠️ Notice' : '📰 News'}
-                      </span>
-                      {item.featured && <span className="featured-badge">★ Featured</span>}
-                    </div>
-                    <span className="news-title line-clamp-2">{item.title}</span>
-                    <span className="news-date">• {formatDate(item.createdAt)}</span>
-                  </div>
-                </Link>
+            {news.length === 0 ? (
+              <div className="marquee-item">
+                <span className="news-title">Stay tuned for the latest updates from BHAVYA Association!</span>
+                <span className="news-date">• Recent</span>
               </div>
-            ))}
+            ) : (
+              // Duplicate content for seamless infinite loop
+              [...news, ...news, ...news].map((item, index) => (
+                <div key={`${item._id}-${index}`} className="marquee-item">
+                  <Link to={`/news/${item.slug || item._id}`} className="news-link">
+                    <span className="news-icon">
+                      {item.category === 'event' ? '🎉' : 
+                       item.category === 'announcement' ? '📢' :
+                       item.category === 'press-release' ? '📝' :
+                       item.category === 'photo-gallery' ? '📸' :
+                       item.category === 'notice' ? '⚠️' : '📰'}
+                    </span>
+                    <span className="news-title">{item.title}</span>
+                    <span className="news-date">• {formatDate(item.createdAt)}</span>
+                    {item.featured && <span className="featured-badge">★</span>}
+                  </Link>
+                </div>
+              ))
+            )}
           </div>
         </div>
         
