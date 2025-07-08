@@ -134,30 +134,18 @@ const NewsManagement = () => {
         formDataToSend.append('image', selectedImage);
       }
 
-      console.log('📝 Submitting form data:', {
-        title: formData.title,
-        content: formData.content ? formData.content.substring(0, 100) + '...' : '',
-        excerpt: formData.excerpt,
-        category: formData.category,
-        status: formData.status,
-        featured: formData.featured,
-        hasImage: !!(selectedImage && selectedImage instanceof File)
-      });
-
       if (editingNews) {
-        const response = await api.put(`/news/${editingNews._id}`, formDataToSend, {
+        await api.put(`/news/${editingNews._id}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        console.log('✅ News updated successfully:', response.data);
       } else {
-        const response = await api.post('/news', formDataToSend, {
+        await api.post('/news', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        console.log('✅ News created successfully:', response.data);
       }
 
       setShowModal(false);
@@ -165,10 +153,7 @@ const NewsManagement = () => {
       resetForm();
       fetchNews();
     } catch (error) {
-      console.error('❌ Error saving news:', error);
-      console.error('❌ Error response:', error.response?.data);
-      console.error('❌ Error status:', error.response?.status);
-      console.error('❌ Error headers:', error.response?.headers);
+      console.error('Error saving news:', error.response?.data?.message || error.message);
       
       // More detailed error messaging
       let errorMessage = 'Failed to save news';
@@ -320,80 +305,6 @@ const NewsManagement = () => {
       archived: 'bg-red-100 text-red-800'
     };
     return `px-2 py-1 rounded-full text-xs font-medium ${colors[status]}`;
-  };
-
-  // Debug function to test API connectivity and authentication
-  const testApiConnection = async () => {
-    try {
-      console.log('🧪 Testing API connection and authentication...');
-      
-      // Test 1: Check if we can fetch news (should work without auth)
-      const newsResponse = await api.get('/news');
-      console.log('✅ News fetch test passed:', newsResponse.status);
-      
-      // Test 2: Check authentication by trying to access a protected route
-      const authResponse = await api.get('/auth/verify');
-      console.log('✅ Auth test passed:', authResponse.status);
-      
-      // Test 3: Check admin privileges
-      try {
-        const adminResponse = await api.get('/admin/stats');
-        console.log('✅ Admin test passed:', adminResponse.status);
-      } catch (adminError) {
-        console.log('❌ Admin test failed:', adminError.response?.status);
-      }
-      
-      console.log('🔑 Current token:', localStorage.getItem('token') ? 'Present' : 'Missing');
-      
-    } catch (error) {
-      console.error('❌ API test failed:', error.response?.status, error.response?.data);
-    }
-  };
-
-  // Test function to create simple news without image
-  const testCreateSimpleNews = async () => {
-    try {
-      console.log('🧪 Testing simple news creation...');
-      
-      const testFormData = new FormData();
-      testFormData.append('title', 'Test News Article ' + Date.now());
-      testFormData.append('content', 'This is a test news article content created for debugging purposes.');
-      testFormData.append('excerpt', 'Test excerpt for debugging');
-      testFormData.append('category', 'news');
-      testFormData.append('status', 'draft');
-      testFormData.append('featured', 'false');
-      
-      console.log('📤 Sending test news creation request...');
-      const response = await api.post('/news', testFormData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      
-      console.log('✅ Test news creation successful:', response.data);
-      alert('✅ Test news creation successful! Check console for details.');
-      
-      // Refresh the news list
-      fetchNews();
-      
-    } catch (error) {
-      console.error('❌ Test news creation failed:', error);
-      console.error('❌ Error response:', error.response?.data);
-      console.error('❌ Error status:', error.response?.status);
-      
-      let errorMsg = 'Test failed: ';
-      if (error.response?.status === 401) {
-        errorMsg += 'Authentication required';
-      } else if (error.response?.status === 403) {
-        errorMsg += 'Admin access required';
-      } else if (error.response?.status === 500) {
-        errorMsg += 'Server error - check backend logs';
-      } else {
-        errorMsg += error.response?.data?.message || error.message;
-      }
-      
-      alert('❌ ' + errorMsg);
-    }
   };
 
   return (
