@@ -48,13 +48,20 @@ const LatestNews = () => {
       return imagePath;
     }
     
-    // If it starts with '/uploads' or similar, prepend the base URL
-    if (imagePath.startsWith('/')) {
-      return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${imagePath}`;
+    // Handle case where image might be an object with url property (for backward compatibility)
+    if (typeof imagePath === 'object' && imagePath !== null && imagePath.url) {
+      return getImageUrl(imagePath.url);
     }
     
-    // Otherwise, construct the full URL
-    return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}/uploads/${imagePath}`;
+    const baseUrl = process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com';
+    
+    // If it starts with '/uploads' or similar, prepend the base URL
+    if (imagePath.startsWith('/')) {
+      return `${baseUrl}${imagePath}`;
+    }
+    
+    // Otherwise, assume it's just the filename and construct the full URL
+    return `${baseUrl}/uploads/news/${imagePath}`;
   };
 
   if (loading) {
@@ -120,18 +127,26 @@ const LatestNews = () => {
                   <div key={`${item._id}-${index}`} className="marquee-item">
                     <Link to={`/news/${item._id}`} className="news-link">
                       {item.image && (
-                        <img 
-                          src={getImageUrl(item.image)} 
-                          alt={item.title}
-                          className="news-image"
-                          onError={(e) => {
-                            console.error('Image failed to load:', item.image);
-                            e.target.style.display = 'none';
-                          }}
-                        />
+                        <div className="news-image-container">
+                          <img 
+                            src={getImageUrl(item.image)} 
+                            alt={item.title}
+                            className="news-image"
+                            onError={(e) => {
+                              console.error('Image failed to load:', item.image);
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        </div>
                       )}
                       <div className="news-content">
-                        <span className="news-category">{item.category === 'event' ? '🎉' : '📰'}</span>
+                        <span className="news-category">
+                          {item.category === 'event' ? '🎉 Event' : 
+                           item.category === 'announcement' ? '📢 Announcement' :
+                           item.category === 'press-release' ? '📝 Press Release' :
+                           item.category === 'photo-gallery' ? '📸 Gallery' :
+                           item.category === 'notice' ? '⚠️ Notice' : '📰 News'}
+                        </span>
                         <span className="news-title">{item.title}</span>
                         <span className="news-date">• {formatDate(item.createdAt)}</span>
                         {item.featured && <span className="featured-badge">★ Featured</span>}

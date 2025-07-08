@@ -118,6 +118,12 @@ app.use('/api/listings', requireDbConnection, listingsRoutes);
 app.use('/api/admin', requireDbConnection, adminRoutes);
 app.use('/api/news', requireDbConnection, newsRoutes);
 
+// Debug routes
+if (process.env.NODE_ENV !== 'production') {
+  const debugUploadRoutes = require('./routes/debug-upload');
+  app.use('/api/debug', debugUploadRoutes);
+}
+
 // Initialize database connection before setting up routes
 async function startServer() {
   try {

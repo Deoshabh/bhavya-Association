@@ -144,7 +144,17 @@ router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
     // Handle uploaded image
     let imageUrl = null;
     if (req.file) {
-      imageUrl = `/uploads/news/${req.file.filename}`;
+      // Ensure the file exists in the filesystem
+      const fs = require('fs');
+      const filePath = path.join(__dirname, '../uploads/news', req.file.filename);
+      
+      if (fs.existsSync(filePath)) {
+        imageUrl = `/uploads/news/${req.file.filename}`;
+        console.log(`✅ Image saved successfully at ${filePath}`);
+      } else {
+        console.error(`❌ File was uploaded but not found at expected path: ${filePath}`);
+        return res.status(500).json({ message: 'Image upload failed - file not saved' });
+      }
     }
 
     const news = new News({

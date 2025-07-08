@@ -146,18 +146,34 @@ const NewsDetail = () => {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     
+    // Debug the image path
+    console.log('Processing image path:', imagePath);
+    
     // If it's already a full URL, return as is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      console.log('Full URL detected, returning as is');
       return imagePath;
     }
     
-    // If it starts with '/uploads' or similar, prepend the base URL
-    if (imagePath.startsWith('/')) {
-      return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}${imagePath}`;
+    // Handle case where image might be an object with url property (for backward compatibility)
+    if (typeof imagePath === 'object' && imagePath !== null && imagePath.url) {
+      console.log('Image is an object with url property');
+      return getImageUrl(imagePath.url);
     }
     
-    // Otherwise, construct the full URL
-    return `${process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'}/uploads/${imagePath}`;
+    const baseUrl = process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com';
+    
+    // If it starts with '/uploads' or similar, prepend the base URL
+    if (imagePath.startsWith('/')) {
+      const fullUrl = `${baseUrl}${imagePath}`;
+      console.log('Image path starts with /, constructed URL:', fullUrl);
+      return fullUrl;
+    }
+    
+    // Otherwise, construct the full URL assuming it's just the filename
+    const fullUrl = `${baseUrl}/uploads/news/${imagePath}`;
+    console.log('Constructed URL with uploads/news path:', fullUrl);
+    return fullUrl;
   };
 
   const handleImageLoad = () => {
@@ -283,7 +299,7 @@ const NewsDetail = () => {
             </div>
             
             {/* Featured Image */}
-            {news.image && (news.image.url || news.image) && (
+            {news.image && (
               <div className="relative">
                 {imageLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-gray-100 h-64 md:h-96">
@@ -299,14 +315,25 @@ const NewsDetail = () => {
                     </div>
                   </div>
                 ) : (
-                  <img
-                    src={getImageUrl(news.image.url || news.image)}
-                    alt={news.image.alt || news.title}
-                    className="w-full h-64 md:h-96 object-cover"
-                    onLoad={handleImageLoad}
-                    onError={handleImageError}
-                    style={{ display: imageLoading ? 'none' : 'block' }}
-                  />
+                  <a 
+                    href={getImageUrl(news.image)} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="cursor-pointer block"
+                    title="Click to view full image"
+                  >
+                    <img
+                      src={getImageUrl(news.image)}
+                      alt={news.title}
+                      className="w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
+                      style={{ display: imageLoading ? 'none' : 'block' }}
+                    />
+                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
+                      Click to view full image
+                    </div>
+                  </a>
                 )}
               </div>
             )}
