@@ -412,24 +412,6 @@ const NewsManagement = () => {
             <Plus size={20} className="mr-2" />
             Add News/Event
           </button>
-          
-          {/* Debug button - remove after testing */}
-          <button
-            onClick={testApiConnection}
-            className="flex items-center px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 ml-2"
-            title="Test API Connection & Auth"
-          >
-            🧪 Debug API
-          </button>
-          
-          {/* Test simple news creation */}
-          <button
-            onClick={testCreateSimpleNews}
-            className="flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 ml-2"
-            title="Test Simple News Creation"
-          >
-            ✅ Test Create
-          </button>
         </div>
 
         {error && (
