@@ -181,9 +181,20 @@ const NewsDetail = () => {
     setImageError(false);
   };
 
-  const handleImageError = () => {
+  const handleImageError = (e) => {
+    console.error('Image failed to load:', news?.image);
+    // Try to set fallback image
+    if (e.target) {
+      try {
+        e.target.src = '/share-images/bhavya-social-share.png';
+      } catch (fallbackError) {
+        console.error('Failed to set fallback image:', fallbackError);
+        setImageError(true);
+      }
+    } else {
+      setImageError(true);
+    }
     setImageLoading(false);
-    setImageError(true);
   };
 
   if (loading) {
@@ -319,19 +330,21 @@ const NewsDetail = () => {
                     href={getImageUrl(news.image)} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="cursor-pointer block"
+                    className="cursor-pointer block relative group"
                     title="Click to view full image"
                   >
                     <img
                       src={getImageUrl(news.image)}
                       alt={news.title}
-                      className="w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      className="w-full h-64 md:h-96 object-cover cursor-pointer transition-all duration-300"
                       onLoad={handleImageLoad}
                       onError={handleImageError}
                       style={{ display: imageLoading ? 'none' : 'block' }}
                     />
-                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
-                      Click to view full image
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 text-white bg-black bg-opacity-70 px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform scale-90 group-hover:scale-100">
+                        Click to view full size
+                      </span>
                     </div>
                   </a>
                 )}

@@ -111,58 +111,69 @@ const LatestNews = () => {
   return (
     <div className="latest-news-events">
       <div className="region region-home-latestnews">
-        <div id="block-views-latestnews-new-block-block" className="block block-views first last odd">
-          <div className="view view-latestnews-new-block view-id-latestnews_new_block view-display-id-block view-home-tabs view-dom-id-7a3d704ef2f6c0c9d875455275b896f8">
-            
-            <div className="view-header">
-              <div className="latest1">
-                <h4>Latest News &amp; Events</h4>
-              </div>
-            </div>
-            
-            <div className="marquee-container">
-              <div className="marquee-content">
-                {/* Duplicate content for seamless loop */}
-                {[...news, ...news].map((item, index) => (
-                  <div key={`${item._id}-${index}`} className="marquee-item">
-                    <Link to={`/news/${item._id}`} className="news-link">
-                      {item.image && (
-                        <div className="news-image-container">
-                          <img 
-                            src={getImageUrl(item.image)} 
-                            alt={item.title}
-                            className="news-image"
-                            onError={(e) => {
-                              console.error('Image failed to load:', item.image);
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
-                      <div className="news-content">
-                        <span className="news-category">
-                          {item.category === 'event' ? '🎉 Event' : 
-                           item.category === 'announcement' ? '📢 Announcement' :
-                           item.category === 'press-release' ? '📝 Press Release' :
-                           item.category === 'photo-gallery' ? '📸 Gallery' :
-                           item.category === 'notice' ? '⚠️ Notice' : '📰 News'}
-                        </span>
-                        <span className="news-title">{item.title}</span>
-                        <span className="news-date">• {formatDate(item.createdAt)}</span>
-                        {item.featured && <span className="featured-badge">★ Featured</span>}
+        <div className="view-header">
+          <div className="latest1">
+            <h4>Latest News &amp; Events</h4>
+          </div>
+        </div>
+        
+        <div className="marquee-container">
+          <div className="marquee-content">
+            {/* Duplicate content for seamless loop */}
+            {[...news, ...news].map((item, index) => (
+              <div key={`${item._id}-${index}`} className="marquee-item">
+                <Link to={`/news/${item.slug || item._id}`} className="news-link">
+                  <div className="news-thumbnail">
+                    {item.image ? (
+                      <img 
+                        src={getImageUrl(item.image)} 
+                        alt={item.title}
+                        className="news-image"
+                        onError={(e) => {
+                          e.target.src = '/share-images/bhavya-social-share.png';
+                          console.error('Image failed to load:', item.image);
+                        }}
+                      />
+                    ) : (
+                      <div className="news-image-placeholder">
+                        {item.category === 'event' ? '🎉' : 
+                         item.category === 'announcement' ? '📢' :
+                         item.category === 'press-release' ? '📝' :
+                         item.category === 'photo-gallery' ? '📸' :
+                         item.category === 'notice' ? '⚠️' : '📰'}
                       </div>
-                    </Link>
+                    )}
+                    <div className="category-indicator" style={{
+                      backgroundColor: item.category === 'event' ? '#10b981' : 
+                                      item.category === 'announcement' ? '#f59e0b' :
+                                      item.category === 'press-release' ? '#8b5cf6' :
+                                      item.category === 'photo-gallery' ? '#ec4899' :
+                                      item.category === 'notice' ? '#ef4444' : '#3b82f6'
+                    }}></div>
                   </div>
-                ))}
+                  <div className="news-content">
+                    <div className="news-header">
+                      <span className="news-category-tag">
+                        {item.category === 'event' ? '🎉 Event' : 
+                         item.category === 'announcement' ? '📢 Announcement' :
+                         item.category === 'press-release' ? '📝 Press Release' :
+                         item.category === 'photo-gallery' ? '📸 Gallery' :
+                         item.category === 'notice' ? '⚠️ Notice' : '📰 News'}
+                      </span>
+                      {item.featured && <span className="featured-badge">★ Featured</span>}
+                    </div>
+                    <span className="news-title line-clamp-2">{item.title}</span>
+                    <span className="news-date">• {formatDate(item.createdAt)}</span>
+                  </div>
+                </Link>
               </div>
-            </div>
-            
-            <div className="view-footer">
-              <div className="custom-view-more">
-                <Link to="/latest-events">View All News & Events</Link>
-              </div>
-            </div>
-            
+            ))}
+          </div>
+        </div>
+        
+        <div className="view-footer">
+          <div className="custom-view-more">
+            <Link to="/latest-events" data-discover="true">View All</Link>
           </div>
         </div>
       </div>
