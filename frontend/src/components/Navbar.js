@@ -13,6 +13,7 @@ import {
   UserPlus,
   Calendar,
   RefreshCw,
+  MessageCircle,
 } from "lucide-react";
 
 import "../styles/Navbar.css"; // Make sure this path is correct
@@ -70,6 +71,7 @@ const Navbar = () => {
           icon: <Briefcase size={18} />,
         },
         { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> },
+        { label: "Q&A", path: "/questions-answers", icon: <MessageCircle size={18} /> },
         { label: "Profile", path: "/profile", icon: <User size={18} /> },
         user.planType === "admin" && {
           label: "Admin Panel",
@@ -79,7 +81,8 @@ const Navbar = () => {
       ].filter(Boolean)
     : [
         { label: "Home", path: "/", icon: <Home size={18} /> },
-        { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> }
+        { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> },
+        { label: "Q&A", path: "/questions-answers", icon: <MessageCircle size={18} /> }
       ];
 
   // Toggle the mobile menu

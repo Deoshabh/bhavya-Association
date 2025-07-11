@@ -9,7 +9,8 @@ import {
   Settings, 
   LogOut, 
   FileText, 
-  ChevronLeft
+  ChevronLeft,
+  MessageCircle
 } from 'lucide-react';
 
 const AdminLayout = ({ children, title, currentPage }) => {
@@ -22,6 +23,7 @@ const AdminLayout = ({ children, title, currentPage }) => {
     { id: 'users', name: 'User Management', icon: <Users size={20} />, path: '/admin/users' },
     { id: 'listings', name: 'Listings', icon: <Briefcase size={20} />, path: '/admin/listings' },
     { id: 'news', name: 'News & Events', icon: <FileText size={20} />, path: '/admin/news' },
+    { id: 'qa', name: 'Q&A Management', icon: <MessageCircle size={20} />, path: '/admin/qa' },
     { id: 'payments', name: 'Payments', icon: <DollarSign size={20} />, path: '/admin/payments' },
     { id: 'settings', name: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' }
   ];

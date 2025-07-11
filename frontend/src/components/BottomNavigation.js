@@ -1,19 +1,28 @@
 import React, { useContext } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { Home, User, Store, Users, Search, Grid } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { Home, User, Store, Users, MessageCircle, Calendar } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/BottomNavigation.css';
 
 const BottomNavigation = () => {
-  const location = useLocation();
   const { user } = useContext(AuthContext);
   
-  // Only show protected routes if user is logged in
+  // Base menu items available to all users
   const menuItems = [
     {
       name: 'Home',
       path: '/',
       icon: <Home size={20} />
+    },
+    {
+      name: 'Latest News',
+      path: '/latest-events',
+      icon: <Calendar size={20} />
+    },
+    {
+      name: 'Q&A',
+      path: '/questions-answers',
+      icon: <MessageCircle size={20} />
     }
   ];
   
@@ -29,13 +38,15 @@ const BottomNavigation = () => {
         name: 'Directory',
         path: '/directory',
         icon: <Users size={20} />
-      },
-      {
-        name: 'Promote Bussiness',
-        path: '/service-listings',
-        icon: <Store size={20} />
       }
     );
+  } else {
+    // For guest users, add a services listing as public page
+    menuItems.push({
+      name: 'Services',
+      path: '/service-listings',
+      icon: <Store size={20} />
+    });
   }
 
   return (

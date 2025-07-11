@@ -32,6 +32,10 @@ import NewsManagement from './pages/Admin/NewsManagement';
 import AdminLogin from './pages/AdminLogin';
 import LatestEvents from './pages/LatestEvents';
 import NewsDetail from './pages/NewsDetail';
+import QuestionsAnswers from './pages/QuestionsAnswers';
+import QuestionDetail from './pages/QuestionDetail';
+import CreateQuestion from './pages/CreateQuestion';
+import QAManagement from './pages/Admin/QAManagement';
 import { generatePageMeta } from './utils/socialShareConfig';
 
 // ScrollToTopAndGuard component for navigation safety and scroll management
@@ -100,6 +104,13 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/latest-events" element={<LatestEvents />} />
           <Route path="/news/:slug" element={<NewsDetail />} />
+          <Route path="/questions-answers" element={<QuestionsAnswers />} />
+          <Route path="/questions/:id" element={<QuestionDetail />} />
+          <Route path="/create-question" element={
+            <ProtectedRoute>
+              <CreateQuestion />
+            </ProtectedRoute>
+          } />
           <Route path="/admin-login" element={<AdminLogin />} />
           
           {/* Protected routes without sidebar */}
@@ -143,6 +154,11 @@ function App() {
           <Route path="/admin/news" element={
             <ProtectedRoute>
               <NewsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/qa" element={
+            <ProtectedRoute>
+              <QAManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/settings" element={

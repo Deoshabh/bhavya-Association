@@ -4,6 +4,8 @@ const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/User');
 const Listing = require('../models/Listing');
+const Question = require('../models/Question');
+const Answer = require('../models/Answer');
 
 /**
  * @route   GET /api/admin/dashboard
@@ -422,6 +424,296 @@ router.get('/directory-diagnostic', auth, adminAuth, async (req, res) => {
     });
   } catch (err) {
     console.error('Directory diagnostic error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/admin/qa/stats
+ * @desc    Get Q&A statistics
+ * @access  Admin
+ */
+router.get('/qa/stats', auth, adminAuth, async (req, res) => {
+  try {
+    const totalQuestions = await Question.countDocuments({});
+    const activeQuestions = await Question.countDocuments({ status: 'active' });
+    const totalAnswers = await Answer.countDocuments({});
+    const reportedContent = await Question.countDocuments({ status: 'reported' }) + 
+                           await Answer.countDocuments({ status: 'reported' });
+
+    res.json({
+      totalQuestions,
+      activeQuestions,
+      totalAnswers,
+      reportedContent
+    });
+  } catch (err) {
+    console.error('Q&A stats error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/admin/questions
+ * @desc    Get all questions with filtering
+ * @access  Admin
+ */
+router.get('/questions', auth, adminAuth, async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20,
+      category,
+      type,
+      status,
+      priority,
+      search,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+    
+    // Build query based on filters
+    const query = {};
+    
+    if (category) {
+      query.category = category;
+    }
+    
+    if (type) {
+      query.type = type;
+    }
+    
+    if (status) {
+      query.status = status;
+    }
+    
+    if (priority) {
+      query.priority = priority;
+    }
+    
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } }
+      ];
+    }
+    
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    
+    // Execute query with pagination
+    const questions = await Question.find(query)
+      .populate('author', 'name planType')
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit));
+      
+    // Get total count for pagination
+    const total = await Question.countDocuments(query);
+    
+    res.json({
+      questions,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (err) {
+    console.error('Admin questions list error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/admin/answers
+ * @desc    Get all answers with filtering
+ * @access  Admin
+ */
+router.get('/answers', auth, adminAuth, async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20,
+      search,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+    
+    // Build query based on filters
+    const query = {};
+    
+    if (search) {
+      query.content = { $regex: search, $options: 'i' };
+    }
+    
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    
+    // Execute query with pagination
+    const answers = await Answer.find(query)
+      .populate('author', 'name planType')
+      .populate('question', 'title')
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit));
+      
+    // Get total count for pagination
+    const total = await Answer.countDocuments(query);
+    
+    res.json({
+      answers,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (err) {
+    console.error('Admin answers list error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   PUT /api/admin/questions/:id
+ * @desc    Update question (admin only)
+ * @access  Admin
+ */
+router.put('/questions/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const {
+      status,
+      featured,
+      priority
+    } = req.body;
+
+    const updateData = {};
+
+    if (status) updateData.status = status;
+    if (featured !== undefined) updateData.featured = featured;
+    if (priority) updateData.priority = priority;
+
+    const question = await Question.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('author', 'name planType');
+
+    if (!question) {
+      return res.status(404).json({ msg: 'Question not found' });
+    }
+
+    res.json({
+      msg: 'Question updated successfully',
+      question
+    });
+  } catch (err) {
+    console.error('Admin question update error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   PUT /api/admin/answers/:id
+ * @desc    Update answer (admin only)
+ * @access  Admin
+ */
+router.put('/answers/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const {
+      status,
+      isBestAnswer
+    } = req.body;
+
+    const updateData = {};
+
+    if (status) updateData.status = status;
+    if (isBestAnswer !== undefined) updateData.isBestAnswer = isBestAnswer;
+
+    const answer = await Answer.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('author', 'name planType')
+     .populate('question', 'title');
+
+    if (!answer) {
+      return res.status(404).json({ msg: 'Answer not found' });
+    }
+
+    res.json({
+      msg: 'Answer updated successfully',
+      answer
+    });
+  } catch (err) {
+    console.error('Admin answer update error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   DELETE /api/admin/questions/:id
+ * @desc    Delete question (admin only)
+ * @access  Admin
+ */
+router.delete('/questions/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+    
+    if (!question) {
+      return res.status(404).json({ msg: 'Question not found' });
+    }
+
+    // Delete all answers associated with this question
+    await Answer.deleteMany({ question: req.params.id });
+
+    // Delete the question
+    await Question.findByIdAndDelete(req.params.id);
+
+    res.json({ msg: 'Question and associated answers deleted successfully' });
+  } catch (err) {
+    console.error('Admin question deletion error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   DELETE /api/admin/answers/:id
+ * @desc    Delete answer (admin only)
+ * @access  Admin
+ */
+router.delete('/answers/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const answer = await Answer.findById(req.params.id);
+    
+    if (!answer) {
+      return res.status(404).json({ msg: 'Answer not found' });
+    }
+
+    // Update question's answer count
+    await Question.findByIdAndUpdate(
+      answer.question,
+      { $inc: { answerCount: -1 } }
+    );
+
+    // Delete the answer
+    await Answer.findByIdAndDelete(req.params.id);
+
+    res.json({ msg: 'Answer deleted successfully' });
+  } catch (err) {
+    console.error('Admin answer deletion error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
