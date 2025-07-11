@@ -27,6 +27,7 @@
     "dev:win": "set BROWSER=none && react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run postbuild",
     "build:win": "set GENERATE_SOURCEMAP=false && react-scripts build && npm run postbuild",
+    "build:prod": "set NODE_ENV=production && set GENERATE_SOURCEMAP=false && react-scripts build && npm run postbuild",
     "postbuild": "echo Cache busting build completed",
     "test": "react-scripts test"
   },
