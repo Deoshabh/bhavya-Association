@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Listing = require('../models/Listing');
 const Question = require('../models/Question');
 const Answer = require('../models/Answer');
+const Referral = require('../models/Referral'); // Add Referral model import
 
 /**
  * @route   GET /api/admin/dashboard
@@ -37,16 +38,56 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
       listingStats.byCategory[category] = await Listing.countDocuments({ category });
     }
     
-    // Get recent users
+    // Get recent users with referral information
     const recentUsers = await User.find({})
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('name phoneNumber planType accountStatus createdAt');
+      .select('name phoneNumber planType accountStatus createdAt referredBy')
+      .populate('referredBy', 'name referralCode');
       
+    // Get comprehensive referral statistics
+    const referralStats = {
+      total: await Referral.countDocuments({}),
+      completed: await Referral.countDocuments({ status: 'completed' }),
+      pending: await Referral.countDocuments({ status: 'pending' }),
+      cancelled: await Referral.countDocuments({ status: 'cancelled' }),
+      rewardsGiven: await Referral.countDocuments({ rewardGiven: true }),
+      totalUsersWithReferrals: await User.countDocuments({ 'referralStats.totalReferrals': { $gt: 0 } }),
+      totalReferredUsers: await User.countDocuments({ referredBy: { $ne: null } })
+    };
+
+    // Get referral tier distribution
+    const tierDistribution = await User.aggregate([
+      {
+        $group: {
+          _id: '$referralPerks.currentTier',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Get top referrers for admin dashboard
+    const topReferrers = await User.find({ 'referralStats.successfulReferrals': { $gt: 0 } })
+      .sort({ 'referralStats.successfulReferrals': -1 })
+      .limit(10)
+      .select('name phoneNumber referralStats referralPerks.currentTier referralCode createdAt');
+
+    // Get recent referral activities
+    const recentReferrals = await Referral.find({})
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .populate('referrer', 'name referralCode')
+      .populate('referred', 'name phoneNumber')
+      .select('referrer referred status referralDate completionDate rewardGiven');
+
     res.json({
       userStats,
       listingStats,
-      recentUsers
+      referralStats,
+      tierDistribution,
+      topReferrers,
+      recentUsers,
+      recentReferrals
     });
   } catch (err) {
     console.error('Admin dashboard error:', err);
@@ -138,10 +179,25 @@ router.get('/users/:userId', auth, adminAuth, async (req, res) => {
     // Get additional user information
     const userListings = await Listing.find({ user: req.params.userId })
       .select('title category createdAt');
+
+    // Get user's referral information
+    const referralInfo = {
+      referralsGiven: await Referral.find({ referrer: req.params.userId })
+        .populate('referred', 'name phoneNumber createdAt')
+        .sort({ createdAt: -1 }),
+      referralsReceived: await Referral.find({ referred: req.params.userId })
+        .populate('referrer', 'name phoneNumber referralCode')
+        .sort({ createdAt: -1 }),
+      totalReferrals: user.referralStats?.totalReferrals || 0,
+      successfulReferrals: user.referralStats?.successfulReferrals || 0,
+      currentTier: user.referralPerks?.currentTier || 'bronze',
+      referralCode: user.referralCode
+    };
       
     res.json({
       user,
-      listings: userListings
+      listings: userListings,
+      referralInfo
     });
   } catch (err) {
     console.error('Admin user detail error:', err);
@@ -714,6 +770,478 @@ router.delete('/answers/:id', auth, adminAuth, async (req, res) => {
     res.json({ msg: 'Answer deleted successfully' });
   } catch (err) {
     console.error('Admin answer deletion error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// ==================== REFERRAL MANAGEMENT ROUTES ====================
+
+/**
+ * @route   GET /api/admin/referrals
+ * @desc    Get all referrals with filtering and analytics
+ * @access  Admin
+ */
+router.get('/referrals', auth, adminAuth, async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20,
+      status,
+      referrer,
+      referred,
+      search,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      dateFrom,
+      dateTo
+    } = req.query;
+    
+    // Build query based on filters
+    const query = {};
+    
+    if (status) {
+      query.status = status;
+    }
+    
+    if (referrer) {
+      query.referrer = referrer;
+    }
+    
+    if (referred) {
+      query.referred = referred;
+    }
+    
+    // Date range filter
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(dateTo);
+    }
+    
+    // Search in referrer/referred names
+    if (search) {
+      const searchUsers = await User.find({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { phoneNumber: { $regex: search, $options: 'i' } },
+          { referralCode: { $regex: search, $options: 'i' } }
+        ]
+      }).select('_id');
+      
+      const userIds = searchUsers.map(user => user._id);
+      query.$or = [
+        { referrer: { $in: userIds } },
+        { referred: { $in: userIds } }
+      ];
+    }
+    
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    
+    // Execute query with pagination
+    const referrals = await Referral.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('referrer', 'name phoneNumber referralCode referralPerks.currentTier')
+      .populate('referred', 'name phoneNumber createdAt accountStatus');
+      
+    // Get total count for pagination
+    const total = await Referral.countDocuments(query);
+    
+    res.json({
+      referrals,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (err) {
+    console.error('Admin referral list error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/admin/referrals/analytics
+ * @desc    Get comprehensive referral analytics
+ * @access  Admin
+ */
+router.get('/referrals/analytics', auth, adminAuth, async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
+    
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate;
+    switch (period) {
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case 'quarter':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case 'year':
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    // Overall referral statistics
+    const overallStats = {
+      totalReferrals: await Referral.countDocuments({}),
+      completedReferrals: await Referral.countDocuments({ status: 'completed' }),
+      pendingReferrals: await Referral.countDocuments({ status: 'pending' }),
+      cancelledReferrals: await Referral.countDocuments({ status: 'cancelled' }),
+      rewardsGiven: await Referral.countDocuments({ rewardGiven: true }),
+      conversionRate: 0
+    };
+
+    // Calculate conversion rate
+    if (overallStats.totalReferrals > 0) {
+      overallStats.conversionRate = (overallStats.completedReferrals / overallStats.totalReferrals * 100).toFixed(2);
+    }
+
+    // Period-specific statistics
+    const periodStats = {
+      totalReferrals: await Referral.countDocuments({ createdAt: { $gte: startDate } }),
+      completedReferrals: await Referral.countDocuments({ 
+        status: 'completed', 
+        createdAt: { $gte: startDate } 
+      }),
+      newReferrers: await User.countDocuments({ 
+        'referralStats.totalReferrals': { $gt: 0 },
+        createdAt: { $gte: startDate }
+      })
+    };
+
+    // Top referrers with detailed stats
+    const topReferrers = await User.find({ 'referralStats.successfulReferrals': { $gt: 0 } })
+      .sort({ 'referralStats.successfulReferrals': -1 })
+      .limit(20)
+      .select('name phoneNumber referralStats referralPerks referralCode createdAt')
+      .lean();
+
+    // Tier distribution
+    const tierDistribution = await User.aggregate([
+      { 
+        $match: { 'referralStats.totalReferrals': { $gt: 0 } } 
+      },
+      {
+        $group: {
+          _id: '$referralPerks.currentTier',
+          count: { $sum: 1 },
+          totalReferrals: { $sum: '$referralStats.successfulReferrals' }
+        }
+      },
+      { $sort: { totalReferrals: -1 } }
+    ]);
+
+    // Daily referral trends for the period
+    const dailyTrends = await Referral.aggregate([
+      {
+        $match: { createdAt: { $gte: startDate } }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' }
+          },
+          count: { $sum: 1 },
+          completed: {
+            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+          }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+    ]);
+
+    // Referral source analysis
+    const sourceAnalysis = await Referral.aggregate([
+      {
+        $group: {
+          _id: '$metadata.source',
+          count: { $sum: 1 },
+          completed: {
+            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+          }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json({
+      period,
+      overallStats,
+      periodStats,
+      topReferrers,
+      tierDistribution,
+      dailyTrends,
+      sourceAnalysis
+    });
+  } catch (err) {
+    console.error('Admin referral analytics error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/admin/referrals/leaderboard
+ * @desc    Get referral leaderboard with extended information
+ * @access  Admin
+ */
+router.get('/referrals/leaderboard', auth, adminAuth, async (req, res) => {
+  try {
+    const { limit = 50, sortBy = 'successfulReferrals' } = req.query;
+    
+    const leaderboard = await User.find({ 'referralStats.totalReferrals': { $gt: 0 } })
+      .sort({ [`referralStats.${sortBy}`]: -1 })
+      .limit(parseInt(limit))
+      .select('name phoneNumber referralStats referralPerks referralCode createdAt accountStatus')
+      .lean();
+
+    // Add additional stats for each user
+    const enrichedLeaderboard = await Promise.all(
+      leaderboard.map(async (user) => {
+        const recentReferrals = await Referral.find({ referrer: user._id })
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .populate('referred', 'name createdAt')
+          .select('referred status createdAt');
+
+        return {
+          ...user,
+          recentReferrals,
+          joinedDaysAgo: Math.floor((Date.now() - user.createdAt) / (1000 * 60 * 60 * 24))
+        };
+      })
+    );
+
+    res.json({
+      leaderboard: enrichedLeaderboard,
+      totalActiveReferrers: leaderboard.length
+    });
+  } catch (err) {
+    console.error('Admin referral leaderboard error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   PUT /api/admin/referrals/:referralId
+ * @desc    Update referral status or reward status
+ * @access  Admin
+ */
+router.put('/referrals/:referralId', auth, adminAuth, async (req, res) => {
+  try {
+    const { status, rewardGiven, notes } = req.body;
+    
+    const referral = await Referral.findById(req.params.referralId)
+      .populate('referrer', 'name')
+      .populate('referred', 'name');
+    
+    if (!referral) {
+      return res.status(404).json({ msg: 'Referral not found' });
+    }
+    
+    const updates = {};
+    
+    if (status) {
+      updates.status = status;
+      if (status === 'completed' && !referral.completionDate) {
+        updates.completionDate = new Date();
+      }
+    }
+    
+    if (rewardGiven !== undefined) {
+      updates.rewardGiven = rewardGiven;
+    }
+    
+    if (notes) {
+      updates['metadata.adminNotes'] = notes;
+    }
+    
+    const updatedReferral = await Referral.findByIdAndUpdate(
+      req.params.referralId,
+      updates,
+      { new: true }
+    ).populate('referrer', 'name').populate('referred', 'name');
+    
+    // If marking as completed, update referrer stats
+    if (status === 'completed' && referral.status !== 'completed') {
+      await User.findByIdAndUpdate(referral.referrer._id, {
+        $inc: { 'referralStats.successfulReferrals': 1 }
+      });
+      
+      // Check if tier should be updated
+      const referrer = await User.findById(referral.referrer._id);
+      await referrer.updateReferralTier();
+    }
+    
+    res.json({
+      msg: 'Referral updated successfully',
+      referral: updatedReferral
+    });
+  } catch (err) {
+    console.error('Admin referral update error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   POST /api/admin/referrals/regenerate-code/:userId
+ * @desc    Regenerate referral code for a user
+ * @access  Admin
+ */
+router.post('/referrals/regenerate-code/:userId', auth, adminAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    // Generate new referral code
+    const newCode = user.generateReferralCode();
+    user.referralCode = newCode;
+    await user.save();
+    
+    res.json({
+      msg: 'Referral code regenerated successfully',
+      newCode,
+      user: {
+        id: user._id,
+        name: user.name,
+        referralCode: newCode
+      }
+    });
+  } catch (err) {
+    console.error('Admin referral code regeneration error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   POST /api/admin/referrals/manual-reward/:userId
+ * @desc    Manually award referral rewards to a user
+ * @access  Admin
+ */
+router.post('/referrals/manual-reward/:userId', auth, adminAuth, async (req, res) => {
+  try {
+    const { rewardType, reason } = req.body;
+    
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    // Manual reward logic
+    switch (rewardType) {
+      case 'tier_upgrade':
+        // Force tier upgrade
+        await user.updateReferralTier();
+        user.referralPerks.lastRewardDate = new Date();
+        user.referralStats.totalRewardsEarned += 1;
+        break;
+      
+      case 'bonus_referral':
+        // Add bonus referral count
+        user.referralStats.successfulReferrals += 1;
+        user.referralStats.totalReferrals += 1;
+        await user.updateReferralTier();
+        break;
+      
+      case 'special_badge':
+        // Add special admin-awarded badge
+        if (!user.referralPerks.specialBadges.includes('Admin Awarded')) {
+          user.referralPerks.specialBadges.push('Admin Awarded');
+        }
+        break;
+    }
+    
+    await user.save();
+    
+    // Log the manual reward
+    const adminReward = new Referral({
+      referrer: user._id,
+      referred: user._id, // Self-referral for admin rewards
+      referralCode: user.referralCode,
+      status: 'completed',
+      rewardGiven: true,
+      rewardType,
+      metadata: {
+        adminAwarded: true,
+        reason,
+        awardedBy: req.user.id,
+        awardedAt: new Date()
+      }
+    });
+    
+    await adminReward.save();
+    
+    res.json({
+      msg: `Manual reward (${rewardType}) granted successfully`,
+      user: {
+        id: user._id,
+        name: user.name,
+        currentTier: user.referralPerks.currentTier,
+        totalReferrals: user.referralStats.totalReferrals,
+        successfulReferrals: user.referralStats.successfulReferrals
+      }
+    });
+  } catch (err) {
+    console.error('Admin manual reward error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   DELETE /api/admin/referrals/:referralId
+ * @desc    Delete a referral record (admin only)
+ * @access  Admin
+ */
+router.delete('/referrals/:referralId', auth, adminAuth, async (req, res) => {
+  try {
+    const referral = await Referral.findById(req.params.referralId);
+    
+    if (!referral) {
+      return res.status(404).json({ msg: 'Referral not found' });
+    }
+    
+    // If it was a completed referral, update referrer stats
+    if (referral.status === 'completed') {
+      await User.findByIdAndUpdate(referral.referrer, {
+        $inc: { 
+          'referralStats.successfulReferrals': -1,
+          'referralStats.totalReferrals': -1
+        }
+      });
+      
+      // Recalculate tier for referrer
+      const referrer = await User.findById(referral.referrer);
+      if (referrer) {
+        await referrer.updateReferralTier();
+      }
+    }
+    
+    await Referral.findByIdAndDelete(req.params.referralId);
+    
+    res.json({ msg: 'Referral deleted successfully' });
+  } catch (err) {
+    console.error('Admin referral deletion error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });

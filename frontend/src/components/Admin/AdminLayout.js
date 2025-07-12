@@ -10,7 +10,8 @@ import {
   LogOut, 
   FileText, 
   ChevronLeft,
-  MessageCircle
+  MessageCircle,
+  UserPlus
 } from 'lucide-react';
 
 const AdminLayout = ({ children, title, currentPage }) => {
@@ -21,6 +22,7 @@ const AdminLayout = ({ children, title, currentPage }) => {
   const navItems = [
     { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
     { id: 'users', name: 'User Management', icon: <Users size={20} />, path: '/admin/users' },
+    { id: 'referrals', name: 'Referral System', icon: <UserPlus size={20} />, path: '/admin/referrals' },
     { id: 'listings', name: 'Listings', icon: <Briefcase size={20} />, path: '/admin/listings' },
     { id: 'news', name: 'News & Events', icon: <FileText size={20} />, path: '/admin/news' },
     { id: 'qa', name: 'Q&A Management', icon: <MessageCircle size={20} />, path: '/admin/qa' },

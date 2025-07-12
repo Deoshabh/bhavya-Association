@@ -28,6 +28,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
 import ListingManagement from './pages/Admin/ListingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
+import AdminReferralDashboard from './components/AdminReferralDashboard';
 import NewsManagement from './pages/Admin/NewsManagement';
 import AdminLogin from './pages/AdminLogin';
 import LatestEvents from './pages/LatestEvents';
@@ -155,6 +156,11 @@ function App() {
           <Route path="/admin/listings" element={
             <ProtectedRoute>
               <ListingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/referrals" element={
+            <ProtectedRoute>
+              <AdminReferralDashboard />
             </ProtectedRoute>
           } />
           <Route path="/admin/news" element={
