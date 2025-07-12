@@ -11,7 +11,7 @@
 const mongoose = require('mongoose');
 const readline = require('readline');
 const User = require('../models/User');
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: './.env' });
 
 // Create readline interface for user input
 const rl = readline.createInterface({

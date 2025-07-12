@@ -10,6 +10,7 @@ const AdminReferralDashboard = () => {
   const [referrals, setReferrals] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [error, setError] = useState('');
   const [filters, setFilters] = useState({
     status: '',
     period: 'month',
@@ -38,10 +39,22 @@ const AdminReferralDashboard = () => {
       const response = await fetch(`/api/admin/referrals/analytics?period=${filters.period}`, {
         headers: { 'x-auth-token': token }
       });
+      
+      // Check if response is ok and content-type is JSON
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
+      
       const data = await response.json();
       setAnalytics(data);
     } catch (error) {
       console.error('Error fetching referral analytics:', error);
+      setError('Failed to load analytics data. Please ensure you are logged in as an admin.');
     }
   };
 
@@ -57,11 +70,22 @@ const AdminReferralDashboard = () => {
       const response = await fetch(`/api/admin/referrals?${queryParams}`, {
         headers: { 'x-auth-token': token }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
+      
       const data = await response.json();
       setReferrals(data.referrals);
       setPagination(prev => ({ ...prev, total: data.pagination.total }));
     } catch (error) {
       console.error('Error fetching referrals:', error);
+      setError('Failed to load referrals data. Please ensure you are logged in as an admin.');
     }
   };
 
@@ -71,10 +95,21 @@ const AdminReferralDashboard = () => {
       const response = await fetch('/api/admin/referrals/leaderboard?limit=20', {
         headers: { 'x-auth-token': token }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
+      
       const data = await response.json();
       setLeaderboard(data.leaderboard);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
+      setError('Failed to load leaderboard data. Please ensure you are logged in as an admin.');
     }
   };
 
@@ -166,6 +201,22 @@ const AdminReferralDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+            <p className="text-red-800">{error}</p>
+            <button 
+              onClick={() => setError('')}
+              className="ml-auto text-red-600 hover:text-red-800"
+            >
+              <XCircle className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white shadow rounded-lg p-6">
         <div className="flex items-center justify-between">

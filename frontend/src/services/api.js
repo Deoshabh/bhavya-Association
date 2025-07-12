@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Create a centralized API instance
 const api = axios.create({
-  // FIXED: Remove /api from baseURL since it's added in normalizeApiPath
-  baseURL: process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com',
+  // Use empty baseURL for development (will use proxy) or production URL
+  baseURL: process.env.NODE_ENV === 'development' ? '' : (process.env.REACT_APP_API_URL || 'https://api.bhavyasangh.com'),
   timeout: 15000,
   withCredentials: true,
   headers: {
