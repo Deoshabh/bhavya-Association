@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { withRetry } from '../../utils/serverUtils';
 import { Search, Filter, RefreshCw, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import AdminLayout from '../../components/Admin/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import ListingEditModal from '../../components/Admin/ListingEditModal';
 
 const ListingManagement = () => {

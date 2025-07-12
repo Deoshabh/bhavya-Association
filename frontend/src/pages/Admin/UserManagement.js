@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { withRetry } from '../../utils/serverUtils';
 import { Search, Filter, RefreshCw, Edit, UserX, UserCheck, Award, Download, PlusCircle, Trash2 } from 'lucide-react';
-import AdminLayout from '../../components/Admin/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import UserEditModal from '../../components/Admin/UserEditModal';
 import DeleteConfirmModal from '../../components/Admin/DeleteConfirmModal';
 

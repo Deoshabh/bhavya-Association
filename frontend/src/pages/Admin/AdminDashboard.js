@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { withRetry } from '../../utils/serverUtils';
-import { Users, ShoppingBag, Briefcase, DollarSign, UserCheck, UserX, Shield, RefreshCw, Share2 } from 'lucide-react';
-import AdminLayout from '../../components/Admin/AdminLayout';
+import { Users, Briefcase, DollarSign, UserCheck, UserX, Shield, RefreshCw, Share2 } from 'lucide-react';
+import AdminLayout from '../../components/AdminLayout';
 
 // Enhanced stat card component
 const StatCard = ({ title, value, icon, color }) => {

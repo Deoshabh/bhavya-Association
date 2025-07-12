@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import AdminLayout from '../../components/Admin/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import { 
   Plus, 
   Edit, 
