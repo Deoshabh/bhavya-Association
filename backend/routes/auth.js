@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Referral = require('../models/Referral');
 // Import the auth middleware
 const auth = require('../middleware/auth');
 require('dotenv').config();
@@ -55,7 +56,7 @@ router.get('/check-env', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-  const { name, phoneNumber, occupation, password } = req.body;
+  const { name, phoneNumber, occupation, password, referralCode } = req.body;
   
   // Add validation for required fields
   if (!name || !phoneNumber || !occupation || !password) {
@@ -80,8 +81,25 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // No duplicate found, proceed with user creation
-    const user = new User({ name, phoneNumber, occupation, password });
+    // Validate referral code if provided
+    let referrer = null;
+    if (referralCode) {
+      referrer = await User.findOne({ referralCode: referralCode.toUpperCase() });
+      if (!referrer) {
+        return res.status(400).json({ 
+          msg: 'Invalid referral code provided',
+          errorType: 'INVALID_REFERRAL_CODE'
+        });
+      }
+    }
+
+    // Create new user
+    const userData = { name, phoneNumber, occupation, password };
+    if (referrer) {
+      userData.referredBy = referrer._id;
+    }
+
+    const user = new User(userData);
     user.password = await bcrypt.hash(password, 10);
     
     try {
@@ -98,6 +116,32 @@ router.post('/register', async (req, res) => {
       throw validationError;
     }
 
+    // Create referral record if user was referred
+    if (referrer) {
+      try {
+        const referralRecord = new Referral({
+          referrer: referrer._id,
+          referred: user._id,
+          referralCode: referralCode.toUpperCase(),
+          metadata: {
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent'),
+            source: 'registration'
+          }
+        });
+        
+        await referralRecord.save();
+        
+        // Complete the referral immediately since user registered successfully
+        await referralRecord.completeReferral();
+        
+        console.log(`Referral completed: ${referrer.name} referred ${user.name}`);
+      } catch (referralError) {
+        console.error('Error processing referral:', referralError);
+        // Don't fail registration if referral processing fails
+      }
+    }
+
     const payload = { user: { id: user.id } };
     
     if (!process.env.JWT_SECRET) {
@@ -105,7 +149,17 @@ router.post('/register', async (req, res) => {
     }
     
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
+    
+    // Return success with referral info if applicable
+    const response = { token };
+    if (referrer) {
+      response.referralInfo = {
+        referredBy: referrer.name,
+        message: `Welcome! You were referred by ${referrer.name}`
+      };
+    }
+    
+    res.json(response);
   } catch (err) {
     console.error('Registration error:', err.message);
     res.status(500).json({ msg: 'Server error', error: err.message });

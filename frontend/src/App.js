@@ -36,6 +36,7 @@ import QuestionsAnswers from './pages/QuestionsAnswers';
 import QuestionDetail from './pages/QuestionDetail';
 import CreateQuestion from './pages/CreateQuestion';
 import QAManagement from './pages/Admin/QAManagement';
+import ReferralDashboard from './pages/ReferralDashboard';
 import { generatePageMeta } from './utils/socialShareConfig';
 
 // ScrollToTopAndGuard component for navigation safety and scroll management
@@ -132,6 +133,11 @@ function App() {
           <Route path="/create-listing" element={
             <ProtectedRoute>
               <CreateListing />
+            </ProtectedRoute>
+          } />
+          <Route path="/referral" element={
+            <ProtectedRoute>
+              <ReferralDashboard />
             </ProtectedRoute>
           } />
           

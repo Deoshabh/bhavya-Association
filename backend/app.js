@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/admin');
 const newsRoutes = require('./routes/news');
 const questionsRoutes = require('./routes/questions');
 const answersRoutes = require('./routes/answers'); 
+const referralRoutes = require('./routes/referrals');
 const validateUserSchema = require('./utils/validateUserSchema');
 const requireDbConnection = require('./middleware/dbConnection');
 const { verifyModels } = require('./utils/modelUtil');
@@ -121,6 +122,7 @@ app.use('/api/admin', requireDbConnection, adminRoutes);
 app.use('/api/news', requireDbConnection, newsRoutes);
 app.use('/api/questions', requireDbConnection, questionsRoutes);
 app.use('/api/answers', requireDbConnection, answersRoutes);
+app.use('/api/referrals', requireDbConnection, referralRoutes);
 
 // Debug routes
 if (process.env.NODE_ENV !== 'production') {

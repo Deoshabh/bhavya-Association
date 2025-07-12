@@ -1,19 +1,67 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, CheckCircle, ArrowRight, Users, Gift } from 'lucide-react';
 
 const RegistrationForm = () => {
-  const { register } = useContext(AuthContext);
+  const { register, api } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [occupation, setOccupation] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
   const [duplicateUser, setDuplicateUser] = useState(false);
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [referralInfo, setReferralInfo] = useState(null);
+  const [validatingReferral, setValidatingReferral] = useState(false);
+
+  // Check for referral code in URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+      validateReferralCode(refCode);
+    }
+  }, [location]);
+
+  // Validate referral code
+  const validateReferralCode = async (code) => {
+    if (!code || code.length < 3) {
+      setReferralInfo(null);
+      return;
+    }
+
+    try {
+      setValidatingReferral(true);
+      const response = await api.get(`/api/referrals/validate/${code}`);
+      if (response.data.valid) {
+        setReferralInfo(response.data.referrer);
+      } else {
+        setReferralInfo(null);
+      }
+    } catch (err) {
+      setReferralInfo(null);
+    } finally {
+      setValidatingReferral(false);
+    }
+  };
+
+  // Handle referral code change
+  const handleReferralCodeChange = (e) => {
+    const code = e.target.value.toUpperCase();
+    setReferralCode(code);
+    
+    // Debounce validation
+    setTimeout(() => {
+      validateReferralCode(code);
+    }, 500);
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -23,8 +71,19 @@ const RegistrationForm = () => {
     setIsSubmitting(true);
     
     try {
-      await register(name, phoneNumber, occupation, password);
-      setSuccess('Registration successful! Redirecting to profile...');
+      const registrationData = { name, phoneNumber, occupation, password };
+      if (referralCode) {
+        registrationData.referralCode = referralCode;
+      }
+      
+      const result = await register(registrationData.name, registrationData.phoneNumber, registrationData.occupation, registrationData.password, registrationData.referralCode);
+      
+      let successMessage = 'Registration successful! Redirecting to profile...';
+      if (result?.referralInfo) {
+        successMessage = `Welcome! You were successfully referred by ${result.referralInfo.referredBy}. Redirecting to profile...`;
+      }
+      
+      setSuccess(successMessage);
       setTimeout(() => navigate('/profile'), 1500);
     } catch (err) {
       // Check if this is a duplicate user error (status code 409)
@@ -34,6 +93,8 @@ const RegistrationForm = () => {
         
         setDuplicateUser(true);
         setError(err.response?.data?.msg || 'This phone number is already registered. Please log in instead.');
+      } else if (err.response?.data?.errorType === 'INVALID_REFERRAL_CODE') {
+        setError('Invalid referral code. Please check the code and try again.');
       } else {
         // Handle other registration errors
         setError(err.response?.data?.msg || 'Registration failed. Please try again.');
@@ -154,6 +215,55 @@ const RegistrationForm = () => {
             minLength="6"
           />
           <p className="mt-1 text-xs text-neutral-500">Password must be at least 6 characters long</p>
+        </div>
+
+        {/* Referral Code Section */}
+        <div className="form-group">
+          <label className="block text-sm font-medium text-neutral-700 mb-1" htmlFor="referralCode">
+            Referral Code <span className="text-neutral-500">(Optional)</span>
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              id="referralCode"
+              value={referralCode}
+              onChange={handleReferralCodeChange}
+              disabled={isSubmitting}
+              className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              placeholder="Enter referral code"
+              style={{ textTransform: 'uppercase' }}
+            />
+            {validatingReferral && (
+              <div className="absolute right-3 top-2.5">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+              </div>
+            )}
+          </div>
+          
+          {referralInfo && (
+            <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
+              <div className="flex items-center">
+                <Users className="h-4 w-4 text-green-600 mr-2" />
+                <span className="text-sm text-green-800">
+                  You will be referred by <strong>{referralInfo.name}</strong>
+                </span>
+              </div>
+              <div className="flex items-center mt-1">
+                <Gift className="h-4 w-4 text-green-600 mr-2" />
+                <span className="text-xs text-green-700">
+                  {referralInfo.tier} tier member with {referralInfo.totalReferrals} successful referrals
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {referralCode && !referralInfo && !validatingReferral && (
+            <p className="mt-1 text-xs text-red-500">Invalid referral code</p>
+          )}
+          
+          <p className="mt-1 text-xs text-neutral-500">
+            Have a referral code? Enter it to connect with the member who invited you!
+          </p>
         </div>
         
         <button

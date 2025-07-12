@@ -403,16 +403,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, phoneNumber, occupation, password) => {    try {
+  const register = async (name, phoneNumber, occupation, password, referralCode = null) => {
+    try {
       // Sanitize phone number to ensure consistent format
       const sanitizedPhoneNumber = phoneNumber.replace(/\s+/g, '');
       
-      const res = await api.post('auth/register', { 
+      const requestData = { 
         name, 
         phoneNumber: sanitizedPhoneNumber, 
         occupation, 
         password 
-      });
+      };
+      
+      // Add referral code if provided
+      if (referralCode) {
+        requestData.referralCode = referralCode;
+      }
+      
+      const res = await api.post('auth/register', requestData);
       
       if (!res.data.token) {
         throw new Error('Registration successful but no token received');
@@ -427,7 +435,10 @@ export const AuthProvider = ({ children }) => {
       api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       
       // Fetch user profile with the new token
-      return fetchUserProfile(true);
+      await fetchUserProfile(true);
+      
+      // Return referral info if available
+      return res.data;
     } catch (error) {
       // Enhance error logging to include response data
       console.error('Registration error:', {

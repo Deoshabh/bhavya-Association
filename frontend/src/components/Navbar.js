@@ -14,6 +14,7 @@ import {
   Calendar,
   RefreshCw,
   MessageCircle,
+  Share2,
 } from "lucide-react";
 
 import "../styles/Navbar.css"; // Make sure this path is correct
@@ -72,6 +73,7 @@ const Navbar = () => {
         },
         { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> },
         { label: "Q&A", path: "/questions-answers", icon: <MessageCircle size={18} /> },
+        { label: "Referrals", path: "/referral", icon: <Share2 size={18} /> },
         { label: "Profile", path: "/profile", icon: <User size={18} /> },
         user.planType === "admin" && {
           label: "Admin Panel",
