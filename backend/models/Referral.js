@@ -77,7 +77,7 @@ ReferralSchema.methods.completeReferral = async function() {
 
 // Static method to get referral analytics
 ReferralSchema.statics.getAnalytics = async function(userId, timeframe = 'all') {
-  const matchStage = { referrer: mongoose.Types.ObjectId(userId) };
+  const matchStage = { referrer: new mongoose.Types.ObjectId(userId) };
   
   if (timeframe !== 'all') {
     const now = new Date();
