@@ -77,54 +77,71 @@ ReferralSchema.methods.completeReferral = async function() {
 
 // Static method to get referral analytics
 ReferralSchema.statics.getAnalytics = async function(userId, timeframe = 'all') {
-  const matchStage = { referrer: new mongoose.Types.ObjectId(userId) };
-  
-  if (timeframe !== 'all') {
-    const now = new Date();
-    let startDate;
-    
-    switch (timeframe) {
-      case 'week':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'month':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case 'year':
-        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-        break;
-    }
-    
-    if (startDate) {
-      matchStage.referralDate = { $gte: startDate };
-    }
-  }
+  try {
+    // Ensure userId is properly formatted
+    const objectId = mongoose.Types.ObjectId.isValid(userId)
+      ? new mongoose.Types.ObjectId(userId)
+      : userId;
 
-  const analytics = await this.aggregate([
-    { $match: matchStage },
-    {
-      $group: {
-        _id: null,
-        totalReferrals: { $sum: 1 },
-        completedReferrals: {
-          $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
-        },
-        pendingReferrals: {
-          $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
-        },
-        conversionRate: {
-          $avg: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
-        }
+    const matchStage = { referrer: objectId };
+
+    if (timeframe !== "all") {
+      const now = new Date();
+      let startDate;
+
+      switch (timeframe) {
+        case "week":
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case "month":
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case "year":
+          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+      }
+
+      if (startDate) {
+        matchStage.createdAt = { $gte: startDate };
       }
     }
-  ]);
 
-  return analytics[0] || {
-    totalReferrals: 0,
-    completedReferrals: 0,
-    pendingReferrals: 0,
-    conversionRate: 0
-  };
+    const analytics = await this.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: null,
+          totalReferrals: { $sum: 1 },
+          completedReferrals: {
+            $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+          },
+          pendingReferrals: {
+            $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+          },
+          conversionRate: {
+            $avg: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+          },
+        },
+      },
+    ]);
+
+    return (
+      analytics[0] || {
+        totalReferrals: 0,
+        completedReferrals: 0,
+        pendingReferrals: 0,
+        conversionRate: 0,
+      }
+    );
+  } catch (error) {
+    console.error("Error in getAnalytics:", error);
+    return {
+      totalReferrals: 0,
+      completedReferrals: 0,
+      pendingReferrals: 0,
+      conversionRate: 0,
+    };
+  }
 };
 
 module.exports = mongoose.model('Referral', ReferralSchema);

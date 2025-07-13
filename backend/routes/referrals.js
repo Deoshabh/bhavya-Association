@@ -7,42 +7,108 @@ const Referral = require('../models/Referral');
 // Get user's referral information
 router.get('/info', auth, async (req, res) => {
   try {
+    console.log("Fetching referral info for user:", req.user.id);
+
     const user = await User.findById(req.user.id)
-      .select('referralCode referralStats referralPerks name')
+      .select("referralCode referralStats referralPerks name")
       .lean();
 
     if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
+      console.log("User not found:", req.user.id);
+      return res.status(404).json({ msg: "User not found" });
     }
 
-    // Get referral analytics
-    const analytics = await Referral.getAnalytics(user._id);
-    
-    // Get recent referrals
-    const recentReferrals = await Referral.find({ referrer: user._id })
-      .populate('referred', 'name createdAt')
-      .sort({ referralDate: -1 })
-      .limit(10)
-      .lean();
+    console.log("User found:", {
+      id: user._id,
+      name: user.name,
+      hasReferralCode: !!user.referralCode,
+      hasReferralStats: !!user.referralStats,
+      hasReferralPerks: !!user.referralPerks,
+    });
+
+    // Initialize default values if missing
+    if (!user.referralStats) {
+      console.log("Initializing missing referralStats");
+      user.referralStats = {
+        totalReferrals: 0,
+        successfulReferrals: 0,
+        activeReferrals: 0,
+        totalRewardsEarned: 0,
+      };
+    }
+
+    if (!user.referralPerks) {
+      console.log("Initializing missing referralPerks");
+      user.referralPerks = {
+        currentTier: "bronze",
+        unlockedFeatures: [],
+        specialBadges: [],
+        lastRewardDate: null,
+      };
+    }
+
+    // Get referral analytics with error handling
+    let analytics;
+    try {
+      console.log("Fetching analytics for user:", user._id);
+      analytics = await Referral.getAnalytics(user._id);
+      console.log("Analytics fetched:", analytics);
+    } catch (analyticsError) {
+      console.error("Analytics error:", analyticsError);
+      analytics = {
+        totalReferrals: 0,
+        completedReferrals: 0,
+        pendingReferrals: 0,
+        conversionRate: 0,
+      };
+    }
+
+    // Get recent referrals with error handling
+    let recentReferrals;
+    try {
+      console.log("Fetching recent referrals for user:", user._id);
+      recentReferrals = await Referral.find({ referrer: user._id })
+        .populate("referred", "name createdAt")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+      console.log("Recent referrals fetched:", recentReferrals.length);
+    } catch (referralsError) {
+      console.error("Recent referrals error:", referralsError);
+      recentReferrals = [];
+    }
 
     // Get tier information
-    const tierInfo = User.getReferralTiers();
-    const currentTierIndex = tierInfo.findIndex(t => t.tier === user.referralPerks.currentTier);
-    const nextTier = tierInfo[currentTierIndex + 1] || null;
+    try {
+      console.log("Getting tier information");
+      const tierInfo = User.getReferralTiers();
+      const currentTierIndex = tierInfo.findIndex(
+        (t) => t.tier === user.referralPerks.currentTier
+      );
+      const nextTier = tierInfo[currentTierIndex + 1] || null;
 
-    res.json({
-      referralCode: user.referralCode,
-      referralStats: user.referralStats,
-      referralPerks: user.referralPerks,
-      analytics,
-      recentReferrals,
-      tierInfo: {
-        current: tierInfo[currentTierIndex],
-        next: nextTier,
-        all: tierInfo
-      },
-      referralLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/register?ref=${user.referralCode}`
-    });
+      const responseData = {
+        referralCode: user.referralCode,
+        referralStats: user.referralStats,
+        referralPerks: user.referralPerks,
+        analytics,
+        recentReferrals,
+        tierInfo: {
+          current: tierInfo[currentTierIndex >= 0 ? currentTierIndex : 0],
+          next: nextTier,
+          all: tierInfo,
+        },
+        referralLink: `${
+          process.env.FRONTEND_URL || "http://localhost:3000"
+        }/register?ref=${user.referralCode}`,
+      };
+
+      console.log("Sending response data for user:", user.name);
+      res.json(responseData);
+    } catch (tierError) {
+      console.error("Tier info error:", tierError);
+      throw tierError;
+    }
   } catch (err) {
     console.error('Error fetching referral info:', err);
     res.status(500).json({ msg: 'Server error', error: err.message });
