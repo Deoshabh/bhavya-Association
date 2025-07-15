@@ -1,193 +1,293 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Users, Award, TrendingUp, Eye, Search,
-  RefreshCw, Download, Gift, AlertCircle,
-  CheckCircle, Clock, XCircle, Star, Crown, Trophy, Zap
-} from 'lucide-react';
+  AlertCircle,
+  Award,
+  CheckCircle,
+  Clock,
+  Crown,
+  Download,
+  Eye,
+  Gift,
+  RefreshCw,
+  Search,
+  Star,
+  TrendingUp,
+  Trophy,
+  Users,
+  XCircle,
+  Zap,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 const AdminReferralDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [referrals, setReferrals] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState("overview");
+  const [error, setError] = useState("");
   const [filters, setFilters] = useState({
-    status: '',
-    period: 'month',
-    search: '',
-    dateFrom: '',
-    dateTo: ''
+    status: "",
+    period: "month",
+    search: "",
+    dateFrom: "",
+    dateTo: "",
   });
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
-    total: 0
+    total: 0,
   });
 
   useEffect(() => {
     const loadData = async () => {
+      // Check if user is logged in
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("No authentication token found. Please log in as an admin.");
+        return;
+      }
+
+      console.log("Loading admin referral data...");
       await fetchAnalytics();
       await fetchReferrals();
       await fetchLeaderboard();
     };
     loadData();
-  }, [filters.period, filters.status, filters.search, filters.dateFrom, filters.dateTo, pagination.page]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    filters.period,
+    filters.status,
+    filters.search,
+    filters.dateFrom,
+    filters.dateTo,
+    pagination.page,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAnalytics = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/referrals/analytics?period=${filters.period}`, {
-        headers: { 'x-auth-token': token }
-      });
-      
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(
+        `/api/admin/referrals/analytics?period=${filters.period}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       // Check if response is ok and content-type is JSON
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error("Analytics fetch error:", response.status, errorText);
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response');
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text();
+        console.error("Non-JSON response received:", responseText);
+        throw new Error("Server returned non-JSON response");
       }
-      
+
       const data = await response.json();
       setAnalytics(data);
     } catch (error) {
-      console.error('Error fetching referral analytics:', error);
-      setError('Failed to load analytics data. Please ensure you are logged in as an admin.');
+      console.error("Error fetching referral analytics:", error);
+      setError(
+        "Failed to load analytics data. Please ensure you are logged in as an admin."
+      );
     }
   };
 
   const fetchReferrals = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const queryParams = new URLSearchParams({
         page: pagination.page,
         limit: pagination.limit,
-        ...filters
+        ...filters,
       });
-      
+
       const response = await fetch(`/api/admin/referrals?${queryParams}`, {
-        headers: { 'x-auth-token': token }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error("Referrals fetch error:", response.status, errorText);
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response');
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text();
+        console.error("Non-JSON response received:", responseText);
+        throw new Error("Server returned non-JSON response");
       }
-      
+
       const data = await response.json();
       setReferrals(data.referrals);
-      setPagination(prev => ({ ...prev, total: data.pagination.total }));
+      setPagination((prev) => ({ ...prev, total: data.pagination.total }));
     } catch (error) {
-      console.error('Error fetching referrals:', error);
-      setError('Failed to load referrals data. Please ensure you are logged in as an admin.');
+      console.error("Error fetching referrals:", error);
+      setError(
+        "Failed to load referrals data. Please ensure you are logged in as an admin."
+      );
     }
   };
 
   const fetchLeaderboard = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/referrals/leaderboard?limit=20', {
-        headers: { 'x-auth-token': token }
-      });
-      
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(
+        "/api/admin/referrals/leaderboard?limit=20",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error("Leaderboard fetch error:", response.status, errorText);
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response');
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text();
+        console.error("Non-JSON response received:", responseText);
+        throw new Error("Server returned non-JSON response");
       }
-      
+
       const data = await response.json();
       setLeaderboard(data.leaderboard);
     } catch (error) {
-      console.error('Error fetching leaderboard:', error);
-      setError('Failed to load leaderboard data. Please ensure you are logged in as an admin.');
+      console.error("Error fetching leaderboard:", error);
+      setError(
+        "Failed to load leaderboard data. Please ensure you are logged in as an admin."
+      );
     }
   };
 
-  const updateReferralStatus = async (referralId, status, rewardGiven = null) => {
+  const updateReferralStatus = async (
+    referralId,
+    status,
+    rewardGiven = null
+  ) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await fetch(`/api/admin/referrals/${referralId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status, rewardGiven })
+        body: JSON.stringify({ status, rewardGiven }),
       });
       fetchReferrals();
       fetchAnalytics();
     } catch (error) {
-      console.error('Error updating referral:', error);
+      console.error("Error updating referral:", error);
     }
   };
 
   const regenerateReferralCode = async (userId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await fetch(`/api/admin/referrals/regenerate-code/${userId}`, {
-        method: 'POST',
-        headers: { 'x-auth-token': token }
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       fetchReferrals();
     } catch (error) {
-      console.error('Error regenerating referral code:', error);
+      console.error("Error regenerating referral code:", error);
     }
   };
 
   const grantManualReward = async (userId, rewardType, reason) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await fetch(`/api/admin/referrals/manual-reward/${userId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rewardType, reason })
+        body: JSON.stringify({ rewardType, reason }),
       });
       fetchLeaderboard();
       fetchAnalytics();
     } catch (error) {
-      console.error('Error granting manual reward:', error);
+      console.error("Error granting manual reward:", error);
     }
   };
 
   const getTierIcon = (tier) => {
     switch (tier) {
-      case 'diamond': return <Crown className="w-4 h-4 text-blue-600" />;
-      case 'platinum': return <Trophy className="w-4 h-4 text-purple-600" />;
-      case 'gold': return <Award className="w-4 h-4 text-yellow-600" />;
-      case 'silver': return <Star className="w-4 h-4 text-gray-500" />;
-      default: return <Zap className="w-4 h-4 text-orange-600" />;
+      case "diamond":
+        return <Crown className="w-4 h-4 text-blue-600" />;
+      case "platinum":
+        return <Trophy className="w-4 h-4 text-purple-600" />;
+      case "gold":
+        return <Award className="w-4 h-4 text-yellow-600" />;
+      case "silver":
+        return <Star className="w-4 h-4 text-gray-500" />;
+      default:
+        return <Zap className="w-4 h-4 text-orange-600" />;
     }
   };
 
   const getTierColor = (tier) => {
     switch (tier) {
-      case 'diamond': return 'bg-blue-100 text-blue-800';
-      case 'platinum': return 'bg-purple-100 text-purple-800';
-      case 'gold': return 'bg-yellow-100 text-yellow-800';
-      case 'silver': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-orange-100 text-orange-800';
+      case "diamond":
+        return "bg-blue-100 text-blue-800";
+      case "platinum":
+        return "bg-purple-100 text-purple-800";
+      case "gold":
+        return "bg-yellow-100 text-yellow-800";
+      case "silver":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-orange-100 text-orange-800";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'pending': return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'cancelled': return <XCircle className="w-4 h-4 text-red-600" />;
-      default: return <AlertCircle className="w-4 h-4 text-gray-600" />;
+      case "completed":
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case "pending":
+        return <Clock className="w-4 h-4 text-yellow-600" />;
+      case "cancelled":
+        return <XCircle className="w-4 h-4 text-red-600" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -207,8 +307,8 @@ const AdminReferralDashboard = () => {
           <div className="flex items-center">
             <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
             <p className="text-red-800">{error}</p>
-            <button 
-              onClick={() => setError('')}
+            <button
+              onClick={() => setError("")}
               className="ml-auto text-red-600 hover:text-red-800"
             >
               <XCircle className="w-4 h-4" />
@@ -221,8 +321,12 @@ const AdminReferralDashboard = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Referral Management</h1>
-            <p className="text-gray-600">Monitor and manage the referral system</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Referral Management
+            </h1>
+            <p className="text-gray-600">
+              Monitor and manage the referral system
+            </p>
           </div>
           <div className="flex space-x-2">
             <button
@@ -245,18 +349,18 @@ const AdminReferralDashboard = () => {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 px-6">
             {[
-              { id: 'overview', name: 'Overview', icon: TrendingUp },
-              { id: 'referrals', name: 'All Referrals', icon: Users },
-              { id: 'leaderboard', name: 'Leaderboard', icon: Trophy },
-              { id: 'analytics', name: 'Analytics', icon: Eye }
-            ].map(tab => (
+              { id: "overview", name: "Overview", icon: TrendingUp },
+              { id: "referrals", name: "All Referrals", icon: Users },
+              { id: "leaderboard", name: "Leaderboard", icon: Trophy },
+              { id: "analytics", name: "Analytics", icon: Eye },
+            ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
               >
                 <tab.icon className="w-4 h-4 mr-2" />
@@ -268,7 +372,7 @@ const AdminReferralDashboard = () => {
 
         <div className="p-6">
           {/* Overview Tab */}
-          {activeTab === 'overview' && (
+          {activeTab === "overview" && (
             <div className="space-y-6">
               {/* Key Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -276,38 +380,54 @@ const AdminReferralDashboard = () => {
                   <div className="flex items-center">
                     <Users className="w-8 h-8 text-blue-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-blue-600">Total Referrals</p>
-                      <p className="text-2xl font-bold text-blue-900">{analytics.overallStats.totalReferrals}</p>
+                      <p className="text-sm font-medium text-blue-600">
+                        Total Referrals
+                      </p>
+                      <p className="text-2xl font-bold text-blue-900">
+                        {analytics?.overallStats?.totalReferrals || 0}
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-green-50 p-4 rounded-lg">
                   <div className="flex items-center">
                     <CheckCircle className="w-8 h-8 text-green-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-green-600">Completed</p>
-                      <p className="text-2xl font-bold text-green-900">{analytics.overallStats.completedReferrals}</p>
+                      <p className="text-sm font-medium text-green-600">
+                        Completed
+                      </p>
+                      <p className="text-2xl font-bold text-green-900">
+                        {analytics?.overallStats?.completedReferrals || 0}
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <div className="flex items-center">
                     <TrendingUp className="w-8 h-8 text-yellow-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-yellow-600">Conversion Rate</p>
-                      <p className="text-2xl font-bold text-yellow-900">{analytics.overallStats.conversionRate}%</p>
+                      <p className="text-sm font-medium text-yellow-600">
+                        Conversion Rate
+                      </p>
+                      <p className="text-2xl font-bold text-yellow-900">
+                        {analytics?.overallStats?.conversionRate || 0}%
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <div className="flex items-center">
                     <Gift className="w-8 h-8 text-purple-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-purple-600">Rewards Given</p>
-                      <p className="text-2xl font-bold text-purple-900">{analytics.overallStats.rewardsGiven}</p>
+                      <p className="text-sm font-medium text-purple-600">
+                        Rewards Given
+                      </p>
+                      <p className="text-2xl font-bold text-purple-900">
+                        {analytics?.overallStats?.rewardsGiven || 0}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -315,18 +435,30 @@ const AdminReferralDashboard = () => {
 
               {/* Tier Distribution */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Tier Distribution</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Tier Distribution
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {analytics.tierDistribution.map(tier => (
+                  {analytics?.tierDistribution?.map((tier) => (
                     <div key={tier._id} className="text-center">
-                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTierColor(tier._id)}`}>
+                      <div
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTierColor(
+                          tier._id
+                        )}`}
+                      >
                         {getTierIcon(tier._id)}
-                        <span className="ml-1 capitalize">{tier._id}</span>
+                        <span className="ml-1 capitalize">
+                          {tier._id || "bronze"}
+                        </span>
                       </div>
-                      <p className="text-2xl font-bold mt-2">{tier.count}</p>
-                      <p className="text-sm text-gray-600">{tier.totalReferrals} referrals</p>
+                      <p className="text-2xl font-bold mt-2">
+                        {tier.count || 0}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {tier.totalReferrals || 0} referrals
+                      </p>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
               </div>
 
@@ -334,42 +466,67 @@ const AdminReferralDashboard = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Top Referrers</h3>
                 <div className="space-y-2">
-                  {analytics.topReferrers.slice(0, 5).map((user, index) => (
-                    <div key={user._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  {analytics?.topReferrers?.slice(0, 5).map((user, index) => (
+                    <div
+                      key={user._id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex items-center">
                         <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           {index + 1}
                         </div>
                         <div className="ml-3">
-                          <p className="font-medium">{user.name}</p>
-                          <p className="text-sm text-gray-600">{user.referralCode}</p>
+                          <p className="font-medium">
+                            {user.name || "Unknown User"}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {user.referralCode || "No Code"}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getTierColor(user.referralPerks.currentTier)}`}>
-                          {getTierIcon(user.referralPerks.currentTier)}
-                          <span className="ml-1 capitalize">{user.referralPerks.currentTier}</span>
+                        <div
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getTierColor(
+                            user.referralPerks?.currentTier || "bronze"
+                          )}`}
+                        >
+                          {getTierIcon(
+                            user.referralPerks?.currentTier || "bronze"
+                          )}
+                          <span className="ml-1 capitalize">
+                            {user.referralPerks?.currentTier || "bronze"}
+                          </span>
                         </div>
-                        <p className="text-sm font-medium mt-1">{user.referralStats.successfulReferrals} referrals</p>
+                        <p className="text-sm font-medium mt-1">
+                          {user.referralStats?.successfulReferrals || 0}{" "}
+                          referrals
+                        </p>
                       </div>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
               </div>
             </div>
           )}
 
           {/* Referrals Tab */}
-          {activeTab === 'referrals' && (
+          {activeTab === "referrals" && (
             <div className="space-y-4">
               {/* Filters */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status
+                    </label>
                     <select
                       value={filters.status}
-                      onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          status: e.target.value,
+                        }))
+                      }
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
                     >
                       <option value="">All Statuses</option>
@@ -378,37 +535,58 @@ const AdminReferralDashboard = () => {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Search
+                    </label>
                     <div className="relative">
                       <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                       <input
                         type="text"
                         value={filters.search}
-                        onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                        onChange={(e) =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            search: e.target.value,
+                          }))
+                        }
                         placeholder="Search users..."
                         className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2"
                       />
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      From Date
+                    </label>
                     <input
                       type="date"
                       value={filters.dateFrom}
-                      onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          dateFrom: e.target.value,
+                        }))
+                      }
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      To Date
+                    </label>
                     <input
                       type="date"
                       value={filters.dateTo}
-                      onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          dateTo: e.target.value,
+                        }))
+                      }
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
                     />
                   </div>
@@ -441,60 +619,99 @@ const AdminReferralDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {referrals.map(referral => (
+                    {referrals.map((referral) => (
                       <tr key={referral._id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{referral.referrer.name}</div>
-                            <div className="text-sm text-gray-500">{referral.referrer.referralCode}</div>
-                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getTierColor(referral.referrer.referralPerks?.currentTier)}`}>
-                              {getTierIcon(referral.referrer.referralPerks?.currentTier)}
-                              <span className="ml-1 capitalize">{referral.referrer.referralPerks?.currentTier}</span>
+                            <div className="text-sm font-medium text-gray-900">
+                              {referral.referrer?.name || "Unknown"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {referral.referrer?.referralCode || "No Code"}
+                            </div>
+                            <div
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getTierColor(
+                                referral.referrer?.referralPerks?.currentTier ||
+                                  "bronze"
+                              )}`}
+                            >
+                              {getTierIcon(
+                                referral.referrer?.referralPerks?.currentTier ||
+                                  "bronze"
+                              )}
+                              <span className="ml-1 capitalize">
+                                {referral.referrer?.referralPerks
+                                  ?.currentTier || "bronze"}
+                              </span>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{referral.referred.name}</div>
-                            <div className="text-sm text-gray-500">{referral.referred.phoneNumber}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {referral.referred?.name || "Unknown"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {referral.referred?.phoneNumber || "No Phone"}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             {getStatusIcon(referral.status)}
-                            <span className="ml-2 text-sm capitalize">{referral.status}</span>
+                            <span className="ml-2 text-sm capitalize">
+                              {referral.status}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(referral.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
-                            referral.rewardGiven ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {referral.rewardGiven ? 'Given' : 'Pending'}
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                              referral.rewardGiven
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {referral.rewardGiven ? "Given" : "Pending"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            {referral.status === 'pending' && (
+                            {referral.status === "pending" && (
                               <button
-                                onClick={() => updateReferralStatus(referral._id, 'completed')}
+                                onClick={() =>
+                                  updateReferralStatus(
+                                    referral._id,
+                                    "completed"
+                                  )
+                                }
                                 className="text-green-600 hover:text-green-900"
                               >
                                 Complete
                               </button>
                             )}
-                            {!referral.rewardGiven && referral.status === 'completed' && (
-                              <button
-                                onClick={() => updateReferralStatus(referral._id, referral.status, true)}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                Give Reward
-                              </button>
-                            )}
+                            {!referral.rewardGiven &&
+                              referral.status === "completed" && (
+                                <button
+                                  onClick={() =>
+                                    updateReferralStatus(
+                                      referral._id,
+                                      referral.status,
+                                      true
+                                    )
+                                  }
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  Give Reward
+                                </button>
+                              )}
                             <button
-                              onClick={() => regenerateReferralCode(referral.referrer._id)}
+                              onClick={() =>
+                                regenerateReferralCode(referral.referrer._id)
+                              }
                               className="text-orange-600 hover:text-orange-900"
                             >
                               Regen Code
@@ -510,19 +727,36 @@ const AdminReferralDashboard = () => {
               {/* Pagination */}
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-700">
-                  Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
+                  Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                  {Math.min(
+                    pagination.page * pagination.limit,
+                    pagination.total
+                  )}{" "}
+                  of {pagination.total} results
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+                    onClick={() =>
+                      setPagination((prev) => ({
+                        ...prev,
+                        page: Math.max(1, prev.page - 1),
+                      }))
+                    }
                     disabled={pagination.page === 1}
                     className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50"
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                    disabled={pagination.page * pagination.limit >= pagination.total}
+                    onClick={() =>
+                      setPagination((prev) => ({
+                        ...prev,
+                        page: prev.page + 1,
+                      }))
+                    }
+                    disabled={
+                      pagination.page * pagination.limit >= pagination.total
+                    }
                     className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50"
                   >
                     Next
@@ -533,7 +767,7 @@ const AdminReferralDashboard = () => {
           )}
 
           {/* Leaderboard Tab */}
-          {activeTab === 'leaderboard' && (
+          {activeTab === "leaderboard" && (
             <div className="space-y-4">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -561,47 +795,83 @@ const AdminReferralDashboard = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {leaderboard.map((user, index) => (
-                      <tr key={user._id} className={index < 3 ? 'bg-yellow-50' : ''}>
+                      <tr
+                        key={user._id}
+                        className={index < 3 ? "bg-yellow-50" : ""}
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             {index < 3 && (
-                              <Trophy className={`w-5 h-5 mr-2 ${
-                                index === 0 ? 'text-yellow-500' : 
-                                index === 1 ? 'text-gray-400' : 'text-orange-500'
-                              }`} />
+                              <Trophy
+                                className={`w-5 h-5 mr-2 ${
+                                  index === 0
+                                    ? "text-yellow-500"
+                                    : index === 1
+                                    ? "text-gray-400"
+                                    : "text-orange-500"
+                                }`}
+                              />
                             )}
-                            <span className="text-lg font-bold">{index + 1}</span>
+                            <span className="text-lg font-bold">
+                              {index + 1}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                            <div className="text-sm text-gray-500">{user.referralCode}</div>
-                            <div className="text-xs text-gray-400">Joined {user.joinedDaysAgo} days ago</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name || "Unknown User"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {user.referralCode || "No Code"}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              Joined {user.joinedDaysAgo || 0} days ago
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTierColor(user.referralPerks.currentTier)}`}>
-                            {getTierIcon(user.referralPerks.currentTier)}
-                            <span className="ml-1 capitalize">{user.referralPerks.currentTier}</span>
+                          <div
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTierColor(
+                              user.referralPerks?.currentTier || "bronze"
+                            )}`}
+                          >
+                            {getTierIcon(
+                              user.referralPerks?.currentTier || "bronze"
+                            )}
+                            <span className="ml-1 capitalize">
+                              {user.referralPerks?.currentTier || "bronze"}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-green-600">
-                          {user.referralStats.successfulReferrals}
+                          {user.referralStats?.successfulReferrals || 0}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.referralStats.totalReferrals}
+                          {user.referralStats?.totalReferrals || 0}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button
-                              onClick={() => grantManualReward(user._id, 'bonus_referral', 'Admin bonus')}
+                              onClick={() =>
+                                grantManualReward(
+                                  user._id,
+                                  "bonus_referral",
+                                  "Admin bonus"
+                                )
+                              }
                               className="text-blue-600 hover:text-blue-900"
                             >
                               Bonus
                             </button>
                             <button
-                              onClick={() => grantManualReward(user._id, 'special_badge', 'Admin recognition')}
+                              onClick={() =>
+                                grantManualReward(
+                                  user._id,
+                                  "special_badge",
+                                  "Admin recognition"
+                                )
+                              }
                               className="text-purple-600 hover:text-purple-900"
                             >
                               Badge
@@ -617,13 +887,17 @@ const AdminReferralDashboard = () => {
           )}
 
           {/* Analytics Tab */}
-          {activeTab === 'analytics' && (
+          {activeTab === "analytics" && (
             <div className="space-y-6">
               <div className="flex items-center space-x-4 mb-4">
-                <label className="text-sm font-medium text-gray-700">Period:</label>
+                <label className="text-sm font-medium text-gray-700">
+                  Period:
+                </label>
                 <select
                   value={filters.period}
-                  onChange={(e) => setFilters(prev => ({ ...prev, period: e.target.value }))}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, period: e.target.value }))
+                  }
                   className="border border-gray-300 rounded-md px-3 py-1"
                 >
                   <option value="week">Last Week</option>
@@ -635,17 +909,29 @@ const AdminReferralDashboard = () => {
 
               {/* Daily Trends */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Daily Referral Trends</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Daily Referral Trends
+                </h3>
                 <div className="space-y-2">
-                  {analytics.dailyTrends.map((day, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-white rounded">
-                      <span className="text-sm">{day._id.month}/{day._id.day}/{day._id.year}</span>
+                  {analytics?.dailyTrends?.map((day, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 bg-white rounded"
+                    >
+                      <span className="text-sm">
+                        {day._id?.month || 1}/{day._id?.day || 1}/
+                        {day._id?.year || new Date().getFullYear()}
+                      </span>
                       <div className="flex items-center space-x-4">
-                        <span className="text-sm text-blue-600">{day.count} total</span>
-                        <span className="text-sm text-green-600">{day.completed} completed</span>
+                        <span className="text-sm text-blue-600">
+                          {day.count || 0} total
+                        </span>
+                        <span className="text-sm text-green-600">
+                          {day.completed || 0} completed
+                        </span>
                       </div>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
               </div>
 
@@ -653,13 +939,19 @@ const AdminReferralDashboard = () => {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">Referral Sources</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {analytics.sourceAnalysis.map((source, index) => (
+                  {analytics?.sourceAnalysis?.map((source, index) => (
                     <div key={index} className="bg-white p-4 rounded-lg">
-                      <h4 className="font-medium capitalize">{source._id || 'Direct'}</h4>
-                      <p className="text-2xl font-bold text-blue-600">{source.count}</p>
-                      <p className="text-sm text-gray-600">{source.completed} completed</p>
+                      <h4 className="font-medium capitalize">
+                        {source._id || "Direct"}
+                      </h4>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {source.count || 0}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {source.completed || 0} completed
+                      </p>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
               </div>
             </div>
