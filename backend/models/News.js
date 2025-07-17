@@ -16,7 +16,7 @@ const newsSchema = new mongoose.Schema(
     excerpt: {
       type: String,
       required: true,
-      maxlength: 300,
+      maxlength: 500, // Increased from 300 to 500 characters for more descriptive excerpts
     },
     category: {
       type: String,

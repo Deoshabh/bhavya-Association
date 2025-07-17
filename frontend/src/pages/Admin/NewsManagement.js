@@ -797,11 +797,11 @@ const NewsManagement = () => {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   rows="2"
-                  maxLength="300"
+                  maxLength="500"
                   required
                 />
                 <div className="text-xs text-gray-500 mt-1">
-                  {formData.excerpt.length}/300 characters
+                  {formData.excerpt.length}/500 characters
                 </div>
               </div>
 
