@@ -49,5 +49,14 @@ const upload = multer({
 module.exports = {
   upload,
   uploadsDir,
-  newsUploadsDir
+  newsUploadsDir,
+  // Single image upload
+  uploadSingle: upload.single("image"),
+  // Multiple image upload (up to 5 images)
+  uploadMultiple: upload.array("images", 5),
+  // Mixed upload (single featured image + multiple additional images)
+  uploadNewsImages: upload.fields([
+    { name: "image", maxCount: 1 }, // Featured image
+    { name: "images", maxCount: 5 }, // Additional images
+  ]),
 };
