@@ -19,7 +19,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (!user.isAdmin) {
+  if (user.planType !== "admin") {
     // Redirect to home if authenticated but not admin
     return <Navigate to="/" replace />;
   }

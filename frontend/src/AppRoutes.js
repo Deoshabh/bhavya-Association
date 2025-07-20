@@ -29,7 +29,6 @@ const AdminAnswers = lazy(() => import("./pages/Admin/QAManagement")); // Same a
 const AdminReferrals = lazy(() => import("./pages/Admin/AdminDashboard")); // Use dashboard for now
 
 // Enhanced Form Builder Components
-const FormBuilder = lazy(() => import("./components/FormBuilder/FormBuilder"));
 const EnhancedFormBuilder = lazy(() =>
   import("./components/FormBuilder/EnhancedFormBuilder")
 );
@@ -52,7 +51,6 @@ const FormManagementRoutes = () => {
         {/* Form Management Dashboard - Default route */}
         <Route index element={<FormManagementDashboard />} />
         {/* Form Builder Routes */}
-        <Route path="list" element={<FormBuilder />} />
         <Route path="create" element={<EnhancedFormBuilder />} />
         <Route path="edit/:formId" element={<EnhancedFormBuilder />} />
         <Route path="preview/:formId" element={<FormPreview />} />
@@ -62,6 +60,8 @@ const FormManagementRoutes = () => {
           element={<EnhancedSubmissionManagement />}
         />
         <Route path="embed/:formId" element={<FormEmbedder />} />
+        {/* Catch-all route for unmatched paths */}
+        <Route path="*" element={<FormManagementDashboard />} />
       </Routes>
     </div>
   );
