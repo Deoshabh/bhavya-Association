@@ -89,11 +89,6 @@ const Navbar = () => {
           path: "/admin/dashboard",
           icon: <User size={18} />,
         },
-        user.planType === "admin" && {
-          label: "Form Builder",
-          path: "/admin/forms",
-          icon: <Briefcase size={18} />,
-        },
       ].filter(Boolean)
     : [
         { label: "Home", path: "/", icon: <Home size={18} /> },
