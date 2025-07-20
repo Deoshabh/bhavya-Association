@@ -106,6 +106,38 @@ const newsSchema = new mongoose.Schema(
         },
       },
     ],
+    embeddedForms: [
+      {
+        form: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Form",
+          required: true,
+        },
+        position: {
+          type: String,
+          enum: ["top", "middle", "bottom", "inline"],
+          default: "bottom",
+        },
+        displayStyle: {
+          type: String,
+          enum: ["inline", "popup", "sidebar"],
+          default: "inline",
+        },
+        isActive: {
+          type: Boolean,
+          default: true,
+        },
+        addedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        addedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

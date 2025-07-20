@@ -1,133 +1,200 @@
 const mongoose = require('mongoose');
 
-const questionSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true,
-    maxlength: 200
-  },
-  content: {
-    type: String,
-    required: true,
-    maxlength: 2000
-  },
-  type: {
-    type: String,
-    enum: ['question', 'discussion', 'poll', 'opinion'],
-    default: 'question'
-  },
-  category: {
-    type: String,
-    required: true,
-    enum: ['general', 'business', 'education', 'technology', 'health', 'social', 'politics', 'culture', 'other'],
-    default: 'general'
-  },
-  tags: [{
-    type: String,
-    trim: true,
-    maxlength: 30
-  }],
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['active', 'closed', 'archived', 'reported'],
-    default: 'active'
-  },
-  priority: {
-    type: String,
-    enum: ['low', 'normal', 'high', 'urgent'],
-    default: 'normal'
-  },
-  featured: {
-    type: Boolean,
-    default: false
-  },
-  // For polls
-  pollOptions: [{
-    option: {
+const questionSchema = new mongoose.Schema(
+  {
+    title: {
       type: String,
-      required: function() { return this.type === 'poll'; }
+      required: true,
+      trim: true,
+      maxlength: 200,
     },
-    votes: [{
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+    content: {
+      type: String,
+      required: true,
+      maxlength: 2000,
+    },
+    type: {
+      type: String,
+      enum: ["question", "discussion", "poll", "opinion"],
+      default: "question",
+    },
+    category: {
+      type: String,
+      required: true,
+      enum: [
+        "general",
+        "business",
+        "education",
+        "technology",
+        "health",
+        "social",
+        "politics",
+        "culture",
+        "other",
+      ],
+      default: "general",
+    },
+    tags: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 30,
       },
-      votedAt: {
-        type: Date,
-        default: Date.now
-      }
-    }]
-  }],
-  allowMultipleVotes: {
-    type: Boolean,
-    default: false
-  },
-  pollExpiresAt: {
-    type: Date,
-    required: function() { return this.type === 'poll'; }
-  },
-  // Engagement metrics
-  views: {
-    type: Number,
-    default: 0
-  },
-  likes: [{
-    user: {
+    ],
+    author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: "User",
+      required: true,
     },
-    likedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  answers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Answer'
-  }],
-  answerCount: {
-    type: Number,
-    default: 0
-  },
-  bestAnswer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Answer'
-  },
-  // Moderation
-  reportCount: {
-    type: Number,
-    default: 0
-  },
-  reports: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    reason: {
+    status: {
       type: String,
-      enum: ['spam', 'inappropriate', 'harassment', 'misinformation', 'other']
+      enum: ["active", "closed", "archived", "reported"],
+      default: "active",
     },
-    details: String,
-    reportedAt: {
+    priority: {
+      type: String,
+      enum: ["low", "normal", "high", "urgent"],
+      default: "normal",
+    },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
+    // For polls
+    pollOptions: [
+      {
+        option: {
+          type: String,
+          required: function () {
+            return this.type === "poll";
+          },
+        },
+        votes: [
+          {
+            user: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "User",
+            },
+            votedAt: {
+              type: Date,
+              default: Date.now,
+            },
+          },
+        ],
+      },
+    ],
+    allowMultipleVotes: {
+      type: Boolean,
+      default: false,
+    },
+    pollExpiresAt: {
       type: Date,
-      default: Date.now
-    }
-  }],
-  // SEO and search
-  slug: {
-    type: String,
-    unique: true,
-    sparse: true
+      required: function () {
+        return this.type === "poll";
+      },
+    },
+    // Engagement metrics
+    views: {
+      type: Number,
+      default: 0,
+    },
+    likes: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        likedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    answers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Answer",
+      },
+    ],
+    answerCount: {
+      type: Number,
+      default: 0,
+    },
+    bestAnswer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Answer",
+    },
+    // Moderation
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
+    reports: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        reason: {
+          type: String,
+          enum: [
+            "spam",
+            "inappropriate",
+            "harassment",
+            "misinformation",
+            "other",
+          ],
+        },
+        details: String,
+        reportedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    // SEO and search
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    embeddedForms: [
+      {
+        form: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Form",
+          required: true,
+        },
+        position: {
+          type: String,
+          enum: ["top", "middle", "bottom", "inline"],
+          default: "bottom",
+        },
+        displayStyle: {
+          type: String,
+          enum: ["inline", "popup", "sidebar"],
+          default: "inline",
+        },
+        isActive: {
+          type: Boolean,
+          default: true,
+        },
+        addedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        addedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 // Indexes for better performance
 questionSchema.index({ title: 'text', content: 'text' });
