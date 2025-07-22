@@ -17,13 +17,13 @@ import { AuthProvider } from "./context/AuthContext";
 import About from "./pages/About";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminSettings from "./pages/Admin/AdminSettings";
-import FormBuilder from "./pages/Admin/FormBuilder";
+import EnhancedFormBuilder from "./components/FormBuilder/EnhancedFormBuilder";
 import FormManagement from "./pages/Admin/FormManagement";
-import FormPreview from "./pages/Admin/FormPreview";
+import FormPreview from "./components/FormBuilder/FormPreview";
+import EnhancedSubmissionManagement from "./components/FormBuilder/EnhancedSubmissionManagement";
 import ListingManagement from "./pages/Admin/ListingManagement";
 import NewsManagement from "./pages/Admin/NewsManagement";
 import QAManagement from "./pages/Admin/QAManagement";
-import SubmissionManagement from "./pages/Admin/SubmissionManagement";
 import UserManagement from "./pages/Admin/UserManagement";
 import AdminLogin from "./pages/AdminLogin";
 import BahujanDirectory from "./pages/BahujanDirectory";
@@ -230,7 +230,7 @@ function App() {
             path="/admin/forms/new"
             element={
               <ProtectedRoute>
-                <FormBuilder />
+                <EnhancedFormBuilder />
               </ProtectedRoute>
             }
           />
@@ -238,7 +238,7 @@ function App() {
             path="/admin/forms/:id/edit"
             element={
               <ProtectedRoute>
-                <FormBuilder />
+                <EnhancedFormBuilder />
               </ProtectedRoute>
             }
           />
@@ -246,7 +246,7 @@ function App() {
             path="/admin/forms/:formId/submissions"
             element={
               <ProtectedRoute>
-                <SubmissionManagement />
+                <EnhancedSubmissionManagement />
               </ProtectedRoute>
             }
           />

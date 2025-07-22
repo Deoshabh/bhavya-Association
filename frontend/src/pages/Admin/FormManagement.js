@@ -151,7 +151,7 @@ const FormManagement = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Form Management</h1>
           <Link
-            to="/admin/forms/create"
+            to="/admin/forms/new"
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus size={20} className="mr-2" />
