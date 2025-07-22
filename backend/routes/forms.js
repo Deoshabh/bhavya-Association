@@ -3,6 +3,7 @@ const router = express.Router();
 const Form = require('../models/Form');
 const FormSubmission = require('../models/FormSubmission');
 const auth = require('../middleware/auth');
+const { optionalAuth } = require('../middleware/auth'); // Import optional auth
 const adminAuth = require('../middleware/adminAuth');
 const { upload } = require('../middleware/upload');
 const multer = require('multer');
@@ -285,103 +286,109 @@ router.get('/public/:slug', async (req, res) => {
 });
 
 // Submit form (public or authenticated)
-router.post('/submit/:slug', uploadFormFiles.any(), async (req, res) => {
-  try {
-    const form = await Form.findOne({ 
-      slug: req.params.slug,
-      status: 'active'
-    });
+router.post(
+  "/submit/:slug",
+  optionalAuth,
+  uploadFormFiles.any(),
+  async (req, res) => {
+    try {
+      const form = await Form.findOne({
+        slug: req.params.slug,
+        status: "active",
+      });
 
-    if (!form) {
-      return res.status(404).json({ message: 'Form not found or inactive' });
-    }
-
-    // Check if user can submit
-    const userId = req.user?.id;
-    const canSubmit = await FormSubmission.canUserSubmit(form._id, userId);
-    
-    if (!canSubmit.canSubmit) {
-      return res.status(400).json({ message: canSubmit.reason });
-    }
-
-    // Process form data
-    const formData = new Map();
-    const files = [];
-
-    // Process regular fields
-    for (let field of form.fields) {
-      const value = req.body[field.id];
-      if (value !== undefined) {
-        formData.set(field.id, value);
+      if (!form) {
+        return res.status(404).json({ message: "Form not found or inactive" });
       }
-    }
 
-    // Process file uploads
-    if (req.files && req.files.length > 0) {
-      for (let file of req.files) {
-        files.push({
-          fieldId: file.fieldname,
-          originalName: file.originalname,
-          filename: file.filename,
-          path: file.path,
-          mimetype: file.mimetype,
-          size: file.size
-        });
+      // Check if user can submit
+      const userId = req.user?.id;
+      const canSubmit = await FormSubmission.canUserSubmit(form._id, userId);
+
+      if (!canSubmit.canSubmit) {
+        return res.status(400).json({ message: canSubmit.reason });
       }
-    }
 
-    // Validate required fields
-    for (let field of form.fields) {
-      if (field.required && !formData.has(field.id)) {
-        return res.status(400).json({
-          message: `Field "${field.label}" is required`
-        });
+      // Process form data
+      const formData = new Map();
+      const files = [];
+
+      // Process regular fields
+      for (let field of form.fields) {
+        const value = req.body[field.id];
+        if (value !== undefined) {
+          formData.set(field.id, value);
+        }
       }
+
+      // Process file uploads
+      if (req.files && req.files.length > 0) {
+        for (let file of req.files) {
+          files.push({
+            fieldId: file.fieldname,
+            originalName: file.originalname,
+            filename: file.filename,
+            path: file.path,
+            mimetype: file.mimetype,
+            size: file.size,
+          });
+        }
+      }
+
+      // Validate required fields
+      for (let field of form.fields) {
+        if (field.required && !formData.has(field.id)) {
+          return res.status(400).json({
+            message: `Field "${field.label}" is required`,
+          });
+        }
+      }
+
+      // Create submission
+      const submissionData = {
+        form: form._id,
+        data: formData,
+        submitterInfo: {
+          ip: req.ip,
+          userAgent: req.get("User-Agent"),
+          email: req.body.email || null,
+          name: req.body.name || null,
+        },
+        source: req.body.source || "direct",
+        sourceRef: req.body.sourceRef || null,
+        sourceModel: req.body.sourceModel || null,
+        files: files,
+      };
+
+      // Only add submittedBy if login is required or user is authenticated
+      if (form.settings.requireLogin || userId) {
+        submissionData.submittedBy = userId;
+      }
+
+      const submission = new FormSubmission(submissionData);
+
+      await submission.save();
+
+      // Update form submission count
+      await Form.findByIdAndUpdate(form._id, { $inc: { submissions: 1 } });
+
+      // Send email notification if enabled
+      if (form.settings.emailNotification?.enabled) {
+        // TODO: Implement email notification
+        console.log("Email notification would be sent here");
+      }
+
+      res.status(201).json({
+        message:
+          form.settings.successMessage || "Thank you for your submission!",
+        submissionId: submission._id,
+        redirectUrl: form.settings.redirectUrl || null,
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      res.status(500).json({ message: "Error submitting form" });
     }
-
-    // Create submission
-    const submissionData = {
-      form: form._id,
-      data: formData,
-      submitterInfo: {
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        email: req.body.email || null,
-        name: req.body.name || null
-      },
-      source: req.body.source || 'direct',
-      sourceRef: req.body.sourceRef || null,
-      sourceModel: req.body.sourceModel || null,
-      files: files
-    };
-
-    // Only add submittedBy if login is required or user is authenticated
-    if (form.settings.requireLogin || userId) {
-      submissionData.submittedBy = userId;
-    }
-
-    const submission = new FormSubmission(submissionData);
-
-    await submission.save();
-
-    // Update form submission count
-    await Form.findByIdAndUpdate(form._id, { $inc: { submissions: 1 } });
-
-    // Send email notification if enabled
-    if (form.settings.emailNotification?.enabled) {
-      // TODO: Implement email notification
-      console.log('Email notification would be sent here');
-    }
-
-    res.status(201).json({
-      message: form.settings.successMessage || 'Thank you for your submission!',
-      submissionId: submission._id,
-      redirectUrl: form.settings.redirectUrl || null
-    });
-  } catch (error) {
-    console.error('Error submitting form:', error);
-    res.status(500).json({ message: 'Error submitting form' });
   }
-});
+);
 
 module.exports = router;

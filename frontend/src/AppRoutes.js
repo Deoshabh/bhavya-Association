@@ -188,6 +188,10 @@ const AppRoutes = () => {
                   path="/forms/embed/:formId"
                   element={<FormPreview embedded={true} />}
                 />
+                <Route
+                  path="/forms/:slug"
+                  element={<FormPreview publicForm={true} />}
+                />
 
                 {/* 404 - Catch all */}
                 <Route path="*" element={<Navigate to="/" replace />} />

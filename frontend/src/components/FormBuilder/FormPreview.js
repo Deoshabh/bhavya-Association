@@ -13,58 +13,87 @@ import {
     Upload
 } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 
-const FormPreview = () => {
+const FormPreview = ({
+  readOnly = false,
+  embedded = false,
+  publicForm = false,
+}) => {
   const [searchParams] = useSearchParams();
+  const { slug, formId } = useParams(); // Get both slug and formId from URL params
   const navigate = useNavigate();
   const { api, user } = useContext(AuthContext);
-  
+
   const [formData, setFormData] = useState(null);
   const [submissionData, setSubmissionData] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
-  const [previewMode, setPreviewMode] = useState('desktop');
+  const [previewMode, setPreviewMode] = useState("desktop");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFormData = async (id) => {
+    const fetchFormData = async () => {
       try {
-        const response = await api.get(`/forms/public/${id}`);
-        setFormData(response.data.form);
+        setLoading(true);
+        let response;
+
+        // Check for different ways form data can be provided
+        const dataParam = searchParams.get("data");
+        const formIdParam = searchParams.get("id");
+
+        if (dataParam) {
+          // Form data passed via URL parameter (for preview)
+          try {
+            const data = JSON.parse(decodeURIComponent(dataParam));
+            setFormData(data);
+            setLoading(false);
+            return;
+          } catch (error) {
+            console.error("Error parsing form data:", error);
+          }
+        }
+
+        // Determine how to fetch the form
+        if (publicForm && slug) {
+          // Public form access by slug
+          response = await api.get(`/forms/public/${slug}`);
+          setFormData(response.data);
+        } else if (formId || formIdParam) {
+          // Admin form access by ID
+          const id = formId || formIdParam;
+          response = await api.get(`/forms/admin/${id}`);
+          setFormData(response.data.form);
+        } else {
+          throw new Error("No form identifier provided");
+        }
       } catch (error) {
-        console.error('Error fetching form:', error);
+        console.error("Error fetching form:", error);
+        if (error.response?.status === 404) {
+          // Form not found, redirect to home
+          navigate("/", { replace: true });
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Get form data from URL params (for preview) or fetch from API
-    const dataParam = searchParams.get('data');
-    const formId = searchParams.get('id');
-
-    if (dataParam) {
-      try {
-        const data = JSON.parse(decodeURIComponent(dataParam));
-        setFormData(data);
-      } catch (error) {
-        console.error('Error parsing form data:', error);
-      }
-    } else if (formId) {
-      fetchFormData(formId);
-    }
-  }, [searchParams, api]);
+    fetchFormData();
+  }, [searchParams, api, slug, formId, publicForm, navigate]);
 
   const handleInputChange = (fieldId, value) => {
-    setSubmissionData(prev => ({
+    setSubmissionData((prev) => ({
       ...prev,
-      [fieldId]: value
+      [fieldId]: value,
     }));
 
     // Clear field error when user starts typing
     if (errors[fieldId]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [fieldId]: null
+        [fieldId]: null,
       }));
     }
   };
@@ -72,12 +101,15 @@ const FormPreview = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    formData.fields.forEach(field => {
+    formData.fields.forEach((field) => {
       const value = submissionData[field.id];
 
       // Required field validation
-      if (field.required && (!value || (typeof value === 'string' && !value.trim()))) {
-        newErrors[field.id] = 'This field is required';
+      if (
+        field.required &&
+        (!value || (typeof value === "string" && !value.trim()))
+      ) {
+        newErrors[field.id] = "This field is required";
         return;
       }
 
@@ -86,52 +118,68 @@ const FormPreview = () => {
 
       // Type-specific validation
       switch (field.type) {
-        case 'email':
+        case "email":
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(value)) {
-            newErrors[field.id] = 'Please enter a valid email address';
+            newErrors[field.id] = "Please enter a valid email address";
           }
           break;
 
-        case 'phone':
+        case "phone":
           const phoneRegex = /^\+?[\d\s\-()]+$/;
           if (!phoneRegex.test(value)) {
-            newErrors[field.id] = 'Please enter a valid phone number';
+            newErrors[field.id] = "Please enter a valid phone number";
           }
           break;
 
-        case 'url':
+        case "url":
           try {
             new URL(value);
           } catch {
-            newErrors[field.id] = 'Please enter a valid URL';
+            newErrors[field.id] = "Please enter a valid URL";
           }
           break;
 
-        case 'text':
-        case 'textarea':
-          if (field.validation?.minLength && value.length < field.validation.minLength) {
-            newErrors[field.id] = `Minimum ${field.validation.minLength} characters required`;
+        case "text":
+        case "textarea":
+          if (
+            field.validation?.minLength &&
+            value.length < field.validation.minLength
+          ) {
+            newErrors[
+              field.id
+            ] = `Minimum ${field.validation.minLength} characters required`;
           }
-          if (field.validation?.maxLength && value.length > field.validation.maxLength) {
-            newErrors[field.id] = `Maximum ${field.validation.maxLength} characters allowed`;
+          if (
+            field.validation?.maxLength &&
+            value.length > field.validation.maxLength
+          ) {
+            newErrors[
+              field.id
+            ] = `Maximum ${field.validation.maxLength} characters allowed`;
           }
           break;
 
-        case 'number':
+        case "number":
           const numValue = parseFloat(value);
           if (isNaN(numValue)) {
-            newErrors[field.id] = 'Please enter a valid number';
+            newErrors[field.id] = "Please enter a valid number";
           } else {
-            if (field.validation?.min !== undefined && numValue < field.validation.min) {
+            if (
+              field.validation?.min !== undefined &&
+              numValue < field.validation.min
+            ) {
               newErrors[field.id] = `Minimum value is ${field.validation.min}`;
             }
-            if (field.validation?.max !== undefined && numValue > field.validation.max) {
+            if (
+              field.validation?.max !== undefined &&
+              numValue > field.validation.max
+            ) {
               newErrors[field.id] = `Maximum value is ${field.validation.max}`;
             }
           }
           break;
-          
+
         default:
           // No additional validation for other field types
           break;
@@ -151,62 +199,86 @@ const FormPreview = () => {
 
     // Check if login is required
     if (formData.settings?.requireLogin && !user) {
-      alert('Please log in to submit this form');
+      alert("Please log in to submit this form");
       return;
     }
 
     setSubmitting(true);
 
     try {
-      await api.post(`/forms/${formData._id || 'preview'}/submit`, {
-        data: submissionData,
-        submitterInfo: !user ? {
-          name: submissionData.name || 'Anonymous',
-          email: submissionData.email || ''
-        } : undefined
+      // Use the correct API endpoint based on form type
+      let endpoint;
+      if (publicForm && formData.slug) {
+        // Public form submission using slug
+        endpoint = `/forms/submit/${formData.slug}`;
+      } else if (formData._id) {
+        // Admin form submission (fallback to slug if available)
+        endpoint = formData.slug
+          ? `/forms/submit/${formData.slug}`
+          : `/forms/submit/${formData._id}`;
+      } else {
+        throw new Error("No form identifier available for submission");
+      }
+
+      await api.post(endpoint, {
+        ...submissionData, // Spread the form field data directly
+        submitterInfo: !user
+          ? {
+              name: submissionData.name || "Anonymous",
+              email: submissionData.email || "",
+            }
+          : undefined,
       });
 
       setSubmitted(true);
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Error submitting form. Please try again.');
+      console.error("Error submitting form:", error);
+      alert("Error submitting form. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const renderField = (field) => {
-    const value = submissionData[field.id] || '';
+    const value = submissionData[field.id] || "";
     const error = errors[field.id];
     const isRequired = field.required;
 
     const inputClasses = `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-      error ? 'border-red-500 bg-red-50' : 'border-gray-300'
+      error ? "border-red-500 bg-red-50" : "border-gray-300"
     }`;
 
     const labelClasses = `block text-sm font-medium text-gray-700 mb-2 ${
-      field.styling?.alignment === 'center' ? 'text-center' : 
-      field.styling?.alignment === 'right' ? 'text-right' : 'text-left'
+      field.styling?.alignment === "center"
+        ? "text-center"
+        : field.styling?.alignment === "right"
+        ? "text-right"
+        : "text-left"
     }`;
 
     const containerClasses = `mb-6 ${
-      field.styling?.width === 'half' ? 'w-1/2' :
-      field.styling?.width === 'third' ? 'w-1/3' :
-      field.styling?.width === 'quarter' ? 'w-1/4' : 'w-full'
+      field.styling?.width === "half"
+        ? "w-1/2"
+        : field.styling?.width === "third"
+        ? "w-1/3"
+        : field.styling?.width === "quarter"
+        ? "w-1/4"
+        : "w-full"
     }`;
 
     switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'phone':
-      case 'url':
+      case "text":
+      case "email":
+      case "phone":
+      case "url":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <input
-              type={field.type === 'phone' ? 'tel' : field.type}
+              type={field.type === "phone" ? "tel" : field.type}
               value={value}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               placeholder={field.placeholder}
@@ -224,11 +296,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'number':
+      case "number":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <input
               type="number"
@@ -251,11 +324,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'textarea':
+      case "textarea":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <textarea
               value={value}
@@ -276,18 +350,21 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'select':
+      case "select":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <select
               value={value}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               className={inputClasses}
             >
-              <option value="">{field.placeholder || 'Choose an option'}</option>
+              <option value="">
+                {field.placeholder || "Choose an option"}
+              </option>
               {field.options?.map((option, index) => (
                 <option key={index} value={option.value}>
                   {option.label}
@@ -306,11 +383,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'radio':
+      case "radio":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <div className="space-y-2">
               {field.options?.map((option, index) => (
@@ -320,10 +398,14 @@ const FormPreview = () => {
                     name={field.id}
                     value={option.value}
                     checked={value === option.value}
-                    onChange={(e) => handleInputChange(field.id, e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(field.id, e.target.value)
+                    }
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                   />
-                  <span className="ml-2 text-sm text-gray-700">{option.label}</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    {option.label}
+                  </span>
                 </label>
               ))}
             </div>
@@ -339,11 +421,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'checkbox':
+      case "checkbox":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <div className="space-y-2">
               {field.options?.map((option, index) => (
@@ -351,18 +434,28 @@ const FormPreview = () => {
                   <input
                     type="checkbox"
                     value={option.value}
-                    checked={Array.isArray(value) && value.includes(option.value)}
+                    checked={
+                      Array.isArray(value) && value.includes(option.value)
+                    }
                     onChange={(e) => {
                       const currentValues = Array.isArray(value) ? value : [];
                       if (e.target.checked) {
-                        handleInputChange(field.id, [...currentValues, option.value]);
+                        handleInputChange(field.id, [
+                          ...currentValues,
+                          option.value,
+                        ]);
                       } else {
-                        handleInputChange(field.id, currentValues.filter(v => v !== option.value));
+                        handleInputChange(
+                          field.id,
+                          currentValues.filter((v) => v !== option.value)
+                        );
                       }
                     }}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="ml-2 text-sm text-gray-700">{option.label}</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    {option.label}
+                  </span>
                 </label>
               ))}
             </div>
@@ -378,11 +471,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'date':
+      case "date":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <div className="relative">
               <input
@@ -391,7 +485,10 @@ const FormPreview = () => {
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                 className={inputClasses}
               />
-              <Calendar size={16} className="absolute right-3 top-3 text-gray-400 pointer-events-none" />
+              <Calendar
+                size={16}
+                className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+              />
             </div>
             {field.helpText && (
               <p className="mt-1 text-sm text-gray-600">{field.helpText}</p>
@@ -405,11 +502,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'time':
+      case "time":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <div className="relative">
               <input
@@ -418,7 +516,10 @@ const FormPreview = () => {
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                 className={inputClasses}
               />
-              <Clock size={16} className="absolute right-3 top-3 text-gray-400 pointer-events-none" />
+              <Clock
+                size={16}
+                className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+              />
             </div>
             {field.helpText && (
               <p className="mt-1 text-sm text-gray-600">{field.helpText}</p>
@@ -432,11 +533,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'file':
+      case "file":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <div className={`${inputClasses} cursor-pointer hover:bg-gray-50`}>
               <input
@@ -445,10 +547,13 @@ const FormPreview = () => {
                 className="hidden"
                 id={field.id}
               />
-              <label htmlFor={field.id} className="flex items-center justify-center cursor-pointer">
+              <label
+                htmlFor={field.id}
+                className="flex items-center justify-center cursor-pointer"
+              >
                 <Upload size={16} className="mr-2 text-gray-400" />
                 <span className="text-gray-600">
-                  {value ? value.name : (field.placeholder || 'Choose file')}
+                  {value ? value.name : field.placeholder || "Choose file"}
                 </span>
               </label>
             </div>
@@ -464,11 +569,12 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'rating':
+      case "rating":
         return (
           <div key={field.id} className={containerClasses}>
             <label className={labelClasses}>
-              {field.label} {isRequired && <span className="text-red-500">*</span>}
+              {field.label}{" "}
+              {isRequired && <span className="text-red-500">*</span>}
             </label>
             <div className="flex items-center space-x-1">
               {[1, 2, 3, 4, 5].map((rating) => (
@@ -477,10 +583,15 @@ const FormPreview = () => {
                   type="button"
                   onClick={() => handleInputChange(field.id, rating)}
                   className={`p-1 rounded transition-colors ${
-                    value >= rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'
+                    value >= rating
+                      ? "text-yellow-400"
+                      : "text-gray-300 hover:text-yellow-300"
                   }`}
                 >
-                  <Star size={24} fill={value >= rating ? 'currentColor' : 'none'} />
+                  <Star
+                    size={24}
+                    fill={value >= rating ? "currentColor" : "none"}
+                  />
                 </button>
               ))}
               {value && (
@@ -499,7 +610,7 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'divider':
+      case "divider":
         return (
           <div key={field.id} className={containerClasses}>
             <hr className="border-gray-300 my-6" />
@@ -513,10 +624,10 @@ const FormPreview = () => {
           </div>
         );
 
-      case 'html':
+      case "html":
         return (
           <div key={field.id} className={containerClasses}>
-            <div 
+            <div
               className="prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: field.content || field.label }}
             />
@@ -528,7 +639,7 @@ const FormPreview = () => {
     }
   };
 
-  if (!formData) {
+  if (loading || !formData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -543,7 +654,8 @@ const FormPreview = () => {
           <CheckCircle size={64} className="text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Thank You!</h2>
           <p className="text-gray-600 mb-6">
-            {formData.settings?.successMessage || 'Your form has been submitted successfully.'}
+            {formData.settings?.successMessage ||
+              "Your form has been submitted successfully."}
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -557,9 +669,12 @@ const FormPreview = () => {
     );
   }
 
-  const containerWidth = 
-    previewMode === 'mobile' ? 'max-w-sm' :
-    previewMode === 'tablet' ? 'max-w-2xl' : 'max-w-4xl';
+  const containerWidth =
+    previewMode === "mobile"
+      ? "max-w-sm"
+      : previewMode === "tablet"
+      ? "max-w-2xl"
+      : "max-w-4xl";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -578,22 +693,30 @@ const FormPreview = () => {
             <span className="text-sm text-gray-600 mr-3">Preview:</span>
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
               <button
-                onClick={() => setPreviewMode('mobile')}
-                className={`p-2 rounded ${previewMode === 'mobile' ? 'bg-white shadow' : 'text-gray-600'}`}
+                onClick={() => setPreviewMode("mobile")}
+                className={`p-2 rounded ${
+                  previewMode === "mobile" ? "bg-white shadow" : "text-gray-600"
+                }`}
                 title="Mobile"
               >
                 <Smartphone size={14} />
               </button>
               <button
-                onClick={() => setPreviewMode('tablet')}
-                className={`p-2 rounded ${previewMode === 'tablet' ? 'bg-white shadow' : 'text-gray-600'}`}
+                onClick={() => setPreviewMode("tablet")}
+                className={`p-2 rounded ${
+                  previewMode === "tablet" ? "bg-white shadow" : "text-gray-600"
+                }`}
                 title="Tablet"
               >
                 <Tablet size={14} />
               </button>
               <button
-                onClick={() => setPreviewMode('desktop')}
-                className={`p-2 rounded ${previewMode === 'desktop' ? 'bg-white shadow' : 'text-gray-600'}`}
+                onClick={() => setPreviewMode("desktop")}
+                className={`p-2 rounded ${
+                  previewMode === "desktop"
+                    ? "bg-white shadow"
+                    : "text-gray-600"
+                }`}
                 title="Desktop"
               >
                 <Monitor size={14} />
@@ -605,7 +728,9 @@ const FormPreview = () => {
 
       {/* Form */}
       <div className="p-4">
-        <div className={`mx-auto ${containerWidth} transition-all duration-300`}>
+        <div
+          className={`mx-auto ${containerWidth} transition-all duration-300`}
+        >
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Form Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-8 text-white">

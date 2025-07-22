@@ -167,3 +167,29 @@ const authMiddleware = (req, res, next) => {
 module.exports = authMiddleware;
 module.exports.getVerificationCache = () => verificationCache;
 module.exports.getExpiredTokensCache = () => expiredTokensCache; // Export for debugging
+
+// Optional auth middleware - adds user info if token is present but doesn't block unauthenticated requests
+const optionalAuthMiddleware = (req, res, next) => {
+  const authHeader = req.header('Authorization');
+
+  // If no auth header, continue without user info
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    req.user = null;
+    return next();
+  }
+
+  const token = authHeader.substring(7);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.user;
+    next();
+  } catch (err) {
+    // If token is invalid, continue without user info (don't block the request)
+    console.log('Invalid token in optional auth, continuing without user info:', err.message);
+    req.user = null;
+    next();
+  }
+};
+
+module.exports.optionalAuth = optionalAuthMiddleware;
