@@ -9,6 +9,9 @@ import AccountStatusManager from "./components/AccountStatusManager";
 import AdminReferralDashboard from "./components/AdminReferralDashboard";
 import BottomNavigation from "./components/BottomNavigation";
 import Footer from "./components/Footer";
+import EnhancedFormBuilder from "./components/FormBuilder/EnhancedFormBuilder";
+import EnhancedSubmissionManagement from "./components/FormBuilder/EnhancedSubmissionManagement";
+import FormPreview from "./components/FormBuilder/FormPreview";
 import MetaTags from "./components/MetaTags";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -17,10 +20,7 @@ import { AuthProvider } from "./context/AuthContext";
 import About from "./pages/About";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminSettings from "./pages/Admin/AdminSettings";
-import EnhancedFormBuilder from "./components/FormBuilder/EnhancedFormBuilder";
 import FormManagement from "./pages/Admin/FormManagement";
-import FormPreview from "./components/FormBuilder/FormPreview";
-import EnhancedSubmissionManagement from "./components/FormBuilder/EnhancedSubmissionManagement";
 import ListingManagement from "./pages/Admin/ListingManagement";
 import NewsManagement from "./pages/Admin/NewsManagement";
 import QAManagement from "./pages/Admin/QAManagement";
@@ -251,6 +251,11 @@ function App() {
             }
           />
           <Route path="/forms/preview" element={<FormPreview />} />
+          {/* Public Form Access Route */}
+          <Route
+            path="/forms/:slug"
+            element={<FormPreview publicForm={true} />}
+          />
           <Route
             path="/admin/settings"
             element={
