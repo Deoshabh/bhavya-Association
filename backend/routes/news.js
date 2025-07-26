@@ -77,7 +77,7 @@ router.get("/latest", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .select(
-        "title excerpt category slug createdAt image eventDate eventLocation attachedForm formDisplayType"
+        "title excerpt category slug createdAt image eventDate eventLocation attachedForm formDisplayType externalFormLink externalFormText"
       )
       .lean();
 
@@ -132,6 +132,8 @@ router.post("/", auth, adminAuth, uploadNewsImages, async (req, res) => {
       tags,
       attachedForm,
       formDisplayType,
+      externalFormLink,
+      externalFormText,
     } = req.body;
 
     // Validation
@@ -202,6 +204,8 @@ router.post("/", auth, adminAuth, uploadNewsImages, async (req, res) => {
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
       attachedForm: attachedForm || null,
       formDisplayType: formDisplayType || "link",
+      externalFormLink: externalFormLink || null,
+      externalFormText: externalFormText || "Fill Form",
     });
 
     await news.save();
@@ -260,6 +264,8 @@ router.put("/:id", auth, adminAuth, uploadNewsImages, async (req, res) => {
       tags,
       attachedForm,
       formDisplayType,
+      externalFormLink,
+      externalFormText,
     } = req.body;
 
     const updateData = {
@@ -274,6 +280,8 @@ router.put("/:id", auth, adminAuth, uploadNewsImages, async (req, res) => {
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
       attachedForm: attachedForm || null,
       formDisplayType: formDisplayType || "link",
+      externalFormLink: externalFormLink || null,
+      externalFormText: externalFormText || "Fill Form",
     };
 
     // Handle image updates

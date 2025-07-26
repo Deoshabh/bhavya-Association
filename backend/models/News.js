@@ -149,6 +149,26 @@ const newsSchema = new mongoose.Schema(
       enum: ["link", "embedded"],
       default: "link",
     },
+    // External form link (simple approach)
+    externalFormLink: {
+      type: String,
+      trim: true,
+      required: false,
+      validate: {
+        validator: function (v) {
+          if (!v) return true; // Optional field
+          return /^https?:\/\/.+/.test(v);
+        },
+        message:
+          "External form link must be a valid URL starting with http:// or https://",
+      },
+    },
+    externalFormText: {
+      type: String,
+      trim: true,
+      default: "Fill Form",
+      maxlength: 50,
+    },
   },
   {
     timestamps: true,

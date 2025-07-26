@@ -43,6 +43,8 @@ const NewsManagement = () => {
     tags: "",
     attachedForm: "", // Form ID to attach
     formDisplayType: "link", // "link" or "embedded"
+    externalFormLink: "", // External form URL
+    externalFormText: "Fill Form", // Button text for external form
   });
 
   const [selectedImage, setSelectedImage] = useState(null); // Featured image
@@ -72,8 +74,12 @@ const NewsManagement = () => {
     try {
       setLoadingForms(true);
       const response = await api.get("/forms/admin/all");
+      // Fix: API returns { forms: [...], pagination: {...} }
+      const formsData = response.data.forms || response.data;
       setAvailableForms(
-        response.data.filter((form) => form.status === "active")
+        Array.isArray(formsData)
+          ? formsData.filter((form) => form.status === "active")
+          : []
       );
     } catch (error) {
       console.error("Error fetching forms:", error);
@@ -251,6 +257,12 @@ const NewsManagement = () => {
       if (formData.formDisplayType) {
         formDataToSend.append("formDisplayType", formData.formDisplayType);
       }
+      if (formData.externalFormLink) {
+        formDataToSend.append("externalFormLink", formData.externalFormLink);
+      }
+      if (formData.externalFormText) {
+        formDataToSend.append("externalFormText", formData.externalFormText);
+      }
 
       // Add featured image file if selected (with safety checks)
       if (selectedImage && selectedImage instanceof File) {
@@ -333,6 +345,8 @@ const NewsManagement = () => {
           : "",
       attachedForm: newsItem.attachedForm || "",
       formDisplayType: newsItem.formDisplayType || "link",
+      externalFormLink: newsItem.externalFormLink || "",
+      externalFormText: newsItem.externalFormText || "Fill Form",
     });
 
     // Set existing image preview with safety checks
@@ -450,6 +464,8 @@ const NewsManagement = () => {
       tags: "",
       attachedForm: "",
       formDisplayType: "link",
+      externalFormLink: "",
+      externalFormText: "Fill Form",
     });
     setSelectedImage(null);
     setImagePreview(null);
@@ -946,6 +962,62 @@ const NewsManagement = () => {
                         {formData.formDisplayType === "link"
                           ? "Shows a button that opens the form in a new page"
                           : "Embeds the entire form directly in the news content"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* External Form Link Section */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-yellow-800 mb-2">
+                  Or Add External Form Link
+                </h3>
+                <p className="text-xs text-yellow-700 mb-3">
+                  Provide a direct link to any external form (Google Forms,
+                  TypeForm, etc.).
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      External Form URL
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://forms.google.com/..."
+                      value={formData.externalFormLink}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          externalFormLink: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  {formData.externalFormLink && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Button Text
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Fill Form"
+                        value={formData.externalFormText}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            externalFormText: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        maxLength="50"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Text displayed on the button that links to your external
+                        form
                       </p>
                     </div>
                   )}

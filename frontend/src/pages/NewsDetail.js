@@ -460,6 +460,42 @@ const NewsDetail = () => {
                 </div>
               )}
 
+              {/* External Form Link Display */}
+              {news.externalFormLink && (
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                    <h3 className="text-lg font-semibold text-green-900 mb-2">
+                      Related Form
+                    </h3>
+                    <p className="text-green-700 mb-4">
+                      Fill out this external form related to this{" "}
+                      {news.category}.
+                    </p>
+                    <a
+                      href={news.externalFormLink}
+                      className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                      {news.externalFormText || "Fill Form"}
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {/* Tags */}
               {news.tags && news.tags.length > 0 && (
                 <div className="mt-8 pt-6 border-t border-gray-200">
