@@ -40,6 +40,7 @@ router.get("/", async (req, res) => {
     // Execute query
     const news = await News.find(query)
       .populate("author", "name email")
+      .populate("attachedForm", "title slug category status")
       .sort(sort)
       .limit(parseInt(limit))
       .skip(skip)
@@ -72,10 +73,11 @@ router.get("/latest", async (req, res) => {
       status: "published",
     })
       .populate("author", "name")
+      .populate("attachedForm", "title slug category status")
       .sort({ createdAt: -1 })
       .limit(limit)
       .select(
-        "title excerpt category slug createdAt image eventDate eventLocation"
+        "title excerpt category slug createdAt image eventDate eventLocation attachedForm formDisplayType"
       )
       .lean();
 
@@ -94,7 +96,8 @@ router.get("/:slug", async (req, res) => {
       status: "published",
     })
       .populate("author", "name email")
-      .populate("comments.user", "name");
+      .populate("comments.user", "name")
+      .populate("attachedForm", "title slug category status");
 
     if (!news) {
       return res.status(404).json({ message: "News article not found" });
@@ -127,6 +130,8 @@ router.post("/", auth, adminAuth, uploadNewsImages, async (req, res) => {
       eventDate,
       eventLocation,
       tags,
+      attachedForm,
+      formDisplayType,
     } = req.body;
 
     // Validation
@@ -195,14 +200,15 @@ router.post("/", auth, adminAuth, uploadNewsImages, async (req, res) => {
       eventLocation: eventLocation || null,
       author: req.user.id,
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+      attachedForm: attachedForm || null,
+      formDisplayType: formDisplayType || "link",
     });
 
     await news.save();
 
-    const populatedNews = await News.findById(news._id).populate(
-      "author",
-      "name email"
-    );
+    const populatedNews = await News.findById(news._id)
+      .populate("author", "name email")
+      .populate("attachedForm", "title slug category status");
 
     res.status(201).json(populatedNews);
   } catch (error) {
@@ -252,6 +258,8 @@ router.put("/:id", auth, adminAuth, uploadNewsImages, async (req, res) => {
       eventDate,
       eventLocation,
       tags,
+      attachedForm,
+      formDisplayType,
     } = req.body;
 
     const updateData = {
@@ -264,6 +272,8 @@ router.put("/:id", auth, adminAuth, uploadNewsImages, async (req, res) => {
       eventDate,
       eventLocation,
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+      attachedForm: attachedForm || null,
+      formDisplayType: formDisplayType || "link",
     };
 
     // Handle image updates
@@ -314,7 +324,9 @@ router.put("/:id", auth, adminAuth, uploadNewsImages, async (req, res) => {
     const news = await News.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
-    }).populate("author", "name email");
+    })
+      .populate("author", "name email")
+      .populate("attachedForm", "title slug category status");
 
     if (!news) {
       return res.status(404).json({ message: "News article not found" });

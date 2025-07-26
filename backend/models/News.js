@@ -138,6 +138,17 @@ const newsSchema = new mongoose.Schema(
         },
       },
     ],
+    // Simple form attachment (new approach)
+    attachedForm: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Form",
+      required: false,
+    },
+    formDisplayType: {
+      type: String,
+      enum: ["link", "embedded"],
+      default: "link",
+    },
   },
   {
     timestamps: true,

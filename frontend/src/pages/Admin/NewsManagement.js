@@ -41,12 +41,16 @@ const NewsManagement = () => {
     eventDate: "",
     eventLocation: "",
     tags: "",
+    attachedForm: "", // Form ID to attach
+    formDisplayType: "link", // "link" or "embedded"
   });
 
   const [selectedImage, setSelectedImage] = useState(null); // Featured image
   const [imagePreview, setImagePreview] = useState(null); // Featured image preview
   const [selectedImages, setSelectedImages] = useState([]); // Additional images
   const [imagePreviews, setImagePreviews] = useState([]); // Additional image previews
+  const [availableForms, setAvailableForms] = useState([]); // Available forms for linking
+  const [loadingForms, setLoadingForms] = useState(false);
 
   const categories = [
     { value: "news", label: "News" },
@@ -62,6 +66,22 @@ const NewsManagement = () => {
     { value: "published", label: "Published" },
     { value: "archived", label: "Archived" },
   ];
+
+  // Fetch available forms for linking
+  const fetchAvailableForms = useCallback(async () => {
+    try {
+      setLoadingForms(true);
+      const response = await api.get("/forms/admin/all");
+      setAvailableForms(
+        response.data.filter((form) => form.status === "active")
+      );
+    } catch (error) {
+      console.error("Error fetching forms:", error);
+      setAvailableForms([]);
+    } finally {
+      setLoadingForms(false);
+    }
+  }, [api]);
 
   // Handle multiple image selection
   const handleMultipleImageChange = (e) => {
@@ -171,6 +191,13 @@ const NewsManagement = () => {
     fetchNews();
   }, [fetchNews]);
 
+  // Fetch available forms when modal opens
+  useEffect(() => {
+    if (showModal && availableForms.length === 0) {
+      fetchAvailableForms();
+    }
+  }, [showModal, availableForms.length, fetchAvailableForms]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -217,6 +244,12 @@ const NewsManagement = () => {
       }
       if (formData.tags) {
         formDataToSend.append("tags", formData.tags);
+      }
+      if (formData.attachedForm) {
+        formDataToSend.append("attachedForm", formData.attachedForm);
+      }
+      if (formData.formDisplayType) {
+        formDataToSend.append("formDisplayType", formData.formDisplayType);
       }
 
       // Add featured image file if selected (with safety checks)
@@ -298,6 +331,8 @@ const NewsManagement = () => {
         newsItem.tags && Array.isArray(newsItem.tags)
           ? newsItem.tags.join(", ")
           : "",
+      attachedForm: newsItem.attachedForm || "",
+      formDisplayType: newsItem.formDisplayType || "link",
     });
 
     // Set existing image preview with safety checks
@@ -413,6 +448,8 @@ const NewsManagement = () => {
       eventDate: "",
       eventLocation: "",
       tags: "",
+      attachedForm: "",
+      formDisplayType: "link",
     });
     setSelectedImage(null);
     setImagePreview(null);
@@ -802,6 +839,116 @@ const NewsManagement = () => {
                 />
                 <div className="text-xs text-gray-500 mt-1">
                   {formData.excerpt.length}/500 characters
+                </div>
+              </div>
+
+              {/* Form Integration Section */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-blue-900 mb-3 flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Attach Form (Optional)
+                </h4>
+                <p className="text-xs text-blue-700 mb-3">
+                  Link or embed a form created in the Form Builder to this
+                  news/event/announcement.
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Select Form
+                    </label>
+                    <select
+                      value={formData.attachedForm}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          attachedForm: e.target.value,
+                        }));
+                        // Fetch forms when dropdown is opened and forms haven't been loaded
+                        if (availableForms.length === 0 && !loadingForms) {
+                          fetchAvailableForms();
+                        }
+                      }}
+                      onFocus={() => {
+                        // Fetch forms when dropdown is focused
+                        if (availableForms.length === 0 && !loadingForms) {
+                          fetchAvailableForms();
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">No form attached</option>
+                      {loadingForms ? (
+                        <option disabled>Loading forms...</option>
+                      ) : (
+                        availableForms.map((form) => (
+                          <option key={form._id} value={form._id}>
+                            {form.title} ({form.category})
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  </div>
+
+                  {formData.attachedForm && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Display Type
+                      </label>
+                      <div className="flex space-x-4">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="formDisplayType"
+                            value="link"
+                            checked={formData.formDisplayType === "link"}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                formDisplayType: e.target.value,
+                              }))
+                            }
+                            className="mr-2"
+                          />
+                          <span className="text-sm">Link Button</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="formDisplayType"
+                            value="embedded"
+                            checked={formData.formDisplayType === "embedded"}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                formDisplayType: e.target.value,
+                              }))
+                            }
+                            className="mr-2"
+                          />
+                          <span className="text-sm">Embedded Form</span>
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formData.formDisplayType === "link"
+                          ? "Shows a button that opens the form in a new page"
+                          : "Embeds the entire form directly in the news content"}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

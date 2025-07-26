@@ -14,6 +14,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import BackButton from "../components/BackButton";
+import FormPreview from "../components/FormBuilder/FormPreview";
 import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
 
@@ -408,6 +409,56 @@ const NewsDetail = () => {
                   {news.content}
                 </div>
               </div>
+
+              {/* Attached Form Display */}
+              {news.attachedForm && (
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  {news.formDisplayType === "link" ? (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                      <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                        Related Form
+                      </h3>
+                      <p className="text-blue-700 mb-4">
+                        Fill out this form related to this {news.category}.
+                      </p>
+                      <Link
+                        to={`/forms/${
+                          news.attachedForm.slug || news.attachedForm
+                        }`}
+                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Open Form
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Related Form
+                      </h3>
+                      <FormPreview
+                        formId={news.attachedForm._id || news.attachedForm}
+                        embedded={true}
+                        readOnly={false}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Tags */}
               {news.tags && news.tags.length > 0 && (
