@@ -1,164 +1,199 @@
 import {
-    AlertCircle,
-    Camera,
-    FileText,
-    Heart,
-    MapPin,
-    Save,
-    Upload,
-    User,
-    Users
-} from 'lucide-react';
-import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+  AlertCircle,
+  Camera,
+  FileText,
+  Heart,
+  MapPin,
+  Save,
+  Upload,
+  User,
+  Users,
+} from "lucide-react";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const MatrimonialRegistration = () => {
   const { api, user } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [step, setStep] = useState(1);
-  
+
   const [formData, setFormData] = useState({
     // Basic Info
-    profileType: 'self',
-    fullName: '',
-    dateOfBirth: '',
-    gender: '',
-    height: '',
-    weight: '',
-    
+    profileType: "self",
+    fullName: "",
+    dateOfBirth: "",
+    gender: "",
+    height: "",
+    weight: "",
+
     // Contact
-    contactNumber: user?.phoneNumber || '',
-    email: '',
-    
+    contactNumber: user?.phoneNumber || "",
+    email: "",
+
     // Location
-    city: '',
-    state: '',
-    country: 'India',
-    
+    city: "",
+    state: "",
+    country: "India",
+
     // Religion & Caste
-    caste: '',
-    subCaste: '',
-    religion: 'Hindu',
-    
+    caste: "",
+    subCaste: "",
+    religion: "Hindu",
+
     // Education & Career
-    education: '',
-    occupation: '',
-    income: '',
-    
+    education: "",
+    occupation: "",
+    income: "",
+
     // Family
-    familyType: 'nuclear',
-    fatherOccupation: '',
-    motherOccupation: '',
+    familyType: "nuclear",
+    fatherOccupation: "",
+    motherOccupation: "",
     siblings: {
       brothers: 0,
       sisters: 0,
       marriedBrothers: 0,
-      marriedSisters: 0
+      marriedSisters: 0,
     },
-    
+
     // About & Preferences
-    aboutMe: '',
+    aboutMe: "",
     partnerPreferences: {
       ageRange: { min: 18, max: 35 },
-      heightRange: { min: '', max: '' },
+      heightRange: { min: "", max: "" },
       education: [],
       occupation: [],
       location: [],
-      caste: []
-    }
+      caste: [],
+    },
   });
-  
+
   const [files, setFiles] = useState({
     biodata: null,
-    profileImages: []
+    profileImages: [],
   });
 
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData(prev => ({
+
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
   // Handle nested object changes (siblings, partner preferences)
   const handleNestedChange = (parent, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [parent]: {
         ...prev[parent],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   // Handle array changes for partner preferences
   const handleArrayChange = (parent, field, value) => {
-    const values = value.split(',').map(v => v.trim()).filter(v => v);
-    setFormData(prev => ({
+    const values = value
+      .split(",")
+      .map((v) => v.trim())
+      .filter((v) => v);
+    setFormData((prev) => ({
       ...prev,
       [parent]: {
         ...prev[parent],
-        [field]: values
-      }
+        [field]: values,
+      },
     }));
   };
 
   // Handle file uploads
   const handleFileChange = (e) => {
     const { name, files: selectedFiles } = e.target;
-    
-    if (name === 'biodata') {
-      if (selectedFiles[0] && selectedFiles[0].type !== 'application/pdf') {
-        setError('Biodata must be a PDF file');
+
+    if (name === "biodata") {
+      if (selectedFiles[0] && selectedFiles[0].type !== "application/pdf") {
+        setError("Biodata must be a PDF file");
         return;
       }
-      setFiles(prev => ({ ...prev, biodata: selectedFiles[0] }));
-    } else if (name === 'profileImages') {
-      const imageFiles = Array.from(selectedFiles).filter(file => 
-        file.type.startsWith('image/')
+      if (selectedFiles[0] && selectedFiles[0].size > 10 * 1024 * 1024) {
+        // 10MB limit
+        setError("Biodata file must be smaller than 10MB");
+        return;
+      }
+      setFiles((prev) => ({ ...prev, biodata: selectedFiles[0] }));
+    } else if (name === "profileImages") {
+      const imageFiles = Array.from(selectedFiles).filter((file) =>
+        file.type.startsWith("image/")
       );
       if (imageFiles.length !== selectedFiles.length) {
-        setError('Only image files are allowed for profile pictures');
+        setError("Only image files are allowed for profile pictures");
         return;
       }
-      setFiles(prev => ({ ...prev, profileImages: imageFiles }));
+
+      // Check file sizes
+      const oversizedFiles = imageFiles.filter(
+        (file) => file.size > 5 * 1024 * 1024
+      ); // 5MB limit per image
+      if (oversizedFiles.length > 0) {
+        setError("Each profile image must be smaller than 5MB");
+        return;
+      }
+
+      if (imageFiles.length > 5) {
+        setError("Maximum 5 profile images allowed");
+        return;
+      }
+
+      setFiles((prev) => ({ ...prev, profileImages: imageFiles }));
     }
-    
-    setError('');
+
+    setError("");
   };
 
   // Validate current step
   const validateStep = (stepNumber) => {
     switch (stepNumber) {
       case 1:
-        return formData.profileType && formData.fullName && formData.dateOfBirth && 
-               formData.gender && formData.height && formData.contactNumber;
+        return (
+          formData.profileType &&
+          formData.fullName &&
+          formData.dateOfBirth &&
+          formData.gender &&
+          formData.height &&
+          formData.contactNumber
+        );
       case 2:
-        return formData.city && formData.state && formData.caste && 
-               formData.education && formData.occupation;
+        return (
+          formData.city &&
+          formData.state &&
+          formData.caste &&
+          formData.education &&
+          formData.occupation
+        );
       case 3:
         return formData.familyType;
       case 4:
-        return files.biodata;
+        return true; // No mandatory files for step 4
       default:
         return true;
     }
@@ -170,32 +205,50 @@ const MatrimonialRegistration = () => {
     const birthDate = new Date(dob);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateStep(4)) {
-      setError('Please complete all required fields and upload biodata PDF');
+      setError("Please complete all required fields");
+      return;
+    }
+
+    // Additional file size validation before submission
+    if (files.biodata && files.biodata.size > 10 * 1024 * 1024) {
+      setError("Biodata file must be smaller than 10MB");
+      return;
+    }
+
+    const oversizedImages = files.profileImages.filter(
+      (file) => file.size > 5 * 1024 * 1024
+    );
+    if (oversizedImages.length > 0) {
+      setError("Each profile image must be smaller than 5MB");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
+    setUploadProgress(0);
 
     try {
       const submitData = new FormData();
-      
+
       // Add all form fields
-      Object.keys(formData).forEach(key => {
-        if (typeof formData[key] === 'object' && formData[key] !== null) {
+      Object.keys(formData).forEach((key) => {
+        if (typeof formData[key] === "object" && formData[key] !== null) {
           submitData.append(key, JSON.stringify(formData[key]));
         } else {
           submitData.append(key, formData[key]);
@@ -204,45 +257,74 @@ const MatrimonialRegistration = () => {
 
       // Add files
       if (files.biodata) {
-        submitData.append('biodata', files.biodata);
+        submitData.append("biodata", files.biodata);
       }
-      
+
       files.profileImages.forEach((image, index) => {
-        submitData.append('profileImages', image);
+        submitData.append("profileImages", image);
       });
 
-      await api.post('/api/matrimonial/profiles', submitData, {
+      await api.post("/api/matrimonial/profiles", submitData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 60000, // 60 seconds for file upload
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(progress);
+        },
       });
 
-      setSuccess('Profile submitted successfully! It will be reviewed by our admin team.');
+      setSuccess(
+        "Profile submitted successfully! It will be reviewed by our admin team."
+      );
       setTimeout(() => {
-        navigate('/matrimonial');
+        navigate("/matrimonial");
       }, 3000);
-      
     } catch (err) {
-      console.error('Profile submission error:', err);
-      setError(err.response?.data?.msg || 'Failed to submit profile. Please try again.');
+      console.error("Profile submission error:", err);
+
+      // Provide specific error messages for different error types
+      let errorMessage = "Failed to submit profile. Please try again.";
+
+      if (err.code === "ECONNABORTED") {
+        errorMessage =
+          "Upload is taking longer than expected. Please check your internet connection and try again with smaller files if possible.";
+      } else if (err.response?.status === 413) {
+        errorMessage =
+          "File size is too large. Please reduce the file size and try again.";
+      } else if (err.response?.status === 400) {
+        errorMessage =
+          err.response?.data?.msg ||
+          "Invalid form data. Please check all fields and try again.";
+      } else if (err.response?.status === 401) {
+        errorMessage = "Please log in again to submit your profile.";
+      } else if (err.response?.data?.msg) {
+        errorMessage = err.response.data.msg;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
   // Navigation functions
   const nextStep = () => {
     if (validateStep(step)) {
-      setStep(prev => prev + 1);
-      setError('');
+      setStep((prev) => prev + 1);
+      setError("");
     } else {
-      setError('Please fill in all required fields for this step');
+      setError("Please fill in all required fields for this step");
     }
   };
 
   const prevStep = () => {
-    setStep(prev => prev - 1);
-    setError('');
+    setStep((prev) => prev - 1);
+    setError("");
   };
 
   // Render step content
@@ -253,7 +335,9 @@ const MatrimonialRegistration = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3 mb-6">
               <User className="h-6 w-6 text-pink-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Basic Information
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -391,7 +475,9 @@ const MatrimonialRegistration = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3 mb-6">
               <MapPin className="h-6 w-6 text-pink-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Location & Background</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Location & Background
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -528,7 +614,9 @@ const MatrimonialRegistration = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3 mb-6">
               <Users className="h-6 w-6 text-pink-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Family Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Family Information
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -576,7 +664,9 @@ const MatrimonialRegistration = () => {
             </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-4">Siblings Information</h4>
+              <h4 className="font-medium text-gray-900 mb-4">
+                Siblings Information
+              </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -586,7 +676,13 @@ const MatrimonialRegistration = () => {
                     type="number"
                     min="0"
                     value={formData.siblings.brothers}
-                    onChange={(e) => handleNestedChange('siblings', 'brothers', parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        "siblings",
+                        "brothers",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                   />
                 </div>
@@ -598,7 +694,13 @@ const MatrimonialRegistration = () => {
                     type="number"
                     min="0"
                     value={formData.siblings.sisters}
-                    onChange={(e) => handleNestedChange('siblings', 'sisters', parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        "siblings",
+                        "sisters",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                   />
                 </div>
@@ -610,7 +712,13 @@ const MatrimonialRegistration = () => {
                     type="number"
                     min="0"
                     value={formData.siblings.marriedBrothers}
-                    onChange={(e) => handleNestedChange('siblings', 'marriedBrothers', parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        "siblings",
+                        "marriedBrothers",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                   />
                 </div>
@@ -622,7 +730,13 @@ const MatrimonialRegistration = () => {
                     type="number"
                     min="0"
                     value={formData.siblings.marriedSisters}
-                    onChange={(e) => handleNestedChange('siblings', 'marriedSisters', parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        "siblings",
+                        "marriedSisters",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                   />
                 </div>
@@ -654,7 +768,9 @@ const MatrimonialRegistration = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3 mb-6">
               <Upload className="h-6 w-6 text-pink-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Upload Documents & Photos</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Upload Photos & Documents (Optional)
+              </h3>
             </div>
 
             <div className="space-y-6">
@@ -665,10 +781,11 @@ const MatrimonialRegistration = () => {
                   <div className="mt-4">
                     <label htmlFor="biodata" className="cursor-pointer">
                       <span className="mt-2 block text-sm font-medium text-gray-900">
-                        Upload Biodata PDF *
+                        Upload Biodata PDF (Optional)
                       </span>
                       <span className="mt-1 block text-sm text-gray-500">
-                        PDF files up to 10MB
+                        PDF files up to 10MB. Uploading biodata helps potential
+                        matches know more about you.
                       </span>
                     </label>
                     <input
@@ -678,7 +795,6 @@ const MatrimonialRegistration = () => {
                       accept=".pdf"
                       onChange={handleFileChange}
                       className="sr-only"
-                      required
                     />
                   </div>
                 </div>
@@ -686,7 +802,9 @@ const MatrimonialRegistration = () => {
                   <div className="mt-4 flex items-center justify-center">
                     <div className="flex items-center space-x-2 text-green-600">
                       <FileText className="h-5 w-5" />
-                      <span className="text-sm font-medium">{files.biodata.name}</span>
+                      <span className="text-sm font-medium">
+                        {files.biodata.name}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -702,7 +820,7 @@ const MatrimonialRegistration = () => {
                         Upload Profile Photos (Optional)
                       </span>
                       <span className="mt-1 block text-sm text-gray-500">
-                        Image files up to 10MB each, maximum 5 photos
+                        Image files up to 5MB each, maximum 5 photos
                       </span>
                     </label>
                     <input
@@ -723,7 +841,10 @@ const MatrimonialRegistration = () => {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {files.profileImages.map((file, index) => (
-                        <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                        >
                           {file.name}
                         </span>
                       ))}
@@ -738,7 +859,7 @@ const MatrimonialRegistration = () => {
                   <Heart className="h-5 w-5 text-pink-600 mr-2" />
                   Partner Preferences (Optional)
                 </h4>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -750,10 +871,12 @@ const MatrimonialRegistration = () => {
                         min="18"
                         max="70"
                         value={formData.partnerPreferences.ageRange.min}
-                        onChange={(e) => handleNestedChange('partnerPreferences', 'ageRange', {
-                          ...formData.partnerPreferences.ageRange,
-                          min: parseInt(e.target.value) || 18
-                        })}
+                        onChange={(e) =>
+                          handleNestedChange("partnerPreferences", "ageRange", {
+                            ...formData.partnerPreferences.ageRange,
+                            min: parseInt(e.target.value) || 18,
+                          })
+                        }
                         placeholder="Min"
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                       />
@@ -763,10 +886,12 @@ const MatrimonialRegistration = () => {
                         min="18"
                         max="70"
                         value={formData.partnerPreferences.ageRange.max}
-                        onChange={(e) => handleNestedChange('partnerPreferences', 'ageRange', {
-                          ...formData.partnerPreferences.ageRange,
-                          max: parseInt(e.target.value) || 35
-                        })}
+                        onChange={(e) =>
+                          handleNestedChange("partnerPreferences", "ageRange", {
+                            ...formData.partnerPreferences.ageRange,
+                            max: parseInt(e.target.value) || 35,
+                          })
+                        }
                         placeholder="Max"
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                       />
@@ -779,8 +904,14 @@ const MatrimonialRegistration = () => {
                     </label>
                     <input
                       type="text"
-                      value={formData.partnerPreferences.education.join(', ')}
-                      onChange={(e) => handleArrayChange('partnerPreferences', 'education', e.target.value)}
+                      value={formData.partnerPreferences.education.join(", ")}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "partnerPreferences",
+                          "education",
+                          e.target.value
+                        )
+                      }
                       placeholder="e.g., Graduate, Post Graduate"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
@@ -792,8 +923,14 @@ const MatrimonialRegistration = () => {
                     </label>
                     <input
                       type="text"
-                      value={formData.partnerPreferences.occupation.join(', ')}
-                      onChange={(e) => handleArrayChange('partnerPreferences', 'occupation', e.target.value)}
+                      value={formData.partnerPreferences.occupation.join(", ")}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "partnerPreferences",
+                          "occupation",
+                          e.target.value
+                        )
+                      }
                       placeholder="e.g., Engineer, Doctor, Business"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
@@ -805,8 +942,14 @@ const MatrimonialRegistration = () => {
                     </label>
                     <input
                       type="text"
-                      value={formData.partnerPreferences.location.join(', ')}
-                      onChange={(e) => handleArrayChange('partnerPreferences', 'location', e.target.value)}
+                      value={formData.partnerPreferences.location.join(", ")}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "partnerPreferences",
+                          "location",
+                          e.target.value
+                        )
+                      }
                       placeholder="e.g., Mumbai, Delhi, Bangalore"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
@@ -831,7 +974,8 @@ const MatrimonialRegistration = () => {
             Register Matrimonial Profile
           </h1>
           <p className="text-gray-600">
-            Create a comprehensive matrimonial profile to find your perfect match
+            Create a comprehensive matrimonial profile to find your perfect
+            match
           </p>
         </div>
 
@@ -843,8 +987,8 @@ const MatrimonialRegistration = () => {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step >= stepNumber
-                      ? 'bg-pink-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                      ? "bg-pink-600 text-white"
+                      : "bg-gray-200 text-gray-600"
                   }`}
                 >
                   {stepNumber}
@@ -852,7 +996,7 @@ const MatrimonialRegistration = () => {
                 {stepNumber < 4 && (
                   <div
                     className={`w-16 h-1 mx-2 ${
-                      step > stepNumber ? 'bg-pink-600' : 'bg-gray-200'
+                      step > stepNumber ? "bg-pink-600" : "bg-gray-200"
                     }`}
                   />
                 )}
@@ -863,7 +1007,7 @@ const MatrimonialRegistration = () => {
             <span className="text-xs text-gray-500">Basic Info</span>
             <span className="text-xs text-gray-500">Background</span>
             <span className="text-xs text-gray-500">Family</span>
-            <span className="text-xs text-gray-500">Upload</span>
+            <span className="text-xs text-gray-500">Photos</span>
           </div>
         </div>
 
@@ -925,7 +1069,9 @@ const MatrimonialRegistration = () => {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Submitting...
+                        {uploadProgress > 0
+                          ? `Uploading... ${uploadProgress}%`
+                          : "Submitting..."}
                       </>
                     ) : (
                       <>
