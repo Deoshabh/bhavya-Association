@@ -4,6 +4,7 @@ import {
   DollarSign,
   FileText,
   FormInput,
+  Heart,
   LayoutDashboard,
   LogOut,
   MessageCircle,
@@ -56,6 +57,12 @@ const AdminLayout = ({ children, title, currentPage }) => {
       name: "Q&A Management",
       icon: <MessageCircle size={20} />,
       path: "/admin/qa",
+    },
+    {
+      id: "matrimonial",
+      name: "Matrimonial",
+      icon: <Heart size={20} />,
+      path: "/admin/matrimonial",
     },
     {
       id: "forms",

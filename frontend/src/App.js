@@ -22,6 +22,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminSettings from "./pages/Admin/AdminSettings";
 import FormManagement from "./pages/Admin/FormManagement";
 import ListingManagement from "./pages/Admin/ListingManagement";
+import MatrimonialManagement from "./pages/Admin/MatrimonialManagement";
 import NewsManagement from "./pages/Admin/NewsManagement";
 import QAManagement from "./pages/Admin/QAManagement";
 import UserManagement from "./pages/Admin/UserManagement";
@@ -35,10 +36,13 @@ import Home from "./pages/Home";
 import LatestEvents from "./pages/LatestEvents";
 import ListingDetails from "./pages/ListingDetails";
 import Login from "./pages/Login";
+import MatrimonialListing from "./pages/MatrimonialListing";
+import MatrimonialRegistration from "./pages/MatrimonialRegistration";
 import NewsDetail from "./pages/NewsDetail";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Profile from "./pages/Profile";
+import ProfileDetail from "./pages/ProfileDetail";
 import QuestionDetail from "./pages/QuestionDetail";
 import QuestionsAnswers from "./pages/QuestionsAnswers";
 import ReferralDashboard from "./pages/ReferralDashboard";
@@ -111,6 +115,17 @@ function App() {
           <Route path="/upgrade-membership" element={<UpgradeMembership />} />
           <Route path="/service-listings" element={<ServiceListings />} />
           <Route path="/service-listings/:id" element={<ListingDetails />} />
+          {/* Matrimonial routes */}
+          <Route path="/matrimonial" element={<MatrimonialListing />} />
+          <Route path="/matrimonial/profile/:id" element={<ProfileDetail />} />
+          <Route
+            path="/matrimonial/register"
+            element={
+              <ProtectedRoute>
+                <MatrimonialRegistration />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/faq" element={<FAQ />} />
@@ -215,6 +230,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <QAManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/matrimonial"
+            element={
+              <ProtectedRoute>
+                <MatrimonialManagement />
               </ProtectedRoute>
             }
           />

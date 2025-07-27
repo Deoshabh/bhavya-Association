@@ -12,6 +12,7 @@ const newsRoutes = require('./routes/news');
 const questionsRoutes = require('./routes/questions');
 const answersRoutes = require('./routes/answers'); 
 const referralRoutes = require('./routes/referrals');
+const matrimonialRoutes = require("./routes/matrimonial");
 const formsRoutes = require("./routes/forms");
 const submissionsRoutes = require("./routes/submissions");
 const validateUserSchema = require("./utils/validateUserSchema");
@@ -129,6 +130,7 @@ app.use("/api/news", requireDbConnection, newsRoutes);
 app.use("/api/questions", requireDbConnection, questionsRoutes);
 app.use("/api/answers", requireDbConnection, answersRoutes);
 app.use("/api/referrals", requireDbConnection, referralRoutes);
+app.use("/api/matrimonial", requireDbConnection, matrimonialRoutes);
 app.use("/api/forms", requireDbConnection, formsRoutes);
 app.use("/api/submissions", requireDbConnection, submissionsRoutes);
 

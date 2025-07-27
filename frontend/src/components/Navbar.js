@@ -1,6 +1,7 @@
 import {
   Briefcase,
   Calendar,
+  Heart,
   Home,
   LogIn,
   LogOut,
@@ -73,6 +74,11 @@ const Navbar = () => {
           icon: <Briefcase size={18} />,
         },
         {
+          label: "Matrimonial",
+          path: "/matrimonial",
+          icon: <Heart size={18} />,
+        },
+        {
           label: "Latest News",
           path: "/latest-events",
           icon: <Calendar size={18} />,
@@ -92,6 +98,11 @@ const Navbar = () => {
       ].filter(Boolean)
     : [
         { label: "Home", path: "/", icon: <Home size={18} /> },
+        {
+          label: "Matrimonial",
+          path: "/matrimonial",
+          icon: <Heart size={18} />,
+        },
         {
           label: "Latest News",
           path: "/latest-events",
