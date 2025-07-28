@@ -1,19 +1,19 @@
 import {
-    AlertCircle,
-    Briefcase,
-    Calendar,
-    CheckCircle,
-    Clock,
-    Eye,
-    Heart,
-    Mail,
-    MapPin,
-    Phone,
-    Search,
-    Trash2,
-    Users,
-    XCircle
-} from 'lucide-react';
+  AlertCircle,
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Eye,
+  Heart,
+  Mail,
+  MapPin,
+  Phone,
+  Search,
+  Trash2,
+  Users,
+  XCircle,
+} from "lucide-react";
 import React, { useContext, useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { AuthContext } from '../../context/AuthContext';
@@ -166,7 +166,9 @@ const MatrimonialManagement = () => {
               <Heart className="h-6 w-6 mr-2 text-pink-600" />
               Matrimonial Management
             </h1>
-            <p className="text-gray-600 mt-1">Manage matrimonial profiles and approvals</p>
+            <p className="text-gray-600 mt-1">
+              Manage matrimonial profiles and approvals
+            </p>
           </div>
         </div>
 
@@ -178,8 +180,12 @@ const MatrimonialManagement = () => {
                 <Users className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <h3 className="text-gray-500 text-sm font-medium">Total Profiles</h3>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{stats.total}</p>
+                <h3 className="text-gray-500 text-sm font-medium">
+                  Total Profiles
+                </h3>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {stats.total}
+                </p>
               </div>
             </div>
           </div>
@@ -190,8 +196,12 @@ const MatrimonialManagement = () => {
                 <Clock className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <h3 className="text-gray-500 text-sm font-medium">Pending Approval</h3>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{stats.pending}</p>
+                <h3 className="text-gray-500 text-sm font-medium">
+                  Pending Approval
+                </h3>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {stats.pending}
+                </p>
               </div>
             </div>
           </div>
@@ -203,7 +213,9 @@ const MatrimonialManagement = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-gray-500 text-sm font-medium">Approved</h3>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{stats.approved}</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {stats.approved}
+                </p>
               </div>
             </div>
           </div>
@@ -215,7 +227,9 @@ const MatrimonialManagement = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-gray-500 text-sm font-medium">Rejected</h3>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{stats.rejected}</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {stats.rejected}
+                </p>
               </div>
             </div>
           </div>
@@ -234,7 +248,7 @@ const MatrimonialManagement = () => {
                   type="text"
                   placeholder="Search by name, city..."
                   value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 />
               </div>
@@ -246,7 +260,7 @@ const MatrimonialManagement = () => {
               </label>
               <select
                 value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
               >
                 <option value="">All Status</option>
@@ -262,7 +276,7 @@ const MatrimonialManagement = () => {
               </label>
               <select
                 value={filters.gender}
-                onChange={(e) => handleFilterChange('gender', e.target.value)}
+                onChange={(e) => handleFilterChange("gender", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
               >
                 <option value="">All Genders</option>
@@ -279,7 +293,7 @@ const MatrimonialManagement = () => {
                 type="text"
                 placeholder="Filter by city"
                 value={filters.city}
-                onChange={(e) => handleFilterChange('city', e.target.value)}
+                onChange={(e) => handleFilterChange("city", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent"
               />
             </div>
@@ -302,7 +316,9 @@ const MatrimonialManagement = () => {
         {/* Profiles Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Matrimonial Profiles</h3>
+            <h3 className="text-lg font-medium text-gray-900">
+              Matrimonial Profiles
+            </h3>
           </div>
 
           {loading ? (
@@ -313,8 +329,12 @@ const MatrimonialManagement = () => {
           ) : profiles.length === 0 ? (
             <div className="p-8 text-center">
               <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No profiles found</h3>
-              <p className="text-gray-600">No matrimonial profiles match your current filters.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No profiles found
+              </h3>
+              <p className="text-gray-600">
+                No matrimonial profiles match your current filters.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -344,7 +364,8 @@ const MatrimonialManagement = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
-                            {profile.profileImages && profile.profileImages.length > 0 ? (
+                            {profile.profileImages &&
+                            profile.profileImages.length > 0 ? (
                               <img
                                 src={`/api/matrimonial/profiles/${profile._id}/image/0`}
                                 alt={profile.fullName}
@@ -370,7 +391,8 @@ const MatrimonialManagement = () => {
                         <div className="text-sm text-gray-900">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                            {calculateAge(profile.dateOfBirth)} years, {profile.gender}
+                            {calculateAge(profile.dateOfBirth)} years,{" "}
+                            {profile.gender}
                           </div>
                           <div className="flex items-center mt-1">
                             <MapPin className="h-4 w-4 mr-1 text-gray-400" />
@@ -398,18 +420,26 @@ const MatrimonialManagement = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-1">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            profile.approvalStatus === 'approved' ? 'bg-green-100 text-green-800' :
-                            profile.approvalStatus === 'rejected' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {profile.approvalStatus}
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              profile.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : profile.status === "rejected"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {profile.status}
                           </span>
                           <div>
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              profile.isVisible ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {profile.isVisible ? 'Visible' : 'Hidden'}
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                profile.isVisible
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {profile.isVisible ? "Visible" : "Hidden"}
                             </span>
                           </div>
                         </div>
@@ -425,18 +455,22 @@ const MatrimonialManagement = () => {
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-                          
-                          {profile.approvalStatus === 'pending' && (
+
+                          {profile.status === "pending" && (
                             <>
                               <button
-                                onClick={() => handleApproval(profile._id, 'approve')}
+                                onClick={() =>
+                                  handleApproval(profile._id, "approve")
+                                }
                                 disabled={actionLoading === profile._id}
                                 className="text-green-600 hover:text-green-900 disabled:opacity-50"
                               >
                                 <CheckCircle className="h-4 w-4" />
                               </button>
                               <button
-                                onClick={() => handleApproval(profile._id, 'reject')}
+                                onClick={() =>
+                                  handleApproval(profile._id, "reject")
+                                }
                                 disabled={actionLoading === profile._id}
                                 className="text-red-600 hover:text-red-900 disabled:opacity-50"
                               >
@@ -444,15 +478,27 @@ const MatrimonialManagement = () => {
                               </button>
                             </>
                           )}
-                          
+
                           <button
-                            onClick={() => handleVisibilityToggle(profile._id, profile.isVisible)}
+                            onClick={() =>
+                              handleVisibilityToggle(
+                                profile._id,
+                                profile.isVisible
+                              )
+                            }
                             disabled={actionLoading === profile._id}
                             className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
                           >
-                            {profile.isVisible ? <Eye className="h-4 w-4" /> : <Eye className="h-4 w-4" style={{opacity: 0.5}} />}
+                            {profile.isVisible ? (
+                              <Eye className="h-4 w-4" />
+                            ) : (
+                              <Eye
+                                className="h-4 w-4"
+                                style={{ opacity: 0.5 }}
+                              />
+                            )}
                           </button>
-                          
+
                           <button
                             onClick={() => handleDelete(profile._id)}
                             disabled={actionLoading === profile._id}
@@ -491,26 +537,69 @@ const MatrimonialManagement = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Basic Information */}
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Basic Information</h4>
+                  <h4 className="font-medium text-gray-900">
+                    Basic Information
+                  </h4>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p><span className="font-medium">Full Name:</span> {selectedProfile.fullName}</p>
-                    <p><span className="font-medium">Age:</span> {calculateAge(selectedProfile.dateOfBirth)} years</p>
-                    <p><span className="font-medium">Gender:</span> {selectedProfile.gender}</p>
-                    <p><span className="font-medium">Height:</span> {selectedProfile.height}</p>
-                    {selectedProfile.weight && <p><span className="font-medium">Weight:</span> {selectedProfile.weight}</p>}
-                    <p><span className="font-medium">Location:</span> {selectedProfile.city}, {selectedProfile.state}</p>
-                    <p><span className="font-medium">Caste:</span> {selectedProfile.caste}</p>
-                    {selectedProfile.subCaste && <p><span className="font-medium">Sub Caste:</span> {selectedProfile.subCaste}</p>}
+                    <p>
+                      <span className="font-medium">Full Name:</span>{" "}
+                      {selectedProfile.fullName}
+                    </p>
+                    <p>
+                      <span className="font-medium">Age:</span>{" "}
+                      {calculateAge(selectedProfile.dateOfBirth)} years
+                    </p>
+                    <p>
+                      <span className="font-medium">Gender:</span>{" "}
+                      {selectedProfile.gender}
+                    </p>
+                    <p>
+                      <span className="font-medium">Height:</span>{" "}
+                      {selectedProfile.height}
+                    </p>
+                    {selectedProfile.weight && (
+                      <p>
+                        <span className="font-medium">Weight:</span>{" "}
+                        {selectedProfile.weight}
+                      </p>
+                    )}
+                    <p>
+                      <span className="font-medium">Location:</span>{" "}
+                      {selectedProfile.city}, {selectedProfile.state}
+                    </p>
+                    <p>
+                      <span className="font-medium">Caste:</span>{" "}
+                      {selectedProfile.caste}
+                    </p>
+                    {selectedProfile.subCaste && (
+                      <p>
+                        <span className="font-medium">Sub Caste:</span>{" "}
+                        {selectedProfile.subCaste}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Professional Information */}
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Professional Details</h4>
+                  <h4 className="font-medium text-gray-900">
+                    Professional Details
+                  </h4>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p><span className="font-medium">Education:</span> {selectedProfile.education}</p>
-                    <p><span className="font-medium">Occupation:</span> {selectedProfile.occupation}</p>
-                    {selectedProfile.income && <p><span className="font-medium">Income:</span> {selectedProfile.income}</p>}
+                    <p>
+                      <span className="font-medium">Education:</span>{" "}
+                      {selectedProfile.education}
+                    </p>
+                    <p>
+                      <span className="font-medium">Occupation:</span>{" "}
+                      {selectedProfile.occupation}
+                    </p>
+                    {selectedProfile.income && (
+                      <p>
+                        <span className="font-medium">Income:</span>{" "}
+                        {selectedProfile.income}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -518,11 +607,32 @@ const MatrimonialManagement = () => {
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900">Family Details</h4>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p><span className="font-medium">Family Type:</span> {selectedProfile.familyType}</p>
-                    {selectedProfile.fatherOccupation && <p><span className="font-medium">Father's Occupation:</span> {selectedProfile.fatherOccupation}</p>}
-                    {selectedProfile.motherOccupation && <p><span className="font-medium">Mother's Occupation:</span> {selectedProfile.motherOccupation}</p>}
+                    <p>
+                      <span className="font-medium">Family Type:</span>{" "}
+                      {selectedProfile.familyType}
+                    </p>
+                    {selectedProfile.fatherOccupation && (
+                      <p>
+                        <span className="font-medium">
+                          Father's Occupation:
+                        </span>{" "}
+                        {selectedProfile.fatherOccupation}
+                      </p>
+                    )}
+                    {selectedProfile.motherOccupation && (
+                      <p>
+                        <span className="font-medium">
+                          Mother's Occupation:
+                        </span>{" "}
+                        {selectedProfile.motherOccupation}
+                      </p>
+                    )}
                     {selectedProfile.siblings && (
-                      <p><span className="font-medium">Siblings:</span> {selectedProfile.siblings.brothers} Brothers, {selectedProfile.siblings.sisters} Sisters</p>
+                      <p>
+                        <span className="font-medium">Siblings:</span>{" "}
+                        {selectedProfile.siblings.brothers} Brothers,{" "}
+                        {selectedProfile.siblings.sisters} Sisters
+                      </p>
                     )}
                   </div>
                 </div>
@@ -531,8 +641,16 @@ const MatrimonialManagement = () => {
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900">Contact Details</h4>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p><span className="font-medium">Phone:</span> {selectedProfile.contactNumber}</p>
-                    {selectedProfile.email && <p><span className="font-medium">Email:</span> {selectedProfile.email}</p>}
+                    <p>
+                      <span className="font-medium">Phone:</span>{" "}
+                      {selectedProfile.contactNumber}
+                    </p>
+                    {selectedProfile.email && (
+                      <p>
+                        <span className="font-medium">Email:</span>{" "}
+                        {selectedProfile.email}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -549,17 +667,21 @@ const MatrimonialManagement = () => {
 
               {/* Action Buttons */}
               <div className="flex justify-end space-x-3 mt-6">
-                {selectedProfile.approvalStatus === 'pending' && (
+                {selectedProfile.status === "pending" && (
                   <>
                     <button
-                      onClick={() => handleApproval(selectedProfile._id, 'reject')}
+                      onClick={() =>
+                        handleApproval(selectedProfile._id, "reject")
+                      }
                       disabled={actionLoading === selectedProfile._id}
                       className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Reject Profile
                     </button>
                     <button
-                      onClick={() => handleApproval(selectedProfile._id, 'approve')}
+                      onClick={() =>
+                        handleApproval(selectedProfile._id, "approve")
+                      }
                       disabled={actionLoading === selectedProfile._id}
                       className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >

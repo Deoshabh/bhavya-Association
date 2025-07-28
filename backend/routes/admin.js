@@ -1358,12 +1358,19 @@ router.get("/matrimonial/profiles", auth, adminAuth, async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
+    // Map profiles to include isVisible field for frontend compatibility
+    const mappedProfiles = profiles.map((profile) => {
+      const profileObj = profile.toObject();
+      profileObj.isVisible = profileObj.isPublic;
+      return profileObj;
+    });
+
     // Get total count
     const total = await MatrimonialProfile.countDocuments(query);
     const pages = Math.ceil(total / parseInt(limit));
 
     res.json({
-      profiles,
+      profiles: mappedProfiles,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -1400,31 +1407,46 @@ router.get("/matrimonial/profiles/:id", auth, adminAuth, async (req, res) => {
 });
 
 /**
- * @route   PUT /api/admin/matrimonial/profiles/:id/approve
- * @desc    Approve matrimonial profile
+ * @route   PUT /api/admin/matrimonial/profiles/:id/approval
+ * @desc    Approve or reject matrimonial profile
  * @access  Admin
  */
 router.put(
-  "/matrimonial/profiles/:id/approve",
+  "/matrimonial/profiles/:id/approval",
   auth,
   adminAuth,
   async (req, res) => {
     try {
+      const { action, adminNotes } = req.body;
+
+      if (!action || !["approve", "reject"].includes(action)) {
+        return res
+          .status(400)
+          .json({ msg: "Valid action (approve/reject) is required" });
+      }
+
       const profile = await MatrimonialProfile.findById(req.params.id);
 
       if (!profile) {
         return res.status(404).json({ msg: "Profile not found" });
       }
 
-      profile.status = "approved";
-      profile.approvedAt = new Date();
-      profile.approvedBy = req.user.id;
-      profile.rejectionReason = undefined;
+      if (action === "approve") {
+        profile.status = "approved";
+        profile.approvedAt = new Date();
+        profile.approvedBy = req.user.id;
+        profile.rejectionReason = undefined;
+      } else if (action === "reject") {
+        profile.status = "rejected";
+        profile.rejectionReason = adminNotes || "Profile rejected by admin";
+        profile.approvedAt = undefined;
+        profile.approvedBy = undefined;
+      }
 
       await profile.save();
 
       res.json({
-        msg: "Profile approved successfully",
+        msg: `Profile ${action}d successfully`,
         profile,
       });
     } catch (err) {
@@ -1435,64 +1457,26 @@ router.put(
 );
 
 /**
- * @route   PUT /api/admin/matrimonial/profiles/:id/reject
- * @desc    Reject matrimonial profile
- * @access  Admin
- */
-router.put(
-  "/matrimonial/profiles/:id/reject",
-  auth,
-  adminAuth,
-  async (req, res) => {
-    try {
-      const { rejectionReason } = req.body;
-
-      if (!rejectionReason) {
-        return res.status(400).json({ msg: "Rejection reason is required" });
-      }
-
-      const profile = await MatrimonialProfile.findById(req.params.id);
-
-      if (!profile) {
-        return res.status(404).json({ msg: "Profile not found" });
-      }
-
-      profile.status = "rejected";
-      profile.rejectionReason = rejectionReason;
-      profile.approvedAt = undefined;
-      profile.approvedBy = undefined;
-
-      await profile.save();
-
-      res.json({
-        msg: "Profile rejected successfully",
-        profile,
-      });
-    } catch (err) {
-      console.error("Admin matrimonial profile rejection error:", err);
-      res.status(500).json({ msg: "Server error" });
-    }
-  }
-);
-
-/**
- * @route   PUT /api/admin/matrimonial/profiles/:id/toggle-visibility
+ * @route   PUT /api/admin/matrimonial/profiles/:id/visibility
  * @desc    Toggle profile visibility (hide/show)
  * @access  Admin
  */
 router.put(
-  "/matrimonial/profiles/:id/toggle-visibility",
+  "/matrimonial/profiles/:id/visibility",
   auth,
   adminAuth,
   async (req, res) => {
     try {
+      const { isVisible } = req.body;
+
       const profile = await MatrimonialProfile.findById(req.params.id);
 
       if (!profile) {
         return res.status(404).json({ msg: "Profile not found" });
       }
 
-      profile.isPublic = !profile.isPublic;
+      profile.isPublic =
+        isVisible !== undefined ? isVisible : !profile.isPublic;
       await profile.save();
 
       res.json({

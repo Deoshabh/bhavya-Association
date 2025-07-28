@@ -219,14 +219,27 @@ router.post('/profiles', auth, upload.fields([
       motherOccupation,
       siblings,
       aboutMe,
-      partnerPreferences
+      partnerPreferences,
     } = req.body;
 
     // Validate required fields
-    if (!profileType || !fullName || !dateOfBirth || !gender || !height || 
-        !contactNumber || !city || !state || !caste || !education || 
-        !occupation || !familyType) {
-      return res.status(400).json({ msg: 'Please provide all required fields' });
+    if (
+      !profileType ||
+      !fullName ||
+      !dateOfBirth ||
+      !gender ||
+      !height ||
+      !contactNumber ||
+      !city ||
+      !state ||
+      !caste ||
+      !education ||
+      !occupation ||
+      !familyType
+    ) {
+      return res
+        .status(400)
+        .json({ msg: "Please provide all required fields" });
     }
 
     // Calculate age from date of birth
@@ -234,29 +247,32 @@ router.post('/profiles', auth, upload.fields([
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
 
     if (age < 18 || age > 70) {
-      return res.status(400).json({ msg: 'Age must be between 18 and 70 years' });
+      return res
+        .status(400)
+        .json({ msg: "Age must be between 18 and 70 years" });
     }
 
-    // Check if biodata file is uploaded
-    if (!req.files || !req.files.biodata || req.files.biodata.length === 0) {
-      return res.status(400).json({ msg: 'Biodata PDF file is required' });
+    // Process biodata file if uploaded
+    let biodataInfo = null;
+    if (req.files && req.files.biodata && req.files.biodata.length > 0) {
+      const biodataFile = req.files.biodata[0];
+      biodataInfo = {
+        filename: biodataFile.filename,
+        originalName: biodataFile.originalname,
+        mimetype: biodataFile.mimetype,
+        size: biodataFile.size,
+        filePath: biodataFile.path,
+      };
     }
-
-    // Process biodata file
-    const biodataFile = req.files.biodata[0];
-    const biodataInfo = {
-      filename: biodataFile.filename,
-      originalName: biodataFile.originalname,
-      mimetype: biodataFile.mimetype,
-      size: biodataFile.size,
-      filePath: biodataFile.path
-    };
 
     // Process profile images
     const profileImages = [];
@@ -268,7 +284,7 @@ router.post('/profiles', auth, upload.fields([
           mimetype: image.mimetype,
           size: image.size,
           filePath: image.path,
-          isPrimary: index === 0 // First image is primary
+          isPrimary: index === 0, // First image is primary
         });
       });
     }
@@ -279,9 +295,14 @@ router.post('/profiles', auth, upload.fields([
 
     try {
       if (siblings) parsedSiblings = JSON.parse(siblings);
-      if (partnerPreferences) parsedPartnerPreferences = JSON.parse(partnerPreferences);
+      if (partnerPreferences)
+        parsedPartnerPreferences = JSON.parse(partnerPreferences);
     } catch (parseErr) {
-      return res.status(400).json({ msg: 'Invalid JSON format for siblings or partner preferences' });
+      return res
+        .status(400)
+        .json({
+          msg: "Invalid JSON format for siblings or partner preferences",
+        });
     }
 
     // Create profile
@@ -298,10 +319,10 @@ router.post('/profiles', auth, upload.fields([
       email,
       city,
       state,
-      country: country || 'India',
+      country: country || "India",
       caste,
       subCaste,
-      religion: religion || 'Hindu',
+      religion: religion || "Hindu",
       education,
       occupation,
       income,
@@ -313,15 +334,15 @@ router.post('/profiles', auth, upload.fields([
       partnerPreferences: parsedPartnerPreferences,
       biodataFile: biodataInfo,
       profileImages,
-      status: 'pending' // Requires admin approval
+      status: "pending", // Requires admin approval
     };
 
     const matrimonialProfile = new MatrimonialProfile(profileData);
     await matrimonialProfile.save();
 
     res.status(201).json({
-      msg: 'Matrimonial profile created successfully and submitted for approval',
-      profile: matrimonialProfile
+      msg: "Matrimonial profile created successfully and submitted for approval",
+      profile: matrimonialProfile,
     });
   } catch (err) {
     console.error('Error creating matrimonial profile:', err);
@@ -526,6 +547,54 @@ router.get('/download-biodata/:id', auth, async (req, res) => {
     fileStream.pipe(res);
   } catch (err) {
     console.error('Error downloading biodata:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+/**
+ * @route   GET /api/matrimonial/profiles/:id/image/:index
+ * @desc    Get profile image
+ * @access  Public
+ */
+router.get('/profiles/:id/image/:index', async (req, res) => {
+  try {
+    const profile = await MatrimonialProfile.findById(req.params.id);
+
+    if (!profile) {
+      return res.status(404).json({ msg: 'Profile not found' });
+    }
+
+    // Check if profile is publicly accessible
+    if (profile.status !== 'approved' || !profile.isActive || !profile.isPublic) {
+      return res.status(403).json({ msg: 'Profile not accessible' });
+    }
+
+    const imageIndex = parseInt(req.params.index);
+    if (!profile.profileImages || imageIndex >= profile.profileImages.length || imageIndex < 0) {
+      return res.status(404).json({ msg: 'Image not found' });
+    }
+
+    const image = profile.profileImages[imageIndex];
+    if (!image.filePath) {
+      return res.status(404).json({ msg: 'Image file not found' });
+    }
+
+    // Check if file exists
+    try {
+      await require('fs').promises.access(image.filePath);
+    } catch (fileErr) {
+      return res.status(404).json({ msg: 'Image file not found on server' });
+    }
+
+    // Set proper headers
+    res.setHeader('Content-Type', image.mimetype || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+
+    // Stream file to response
+    const fileStream = require('fs').createReadStream(image.filePath);
+    fileStream.pipe(res);
+  } catch (err) {
+    console.error('Error serving profile image:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
