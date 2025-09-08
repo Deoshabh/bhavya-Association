@@ -48,14 +48,11 @@ COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
 # Copy backend source code
 COPY backend/ ./backend/
 
-# Copy startup script and make it executable
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
 # Copy built frontend from builder stage
 COPY --from=frontend-builder /app/frontend/build ./frontend/build
-COPY --from=frontend-builder /app/frontend/server-production.js ./frontend/
-COPY --from=frontend-builder /app/frontend/package.json ./frontend/
+
+# Copy production server that serves both API and frontend
+COPY production-server.js ./
 
 # Create uploads directory and set permissions for all files
 RUN mkdir -p /app/backend/uploads && \
@@ -85,5 +82,5 @@ EXPOSE 5000
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Start the backend server (which includes API routes and health check)
-CMD ["node", "/app/backend/app.js"]
+# Start the production server (combines API and frontend serving)
+CMD ["node", "/app/production-server.js"]
