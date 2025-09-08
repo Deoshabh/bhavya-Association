@@ -7,7 +7,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 
-// Import backend app (without starting its server)
+// Import backend app (without auto-starting its server)
 const backendApp = require("./app");
 
 const app = express();

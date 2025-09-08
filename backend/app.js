@@ -244,17 +244,19 @@ async function startServer() {
     console.error(`Failed to start server: ${err.message}`);
     console.error("Application cannot start without database connection");
 
-    if (process.env.NODE_ENV === "production") {
-      process.exit(1); // Exit in production
-    } else {
-      console.log("Retrying database connection in 5 seconds...");
-      setTimeout(() => startServer(), 5000); // Retry in development
-    }
+    // In production, don't crash - just log the error and continue
+    // The frontend will still be served by the production-server.js
+    console.log(
+      "⚠️  Continuing without database - API endpoints will be unavailable"
+    );
   }
 }
 
-// Start the server
-startServer();
+// Only start the server if this file is run directly (not imported)
+if (require.main === module) {
+  startServer();
+}
 
-// Export app for testing purposes
+// Export both app and startServer function
 module.exports = app;
+module.exports.startServer = startServer;
