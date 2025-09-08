@@ -48,8 +48,8 @@ COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
 # Copy backend source code
 COPY backend/ ./backend/
 
-# Copy startup script
-COPY start.sh /app/
+# Copy startup script and make it executable
+COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # Copy built frontend from builder stage
@@ -57,7 +57,7 @@ COPY --from=frontend-builder /app/frontend/build ./frontend/build
 COPY --from=frontend-builder /app/frontend/server-production.js ./frontend/
 COPY --from=frontend-builder /app/frontend/package.json ./frontend/
 
-# Create uploads directory and set permissions
+# Create uploads directory and set permissions for all files
 RUN mkdir -p /app/backend/uploads && \
     chown -R bhavya:nodejs /app
 
@@ -85,5 +85,5 @@ EXPOSE 5000
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Start the application using our startup script
-CMD ["/app/start.sh"]
+# Start the backend server directly (more reliable than script)
+CMD ["node", "/app/backend/app.js"]
