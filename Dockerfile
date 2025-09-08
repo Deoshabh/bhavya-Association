@@ -51,8 +51,8 @@ COPY backend/ ./backend/
 # Copy built frontend from builder stage
 COPY --from=frontend-builder /app/frontend/build ./frontend/build
 
-# Copy production server that serves both API and frontend
-COPY production-server.js ./
+# Copy production server that serves both API and frontend  
+COPY production-server.js ./backend/
 
 # Create uploads directory and set permissions for all files
 RUN mkdir -p /app/backend/uploads && \
@@ -83,4 +83,4 @@ EXPOSE 5000
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the production server (combines API and frontend serving)
-CMD ["node", "/app/production-server.js"]
+CMD ["node", "/app/backend/production-server.js"]

@@ -1,12 +1,14 @@
 // Combined Production Server
 // Serves both API routes and frontend React app
+
+// Load environment variables (now running from backend directory)
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
 
 // Import backend app (without starting its server)
-const backendApp = require("./backend/app");
+const backendApp = require("./app");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -18,7 +20,7 @@ console.log(`📂 Working Directory: ${process.cwd()}`);
 console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
 
 // Check build directory exists
-const buildPath = path.join(__dirname, "frontend", "build");
+const buildPath = path.join(__dirname, "..", "frontend", "build");
 const indexPath = path.join(buildPath, "index.html");
 
 console.log(`📁 Build Path: ${buildPath}`);
