@@ -116,7 +116,7 @@
 .marquee-content {
   display: flex;
   flex-direction: column;
-  animation: marqueeVertical 30s linear infinite;
+  animation: marqueeVertical 4s linear infinite;
   padding: 0;
 }
 
@@ -198,7 +198,7 @@
 }
 
 .marquee-content {
-  animation: marqueeVertical 25s linear infinite;
+  animation: marqueeVertical 4s linear infinite;
 }
 
 /* Pause animation on hover */

@@ -82,9 +82,117 @@ connection.once('open', () => {
 });
 
 // Routes
-// Add your routes here like this:
-// const someRouter = require('./routes/some');
-// app.use('/api/some', someRouter);
+try {
+  console.log("Loading routes...");
+
+  const authRoutes = require("./routes/auth");
+  console.log("✅ Auth routes loaded");
+
+  const adminRoutes = require("./routes/admin");
+  console.log("✅ Admin routes loaded");
+
+  const userRoutes = require("./routes/users");
+  console.log("✅ User routes loaded");
+
+  const listingRoutes = require("./routes/listings");
+  console.log("✅ Listing routes loaded");
+
+  const newsRoutes = require("./routes/news");
+  console.log("✅ News routes loaded");
+
+  const questionRoutes = require("./routes/questions");
+  console.log("✅ Question routes loaded");
+
+  const answerRoutes = require("./routes/answers");
+  console.log("✅ Answer routes loaded");
+
+  const referralRoutes = require("./routes/referrals");
+  console.log("✅ Referral routes loaded");
+
+  const profileRoutes = require("./routes/profile");
+  console.log("✅ Profile routes loaded");
+
+  const directoryRoutes = require("./routes/directory");
+  console.log("✅ Directory routes loaded");
+
+  const formsRoutes = require("./routes/forms");
+  console.log("✅ Forms routes loaded");
+
+  const submissionsRoutes = require("./routes/submissions");
+  console.log("✅ Submissions routes loaded");
+
+  // Add health check route for testing
+  app.get("/health", (req, res) => {
+    res.json({
+      status: "Server is running",
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Add debug route for testing
+  app.get("/debug", (req, res) => {
+    res.json({
+      message: "Debug endpoint working",
+      env: process.env.NODE_ENV || "development",
+      timestamp: new Date().toISOString(),
+      mongoConnection: {
+        readyState: mongoose.connection.readyState,
+        readyStates: {
+          0: "disconnected",
+          1: "connected",
+          2: "connecting",
+          3: "disconnecting",
+        },
+        host: mongoose.connection.host,
+        name: mongoose.connection.name,
+      },
+    });
+  });
+
+  console.log("Applying routes to app...");
+
+  // Apply routes
+  app.use("/auth", authRoutes);
+  console.log("✅ Auth routes applied");
+
+  app.use("/admin", adminRoutes);
+  console.log("✅ Admin routes applied");
+
+  app.use("/users", userRoutes);
+  console.log("✅ User routes applied");
+
+  app.use("/listings", listingRoutes);
+  console.log("✅ Listing routes applied");
+
+  app.use("/news", newsRoutes);
+  console.log("✅ News routes applied");
+
+  app.use("/questions", questionRoutes);
+  console.log("✅ Question routes applied");
+
+  app.use("/answers", answerRoutes);
+  console.log("✅ Answer routes applied");
+
+  app.use("/referrals", referralRoutes);
+  console.log("✅ Referral routes applied");
+
+  app.use("/profile", profileRoutes);
+  console.log("✅ Profile routes applied");
+
+  app.use("/directory", directoryRoutes);
+  console.log("✅ Directory routes applied");
+
+  app.use("/forms", formsRoutes);
+  console.log("✅ Forms routes applied");
+
+  app.use("/submissions", submissionsRoutes);
+  console.log("✅ Submissions routes applied");
+
+  console.log("All routes loaded successfully!");
+} catch (error) {
+  console.error("❌ Error loading routes:", error.message);
+  console.error("Stack trace:", error.stack);
+}
 
 // Start server
 app.listen(port, () => {

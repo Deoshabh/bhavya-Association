@@ -1,27 +1,29 @@
-import React, { useContext, useState, useEffect } from "react";
+import {
+  Briefcase,
+  Calendar,
+  Heart,
+  Home,
+  LogIn,
+  LogOut,
+  Menu,
+  MessageCircle,
+  RefreshCw,
+  Share2,
+  User,
+  UserPlus,
+  Users,
+  X,
+} from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import {
-  Menu,
-  X,
-  User,
-  LogOut,
-  Home,
-  Users,
-  Briefcase,
-  LogIn,
-  UserPlus,
-  Calendar,
-  RefreshCw,
-  MessageCircle,
-  Share2,
-} from "lucide-react";
 
-import "../styles/Navbar.css"; // Make sure this path is correct
 import logo from "../assets/logo4-1.png"; // Adjust to your logo path
+import "../styles/Navbar.css"; // Make sure this path is correct
 
 const Navbar = () => {
-  const { user, loading, logout, clearCacheAndResetCookies } = useContext(AuthContext);
+  const { user, loading, logout, clearCacheAndResetCookies } =
+    useContext(AuthContext);
   const [loadingTooLong, setLoadingTooLong] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -71,8 +73,21 @@ const Navbar = () => {
           path: "/service-listings",
           icon: <Briefcase size={18} />,
         },
-        { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> },
-        { label: "Q&A", path: "/questions-answers", icon: <MessageCircle size={18} /> },
+        {
+          label: "Matrimonial",
+          path: "/matrimonial",
+          icon: <Heart size={18} />,
+        },
+        {
+          label: "Latest News",
+          path: "/latest-events",
+          icon: <Calendar size={18} />,
+        },
+        {
+          label: "Q&A",
+          path: "/questions-answers",
+          icon: <MessageCircle size={18} />,
+        },
         { label: "Referrals", path: "/referral", icon: <Share2 size={18} /> },
         { label: "Profile", path: "/profile", icon: <User size={18} /> },
         user.planType === "admin" && {
@@ -83,8 +98,21 @@ const Navbar = () => {
       ].filter(Boolean)
     : [
         { label: "Home", path: "/", icon: <Home size={18} /> },
-        { label: "Latest News", path: "/latest-events", icon: <Calendar size={18} /> },
-        { label: "Q&A", path: "/questions-answers", icon: <MessageCircle size={18} /> }
+        {
+          label: "Matrimonial",
+          path: "/matrimonial",
+          icon: <Heart size={18} />,
+        },
+        {
+          label: "Latest News",
+          path: "/latest-events",
+          icon: <Calendar size={18} />,
+        },
+        {
+          label: "Q&A",
+          path: "/questions-answers",
+          icon: <MessageCircle size={18} />,
+        },
       ];
 
   // Toggle the mobile menu
@@ -93,25 +121,21 @@ const Navbar = () => {
   return (
     <header className={`navbar-container ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar">
-          <Link to="/" className="navbar-logo">
-            <img
-              src={logo}
-              alt="Bhavya Associates Logo"
-              className="logo-image"
-            />
-            <div className="logo-container">
-              <div className="main-logo-text" style={{ fontSize: '0.9em' }}>
-                <span className="logo-text">BHAVYA</span>
-                
-              </div>
-              <div className="sub-logo-text" style={{ fontSize: '0.9em' }}>
-                <span className="highlighted">Bh</span>arat <span className="highlighted">Vy</span>apar <span className="highlighted">A</span>ssociates
-              </div>
+        <Link to="/" className="navbar-logo">
+          <img src={logo} alt="Bhavya Associates Logo" className="logo-image" />
+          <div className="logo-container">
+            <div className="main-logo-text" style={{ fontSize: "0.9em" }}>
+              <span className="logo-text">BHAVYA</span>
             </div>
-          </Link>
-          
-          
-          {/* Desktop Nav (hidden on mobile) */}
+            <div className="sub-logo-text" style={{ fontSize: "0.9em" }}>
+              <span className="highlighted">Bh</span>arat{" "}
+              <span className="highlighted">Vy</span>apar{" "}
+              <span className="highlighted">A</span>ssociates
+            </div>
+          </div>
+        </Link>
+
+        {/* Desktop Nav (hidden on mobile) */}
         <nav className="desktop-nav">
           <ul className="nav-menu">
             {navItems.map((item, idx) => (
@@ -139,8 +163,8 @@ const Navbar = () => {
               </a>
             </li>
             <li className="nav-item">
-              <button 
-                onClick={handleClearCache} 
+              <button
+                onClick={handleClearCache}
                 className="nav-link clear-cache"
                 aria-label="Clear Cache"
               >
@@ -231,7 +255,7 @@ const Navbar = () => {
                 <span>Events</span>
               </a>
             </li>
-            
+
             {/* Mobile Auth items */}
             {!loading &&
               (user ? (
