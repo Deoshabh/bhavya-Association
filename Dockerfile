@@ -85,5 +85,5 @@ EXPOSE 5000
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Start the backend server directly (more reliable than script)
+# Start the backend server (which includes API routes and health check)
 CMD ["node", "/app/backend/app.js"]

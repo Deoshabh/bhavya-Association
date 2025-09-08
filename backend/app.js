@@ -1,17 +1,17 @@
-require('dotenv').config(); // Load environment variables first
-const express = require('express');
-const connectDB = require('./config/db');
-const cors = require('cors');
-const authRoutes = require('./routes/auth');
-const profileRoutes = require('./routes/profile');
-const directoryRoutes = require('./routes/directory');
-const usersRoutes = require('./routes/users');
-const listingsRoutes = require('./routes/listings'); 
-const adminRoutes = require('./routes/admin');
-const newsRoutes = require('./routes/news');
-const questionsRoutes = require('./routes/questions');
-const answersRoutes = require('./routes/answers'); 
-const referralRoutes = require('./routes/referrals');
+require("dotenv").config(); // Load environment variables first
+const express = require("express");
+const connectDB = require("./config/db");
+const cors = require("cors");
+const authRoutes = require("./routes/auth");
+const profileRoutes = require("./routes/profile");
+const directoryRoutes = require("./routes/directory");
+const usersRoutes = require("./routes/users");
+const listingsRoutes = require("./routes/listings");
+const adminRoutes = require("./routes/admin");
+const newsRoutes = require("./routes/news");
+const questionsRoutes = require("./routes/questions");
+const answersRoutes = require("./routes/answers");
+const referralRoutes = require("./routes/referrals");
 const matrimonialRoutes = require("./routes/matrimonial");
 const formsRoutes = require("./routes/forms");
 const submissionsRoutes = require("./routes/submissions");
@@ -68,6 +68,22 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Serve uploaded files statically
 app.use("/uploads", express.static("uploads"));
+
+// Serve frontend build files (for production deployment)
+if (process.env.NODE_ENV === "production") {
+  const path = require("path");
+  const frontendBuildPath = path.join(__dirname, "..", "frontend", "build");
+
+  // Serve static files from React build
+  app.use(
+    express.static(frontendBuildPath, {
+      maxAge: "1d",
+      index: false, // We'll handle index.html with our catch-all route
+    })
+  );
+
+  console.log(`📂 Serving frontend from: ${frontendBuildPath}`);
+}
 
 // Simple health check endpoint for deployment monitoring
 app.get("/health", (req, res) => {
@@ -135,9 +151,48 @@ app.use("/api/forms", requireDbConnection, formsRoutes);
 app.use("/api/submissions", requireDbConnection, submissionsRoutes);
 
 // Debug routes
-if (process.env.NODE_ENV !== 'production') {
-  const debugUploadRoutes = require('./routes/debug-upload');
-  app.use('/api/debug', debugUploadRoutes);
+if (process.env.NODE_ENV !== "production") {
+  const debugUploadRoutes = require("./routes/debug-upload");
+  app.use("/api/debug", debugUploadRoutes);
+}
+
+// Catch-all handler for frontend routes (must be after API routes)
+if (process.env.NODE_ENV === "production") {
+  const path = require("path");
+  const fs = require("fs");
+
+  app.get("*", (req, res) => {
+    // Skip API routes that weren't matched above
+    if (req.path.startsWith("/api/")) {
+      return res.status(404).json({ error: "API endpoint not found" });
+    }
+
+    const indexPath = path.join(
+      __dirname,
+      "..",
+      "frontend",
+      "build",
+      "index.html"
+    );
+
+    // Serve React app's index.html for all non-API routes
+    fs.readFile(indexPath, "utf8", (err, data) => {
+      if (err) {
+        console.error(
+          `❌ Error serving frontend for ${req.path}:`,
+          err.message
+        );
+        return res.status(500).send(`
+          <h1>BHAVYA - Server Error</h1>
+          <p>Could not serve the requested page</p>
+          <p>Path: ${req.path}</p>
+        `);
+      }
+
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.send(data);
+    });
+  });
 }
 
 // Initialize database connection before setting up routes
@@ -145,49 +200,54 @@ async function startServer() {
   try {
     // Connect to database first - will throw error if connection fails
     await connectDB();
-    console.log('Database connection established successfully');
-    
+    console.log("Database connection established successfully");
+
     // Set up a periodic connection check to ensure we stay connected
     setInterval(async () => {
-      const { isDbConnected, ensureConnected } = require('./config/db');
+      const { isDbConnected, ensureConnected } = require("./config/db");
       if (!isDbConnected()) {
-        console.log('Database connection check: Disconnected - attempting to reconnect...');
+        console.log(
+          "Database connection check: Disconnected - attempting to reconnect..."
+        );
         try {
           await ensureConnected();
-          console.log('Database reconnection successful');
+          console.log("Database reconnection successful");
         } catch (err) {
-          console.error('Failed to reestablish database connection:', err.message);
+          console.error(
+            "Failed to reestablish database connection:",
+            err.message
+          );
         }
       }
     }, 30000); // Check every 30 seconds
-    
+
     // Validate schema once database is connected
-    if (process.env.NODE_ENV !== 'test') {
-      console.log('Validating user schema...');
+    if (process.env.NODE_ENV !== "test") {
+      console.log("Validating user schema...");
       try {
         await validateUserSchema();
       } catch (schemaErr) {
-        console.error('Schema validation error:', schemaErr);
+        console.error("Schema validation error:", schemaErr);
         // Continue despite schema errors - they're not fatal
       }
     }
 
     // After connecting to database and registering all models
     verifyModels();
-    
+
     // Start the server only after database is connected
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, '0.0.0.0', () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
     console.error(`Failed to start server: ${err.message}`);
-    console.error('Application cannot start without database connection');
-    
-    if (process.env.NODE_ENV === 'production') {
+    console.error("Application cannot start without database connection");
+
+    if (process.env.NODE_ENV === "production") {
       process.exit(1); // Exit in production
     } else {
-      console.log('Retrying database connection in 5 seconds...');
+      console.log("Retrying database connection in 5 seconds...");
       setTimeout(() => startServer(), 5000); // Retry in development
     }
   }
