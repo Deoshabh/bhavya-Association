@@ -8,7 +8,7 @@ const path = require("path");
 const fs = require("fs");
 
 // Import backend app (without auto-starting its server)
-const backendApp = require("./backend/app");
+const backendApp = require("./app");
 
 const app = express();
 const port = process.env.PORT || 5000;
