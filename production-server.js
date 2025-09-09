@@ -104,18 +104,7 @@ app.get("/health", (req, res) => {
 // Mount backend API routes under /api
 console.log("🔧 Mounting backend API routes under /api...");
 app.use("/api", backendApp);
-console.log("✅ Backend API routes mounted successfully");
-
-// Test route to verify backend mounting
-app.get("/api/test", (req, res) => {
-  res.json({
-    message: "Backend API is working",
-    timestamp: new Date().toISOString(),
-    mountedCorrectly: true,
-  });
-});
-
-// Serve static files from build directory
+console.log("✅ Backend API routes mounted successfully"); // Serve static files from build directory
 app.use(
   express.static(buildPath, {
     maxAge: "1d",

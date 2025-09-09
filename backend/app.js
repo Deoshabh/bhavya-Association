@@ -91,7 +91,7 @@ app.get("/health", (req, res) => {
 });
 
 // Basic health check endpoint - doesn't require DB connection
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   // Check database connection status
   const { isDbConnected, getConnectionState } = require("./config/db");
   const connectionState = getConnectionState();
@@ -120,7 +120,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Debug endpoint
-app.get("/api/debug", (req, res) => {
+app.get("/debug", (req, res) => {
   // Check database connection status
   const { isDbConnected, getConnectionState } = require("./config/db");
   const connectionState = getConnectionState();
@@ -136,28 +136,29 @@ app.get("/api/debug", (req, res) => {
 });
 
 // Apply DB connection middleware to all database-dependent routes
-app.use("/api/auth", requireDbConnection, authRoutes);
-app.use("/api/profile", requireDbConnection, profileRoutes);
-app.use("/api/directory", requireDbConnection, directoryRoutes);
-app.use("/api/users", requireDbConnection, usersRoutes);
-app.use("/api/listings", requireDbConnection, listingsRoutes);
-app.use("/api/admin", requireDbConnection, adminRoutes);
-app.use("/api/news", requireDbConnection, newsRoutes);
-app.use("/api/questions", requireDbConnection, questionsRoutes);
-app.use("/api/answers", requireDbConnection, answersRoutes);
-app.use("/api/referrals", requireDbConnection, referralRoutes);
-app.use("/api/matrimonial", requireDbConnection, matrimonialRoutes);
-app.use("/api/forms", requireDbConnection, formsRoutes);
-app.use("/api/submissions", requireDbConnection, submissionsRoutes);
+app.use("/auth", requireDbConnection, authRoutes);
+app.use("/profile", requireDbConnection, profileRoutes);
+app.use("/directory", requireDbConnection, directoryRoutes);
+app.use("/users", requireDbConnection, usersRoutes);
+app.use("/listings", requireDbConnection, listingsRoutes);
+app.use("/admin", requireDbConnection, adminRoutes);
+app.use("/news", requireDbConnection, newsRoutes);
+app.use("/questions", requireDbConnection, questionsRoutes);
+app.use("/answers", requireDbConnection, answersRoutes);
+app.use("/referrals", requireDbConnection, referralRoutes);
+app.use("/matrimonial", requireDbConnection, matrimonialRoutes);
+app.use("/forms", requireDbConnection, formsRoutes);
+app.use("/submissions", requireDbConnection, submissionsRoutes);
 
 // Debug routes
 if (process.env.NODE_ENV !== "production") {
   const debugUploadRoutes = require("./routes/debug-upload");
-  app.use("/api/debug", debugUploadRoutes);
+  app.use("/debug", debugUploadRoutes);
 }
 
 // Catch-all handler for frontend routes (must be after API routes)
-if (process.env.NODE_ENV === "production") {
+// Only add this when app.js is run directly, not when imported by production-server.js
+if (process.env.NODE_ENV === "production" && require.main === module) {
   const path = require("path");
   const fs = require("fs");
 
