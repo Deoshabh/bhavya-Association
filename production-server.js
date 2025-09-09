@@ -8,7 +8,7 @@ const path = require("path");
 const fs = require("fs");
 
 // Import backend app (without auto-starting its server)
-const backendApp = require("./app");
+const backendApp = require("./backend/app");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -52,7 +52,17 @@ try {
 
 // Enhanced CORS middleware with support for bhavyasangh.com
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://bhavyasangh.com");
+  const allowedOrigins = [
+    "https://bhavyasangh.com",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
@@ -62,6 +72,14 @@ app.use((req, res, next) => {
     return res.status(200).end();
   }
 
+  next();
+});
+
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(
+    `📨 ${req.method} ${req.path} - Origin: ${req.headers.origin || "none"}`
+  );
   next();
 });
 
@@ -84,7 +102,18 @@ app.get("/health", (req, res) => {
 });
 
 // Mount backend API routes under /api
+console.log("🔧 Mounting backend API routes under /api...");
 app.use("/api", backendApp);
+console.log("✅ Backend API routes mounted successfully");
+
+// Test route to verify backend mounting
+app.get("/api/test", (req, res) => {
+  res.json({
+    message: "Backend API is working",
+    timestamp: new Date().toISOString(),
+    mountedCorrectly: true,
+  });
+});
 
 // Serve static files from build directory
 app.use(
