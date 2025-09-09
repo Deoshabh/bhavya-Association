@@ -50,15 +50,26 @@ try {
   process.exit(1);
 }
 
-// Simple CORS middleware
+// Enhanced CORS middleware with support for bhavyasangh.com
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "https://bhavyasangh.com");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   next();
+});
+
+// API Health check route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+  });
 });
 
 // Health check - IMPORTANT for container orchestration
